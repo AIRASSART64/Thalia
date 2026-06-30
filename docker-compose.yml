@@ -1,0 +1,75 @@
+
+
+services:
+  phpmyadmin:
+    image: phpmyadmin:5.2
+    container_name: thalia-phpmyadmin
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      - PMA_HOST=db
+      - PMA_ARBITRARY=1
+    networks:
+      - thalia-network
+  # 1. Base de données MySQL
+  db:
+    image: mysql:8.0
+    container_name: thalia-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: thalia_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - thalia-network
+
+  # 2. Conteneur PHP pour Symfony
+  thalia-backend:
+    build:
+      context: .
+      dockerfile: docker/backend/Dockerfile
+    container_name: thalia-backend
+    volumes:
+      - ./thalia-backend:/var/www/thalia-backend
+    depends_on:
+      - db
+    networks:
+      - thalia-network
+
+  # 3. Serveur Web Nginx
+  webserver:
+    image: nginx:alpine
+    container_name: thalia-webserver
+    ports:
+      - "8000:80"
+    volumes:
+      - ./thalia-backend:/var/www/thalia-backend
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - thalia-backend
+    networks:
+      - thalia-network
+    # 4. Conteneur React  
+  frontend:
+    image: node:20-alpine
+    container_name: thalia-frontend
+    working_dir: /app
+    volumes:
+      - ./thalia-frontend:/app
+    ports:
+      - "3000:3000"
+    environment:
+      - WATCHPACK_POLLING=true
+    tty: true
+    networks:
+      - thalia-network
+
+networks:
+  thalia-network:
+    driver: bridge
+
+volumes:
+  db_data:
