@@ -1,5 +1,7 @@
 
 
+# version: '3.8'
+
 services:
   phpmyadmin:
     image: phpmyadmin:5.2
@@ -12,6 +14,7 @@ services:
       - PMA_ARBITRARY=1
     networks:
       - thalia-network
+  
   # 1. Base de données MySQL
   db:
     image: mysql:8.0
@@ -32,12 +35,27 @@ services:
       context: .
       dockerfile: docker/backend/Dockerfile
     container_name: thalia-backend
+    dns: 
+      - 8.8.8.8
+      - 1.1.1.1
     volumes:
       - ./thalia-backend:/var/www/thalia-backend
+      - /var/www/thalia-backend/var/cache
+      - /var/www/thalia-backend/var/log
     depends_on:
       - db
     networks:
       - thalia-network
+
+  
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: thalia-mailpit
+    ports:
+      - "1025:1025" # Port SMTP
+      - "8025:8025" # Interface Web (http://localhost:8025)
+    networks:
+      - thalia-network 
 
   # 3. Serveur Web Nginx
   webserver:
@@ -52,24 +70,10 @@ services:
       - thalia-backend
     networks:
       - thalia-network
-    # 4. Conteneur React  
-  frontend:
-    image: node:20-alpine
-    container_name: thalia-frontend
-    working_dir: /app
-    volumes:
-      - ./thalia-frontend:/app
-    ports:
-      - "3000:3000"
-    environment:
-      - WATCHPACK_POLLING=true
-    tty: true
-    networks:
-      - thalia-network
 
 networks:
   thalia-network:
     driver: bridge
 
 volumes:
-  db_data:
+  db_data: 

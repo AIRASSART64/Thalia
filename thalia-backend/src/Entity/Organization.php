@@ -36,6 +36,9 @@ class Organization
     #[ORM\OneToMany(targetEntity: User::class, mappedBy: 'organization', orphanRemoval: true)]
     private Collection $users;
 
+    #[ORM\Column(length: 14, nullable: true)]
+    private ?string $siret = null;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -120,6 +123,18 @@ class Organization
                 $user->setOrganization(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getSiret(): ?string
+    {
+        return $this->siret;
+    }
+
+    public function setSiret(?string $siret): static
+    {
+        $this->siret = $siret;
 
         return $this;
     }

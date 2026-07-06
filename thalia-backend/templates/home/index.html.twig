@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Thalia - Accueil{% endblock %}
+
+{% block body %}
+<div class="bg-gray-50 min-h-screen font-sans flex flex-col justify-between">
+
+    <main class="flex-grow flex items-center">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid lg:grid-cols-2 gap-12 items-center">
+            
+            <div class="space-y-6">
+                <div class="inline-flex items-center gap-2 bg-emerald-50 text-emerald-800 px-3 py-1 rounded-full text-xs font-semibold">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Vérification SIRET via l'API Culture opérationnelle
+                </div>
+                
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 tracking-tight leading-none">
+                    Pilotez votre structure avec <span class="text-indigo-600">Thalia</span>
+                </h1>
+                
+                <p class="text-lg text-gray-600 max-w-xl">
+                    La plateforme multi-tenant sécurisée et pensée exclusivement pour les entrepreneurs de spectacles vivants.
+                </p>
+            </div>
+
+            <div class="justify-self-center lg:justify-self-end w-full max-w-md">
+                {% if not app.user %}
+                    
+                    {{ include('security/_login.html.twig') }}
+                    
+                {% else %}
+                    <div class="bg-white border border-gray-100 shadow-xl rounded-2xl p-8 text-center space-y-4">
+                        <div class="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center mx-auto text-xl font-bold">✓</div>
+                        <h3 class="text-lg font-bold text-gray-900">Session active</h3>
+                        <p class="text-sm text-gray-500">Vous êtes déjà identifié sur l'application.</p>
+                        {# <a href="{{ path('dashboard') }}" class="block w-full text-center bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-lg text-sm transition">
+                            Accéder au Tableau de Bord
+                        </a> #}
+                    </div>
+                {% endif %}
+            </div>
+
+        </div>
+    </main>
+
+</div>
+{% endblock %}
