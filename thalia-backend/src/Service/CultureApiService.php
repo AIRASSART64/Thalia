@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 // Service qui exploite l'api entrepreneurs de spectacle du MCC lors de la demande de création d'un nouveau compte utilisateur
@@ -15,9 +16,12 @@ class CultureApiService
         $this->httpClient = $httpClient;
     }
 
+
     // Récupération depuis l'api de l'organisation par son n° de SIRET
     public function fetchOrganizationBySiret(string $siret): ?array
     {
+   
+    
         try {
             $response = $this->httpClient->request('GET', 'https://data.culture.gouv.fr/api/explore/v2.1/catalog/datasets/declarations-des-entrepreneurs-de-spectacles-vivants/records', [
                 'query' => [

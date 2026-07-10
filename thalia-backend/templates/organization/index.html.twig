@@ -1,0 +1,216 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion Administrative - Thalia{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-slate-50/50 p-6 lg:p-10 font-sans">
+    
+    <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+            <nav class="flex text-[11px] font-semibold text-slate-400 uppercase tracking-wider gap-2 mb-2">
+                <a href="#" class="hover:text-slate-600">Admin</a>
+                <span>&gt;</span>
+                <a href="#" class="hover:text-slate-600">Profil</a>
+                <span>&gt;</span>
+                <span class="text-blue-500">Établissement</span>
+            </nav>
+            <h1 class="text-2xl font-black text-slate-900 tracking-tight">
+                Gestion Administrative de l'Établissement
+            </h1>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <a href="#" class="inline-flex items-center gap-2 bg-white border border-slate-200 text-slate-700 font-semibold px-4 py-2 rounded-xl text-xs shadow-sm hover:bg-slate-50 transition">
+                <i class="fa-solid fa-download text-slate-400"></i> Exporter KBIS
+            </a>
+            <a href="#" class="inline-flex items-center gap-2 bg-indigo-600 text-white font-semibold px-4 py-2 rounded-xl text-xs shadow-sm hover:bg-indigo-700 transition">
+                <i class="fa-solid fa-pen text-indigo-200"></i> Modifier les infos
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 lg:col-span-2 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-8 h-8 bg-blue-50 text-blue-500 rounded-lg flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-gavel"></i>
+                    </div>
+                    <h2 class="text-sm font-bold text-slate-800 tracking-tight">Informations Légales</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
+                    <div>
+                        <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Raison Sociale</span>
+                        <p class="text-sm font-extrabold text-slate-900 leading-snug">{{ organization.name|default('Non renseignée') }}</p>
+                    </div>
+                    <div>
+                        <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Statut Juridique</span>
+                        <p class="text-sm font-medium text-slate-700">{{ organization.legalStatus|default('Non renseigné') }}</p>
+                    </div>
+                  <div class="md:mt-4">
+    <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Numéro SIRET</span>
+    <p class="text-sm font-mono text-slate-800 tracking-spaced">
+        {% if organization.siret and organization.siret|length == 14 %}
+            {{ organization.siret|slice(0, 3) }} {{ organization.siret|slice(3, 3) }} {{ organization.siret|slice(6, 3) }} {{ organization.siret|slice(9, 5) }}
+        {% else %}
+            {{ organization.siret|default('Non renseigné') }}
+        {% endif %}
+    </p>
+</div>
+                    <div class="md:mt-4">
+                        <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Numéro de TVA Intracommunautaire</span>
+                        <p class="text-sm font-mono text-slate-800">{{ organization.vatNumber|default('Non renseigné') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+  
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 lg:col-span-1">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-8 h-8 bg-blue-50 text-blue-500 rounded-lg flex items-center justify-center text-sm">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h2 class="text-sm font-bold text-slate-800 tracking-tight">Licences & Réglementation</h2>
+            </div>
+
+            <div class="space-y-4 text-xs">
+                <div class="flex items-center justify-between py-2 border-b border-slate-50">
+                    <span class="text-slate-500 font-medium">Licences d'entrepreneur</span>
+                    <span class="px-2.5 py-1 bg-amber-50 text-amber-600 rounded-full text-[11px] font-bold tracking-wider border border-amber-100/50">
+                        {{ organization.licence_number|default('En attente') }}
+                    </span>
+                </div>
+                <div class="flex items-center justify-between py-2 border-b border-slate-50">
+                    <span class="text-slate-500 font-medium">Catégorie ERP</span>
+                    <span class="font-bold text-slate-900">{{ organization.erpCategory ? organization.erpCategory.value : 'Non définie' }}</span>
+                </div>
+                <div class="flex items-center justify-between py-2 border-b border-slate-50">
+                    <span class="text-slate-500 font-medium">Type ERP</span>
+                    <span class="font-bold text-slate-900">{{ organization.erpType ? organization.erpType.name|replace({'TYPE_': 'Type '}) : 'Non défini' }}</span>
+                </div>
+                {# <div class="flex items-center justify-between py-2">
+                    <div class="text-right">
+                        <span class="font-extrabold text-slate-900 block text-sm">{{ organization.safetyCapacity ? organization.safetyCapacity|number_format(0, ',', ' ') ~ ' personnes' : 'Non définie' }}</span>
+                        <span class="text-[9px] text-slate-400 font-medium block">Vérifié récemment</span>
+                    </div>
+                </div> #}
+            </div>
+        </div>
+
+       
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-8 h-8 bg-blue-50 text-blue-500 rounded-lg flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-location-dot"></i>
+                    </div>
+                    <h2 class="text-sm font-bold text-slate-800 tracking-tight">Coordonnées & Siège</h2>
+                </div>
+
+                <div class="space-y-4 text-xs text-slate-600">
+                    <div class="flex items-start gap-3">
+                        <i class="fa-solid fa-map-marked-alt text-slate-400 mt-0.5 text-sm"></i>
+                        <p class="font-medium whitespace-pre-line leading-relaxed">{{ organization.adress|default('Pas d\'adresse renseignée') }}</p>
+                    </div>
+                    {# <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-envelope text-slate-400 text-sm"></i>
+                        <a href="mailto:#" class="text-blue-500 font-semibold hover:underline">{{ organization.email|default('contact@thalia.app') }}</a>
+                    </div> #}
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-phone text-slate-400 text-sm"></i>
+                        <span class="font-medium text-slate-800">{{ organization.phone|default('Non renseigné') }}</span>
+                    </div>
+                </div>
+            </div>
+
+     
+            <div class="mt-6 h-28 bg-slate-100 rounded-xl overflow-hidden relative border border-slate-200/50">
+                <div class="absolute inset-0 opacity-40 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:12px_12px] bg-slate-50"></div>
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+                    <div class="w-7 h-7 bg-blue-500 text-white rounded-full flex items-center justify-center shadow-md animate-bounce">
+                        <i class="fa-solid fa-location-dot text-xs"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+      
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-8 h-8 bg-blue-50 text-blue-500 rounded-lg flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <h2 class="text-sm font-bold text-slate-800 tracking-tight">Responsables</h2>
+                </div>
+
+                <div class="space-y-3">
+                
+                    {% for user in organization.users|slice(0, 2) %}
+                        <div class="flex items-center gap-3 p-3 bg-slate-50/50 rounded-xl border border-slate-100">
+                            <div class="w-10 h-10 bg-slate-200 rounded-xl font-bold text-xs text-slate-600 flex items-center justify-center uppercase border border-slate-300/40">
+                                {{ user.firstName|slice(0,1) }}{{ user.lastName|slice(0,1) }}
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-900">{{ user.firstName }} {{ user.lastName }}</h4>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Collaborateur</p>
+                            </div>
+                        </div>
+                    {% else %}
+                        <p class="text-xs text-slate-400">Aucun responsable enregistré.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="text-center pt-4 border-t border-slate-50 mt-4">
+                <a href="#" class="text-xs text-blue-500 font-bold hover:underline">Gérer l'organigramme</a>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-8 h-8 bg-blue-50 text-blue-500 rounded-lg flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-percent"></i>
+                    </div>
+                    <h2 class="text-sm font-bold text-slate-800 tracking-tight">Configuration Fiscale</h2>
+                </div>
+
+                <p class="text-[11px] text-slate-400 leading-relaxed mb-4">
+                    Définissez les taux de taxation par défaut appliqués à vos ventes de billetterie et prestations annexes.
+                </p>
+
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between p-3.5 bg-slate-50/50 rounded-xl border border-slate-100">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-900">TVA Spectacle</h4>
+                            <p class="text-[9px] text-slate-400 font-medium mt-0.5">Billetterie de spectacle vivant</p>
+                        </div>
+                        <span class="bg-blue-50 text-blue-600 text-xs font-extrabold px-2.5 py-1 rounded-lg border border-blue-100">
+                            {{ organization.vatSpectacleRate|default('5.5') }}%
+                        </span>
+                    </div>
+
+                    <div class="flex items-center justify-between p-3.5 bg-slate-50/50 rounded-xl border border-slate-100">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-900">TVA Standard</h4>
+                            <p class="text-[9px] text-slate-400 font-medium mt-0.5">Produits dérivés et bar</p>
+                        </div>
+                        <span class="bg-slate-100 text-slate-600 text-xs font-extrabold px-2.5 py-1 rounded-lg border border-slate-200/60">
+                            {{ organization.vatStandardRate|default('20.0') }}%
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-[9px] text-slate-400 font-medium mt-4 leading-relaxed">
+                Toute modification fiscale impactera les facturations futures uniquement.
+            </p>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -1,106 +1,205 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Espace SuperAdmin - Thalia{% endblock %}
+{% block title %}Console d'Administration - Thalia{% endblock %}
 
 {% block body %}
 <div class="bg-gray-50 min-h-screen font-sans">
 
-
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
         
-        {# Titre et Introduction #}
-        <div class="mb-8">
-            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Gestion des accès</h1>
-            <p class="text-gray-500 mt-1">Activez ou révoquez l'accès des structures à la plateforme Thalia.</p>
+   
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Console SuperAdmin</h1>
+            <p class="text-gray-500 mt-1">Pilotage des établissements et des comptes utilisateurs.</p>
         </div>
 
-        {# Flash Messages (Style moderne) #}
+      
         {% for label, messages in app.flashes %}
             {% for message in messages %}
-                <div class="mb-6 p-4 rounded-xl border {% if label == 'success' %}bg-emerald-50 border-emerald-100 text-emerald-800{% else %}bg-amber-50 border-amber-100 text-amber-800{% endif %} text-sm shadow-sm flex items-center gap-3">
+                <div class="p-4 rounded-xl border {% if label == 'success' %}bg-emerald-50 border-emerald-100 text-emerald-800{% else %}bg-amber-50 border-amber-100 text-amber-800{% endif %} text-sm shadow-sm flex items-center gap-3">
                     <span class="w-2 h-2 rounded-full {% if label == 'success' %}bg-emerald-500{% else %}bg-amber-500{% endif %}"></span>
                     {{ message }}
                 </div>
             {% endfor %}
         {% endfor %}
 
-        {# Carte principale avec Tableau #}
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-xl overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-gray-50/50 border-b border-gray-100">
-                            <th class="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Utilisateur</th>
-                            <th class="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Structure</th>
-                            <th class="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Statut</th>
-                            <th class="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-50">
-                    {% for user in users %}
-                        <tr class="hover:bg-gray-50/30 transition">
-                            <td class="px-6 py-5">
-                                <div class="flex flex-col">
-                                    <span class="text-sm font-bold text-gray-900">{{ user.lastName|upper }} {{ user.firstName }}</span>
-                                    <span class="text-xs text-gray-400">{{ user.email }}</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-5">
-                                <span class="text-sm text-gray-600">
+     
+        <section class="space-y-4">
+            <div class="border-b border-gray-200 pb-3">
+                <h2 class="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
+                    <i class="fa-solid fa-building text-slate-400 text-lg"></i>
+                    Gestion des Établissements
+                </h2>
+                <p class="text-xs text-gray-400">Gérer et modifier tous les Etablissements</p>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-xl overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50/50 border-b border-gray-100">
+                                <th class="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Structure / Etablissement</th>
+                                <th class="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider hidden md:table-cell">SIRET</th>
+                                <th class="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50">
+                        
+                        {% set checked_orgs = [] %}
+                        {% set total_orgs = 0 %}
+                        
+                        {% for user in users %}
+                            {% if user.organization and user.organization.id not in checked_orgs %}
+                                {% set checked_orgs = checked_orgs|merge([user.organization.id]) %}
+                                {% set total_orgs = total_orgs + 1 %}
+                                <tr class="hover:bg-gray-50/30 transition">
+                                    <td class="px-6 py-5">
+                                        <div class="flex items-center gap-3">
+                    
+                                            <div class="flex flex-col">
+                                                <span class="text-sm font-bold text-gray-900">{{ user.organization.name }}</span>
+                                                <span class="text-xs text-gray-400 md:hidden font-mono">SIRET: {{ user.organization.siret|default('Non renseigné') }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-5 hidden md:table-cell">
+                                        <div class="text-xs text-gray-600 flex flex-col gap-0.5">
+                                            <div><span class="font-medium text-gray-400">SIRET :</span> <span class="font-mono">{{ user.organization.siret|default('-') }}</span></div>
+                                            {# <div><span class="font-medium text-gray-400"></span> {{ user.organization.erpType.value|default('-') }} / Catégorie {{ user.organization.erpCategory.value|default('-') }}</div> #}
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-5">
+                                        <div class="flex items-center justify-end gap-2">
+                                        
+                                            <a href="{{ path('superadmin_organization_edit', {'id': user.organization.id}) }}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 bg-indigo-50 border border-indigo-100 px-3 py-2 rounded-xl hover:bg-indigo-100 transition shadow-sm" title="Modifier l'établissement">
+                                                <i class="fa-solid fa-pen-to-square"></i> <span class="hidden sm:inline">Modifier</span>
+                                            </a>
+                                            
+                                           
+                                            
+                                            <form action="{{ path('superadmin_organization_delete', {'id': user.organization.id}) }}" method="POST" class="inline" onsubmit="return confirm('Confirmez-vous la suppression irréversible de cet établissement ?');">
+
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete_organization_' ~ user.organization.id) }}">                                            
+                                            <button type="submit" class="text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-100 px-3 py-2 rounded-xl hover:bg-rose-100 transition shadow-sm" title="Supprimer définitivement l'utilisateur">
+                                            <i class="fa-solid fa-user-slash"></i> Supprimer
+                                            </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if total_orgs == 0 %}
+                            <tr>
+                                <td colspan="3" class="px-6 py-12 text-center text-gray-400 italic">
+                                    Aucun établissement actif répertorié sur la plateforme.
+                                </td>
+                            </tr>
+                        {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section class="space-y-4">
+            <div class="border-b border-gray-200 pb-3">
+                <h2 class="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
+                    <i class="fa-solid fa-users text-slate-400 text-lg"></i>
+                    Gestion des Utilisateurs
+                </h2>
+                <p class="text-xs text-gray-400">Modifiez le statut d'accès (Activer / Désactiver) ou révoquez définitivement un compte.</p>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-gray-100 shadow-xl overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-gray-50/50 border-b border-gray-100">
+                                <th class="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Utilisateur</th>
+                                <th class="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider hidden sm:table-cell">Rattachement</th>
+                                <th class="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Statut</th>
+                                <th class="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50">
+                        {% for user in users %}
+                            <tr class="hover:bg-gray-50/30 transition">
+                                <td class="px-6 py-5">
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-bold text-gray-900">{{ user.lastName|upper }} {{ user.firstName }}</span>
+                                        <span class="text-xs text-gray-400">{{ user.email }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-5 hidden sm:table-cell">
                                     {% if user.organization %}
-                                        <div class="flex items-center gap-2">
-                                            <i class="fa-solid fa-building text-gray-300 text-xs"></i>
+                                        <div class="inline-flex items-center gap-1.5 text-xs text-gray-600 font-medium bg-slate-50 border border-slate-100 px-2 py-1 rounded-lg">
+                                            <i class="fa-solid fa-building text-gray-400 text-[10px]"></i>
                                             {{ user.organization.name }}
                                         </div>
                                     {% else %}
-                                        <span class="text-gray-300 italic">Aucune</span>
+                                        <span class="text-xs text-gray-300 italic">Aucune</span>
                                     {% endif %}
-                                </span>
-                            </td>
-                            <td class="px-6 py-5">
-                                {% if user.isActive %}
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2"></span>
-                                        Actif
-                                    </span>
-                                {% else %}
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-100">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-2"></span>
-                                        En attente
-                                    </span>
-                                {% endif %}
-                            </td>
-                            <td class="px-6 py-5 text-right">
-                                {% if app.user and user.email == app.user.email %}
-                                    <span class="text-[10px] font-bold text-gray-300 uppercase bg-gray-50 px-2 py-1 rounded">
-                                        <i class="fa-solid fa-lock mr-1"></i> Mon Compte
-                                    </span>
-                                {% else %}
-                                    <form action="{{ path('superadmin_user_toggle_active', {'id': user.id}) }}" method="POST" class="inline">
-                                        {% if user.isActive %}
-                                            <button class="text-xs font-semibold text-amber-600 bg-amber-50 px-4 py-2 rounded-lg hover:bg-amber-100 transition border border-amber-100">
-                                                Désactiver
-                                            </button>
+                                </td>
+                                <td class="px-6 py-5">
+                                    {% if user.isActive %}
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2"></span>
+                                            Actif
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-100">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500 mr-2"></span>
+                                            En attente / Bloqué
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-5">
+                                    <div class="flex items-center justify-end gap-2">
+                                        {% if app.user and user.email == app.user.email %}
+                                            <span class="text-[10px] font-bold text-gray-400 uppercase bg-gray-100 border border-gray-200 px-2.5 py-2 rounded-xl">
+                                                <i class="fa-solid fa-lock mr-1"></i> Mon Compte
+                                            </span>
                                         {% else %}
-                                            <button class="text-xs font-semibold text-white bg-indigo-600 px-4 py-2 rounded-lg hover:bg-indigo-700 transition shadow-sm shadow-indigo-100">
-                                                Activer le compte
+                                       
+                                            <form action="{{ path('superadmin_user_toggle_active', {'id': user.id}) }}" method="POST" class="inline">
+                                                {% if user.isActive %}
+                                                    <button type="submit" class="text-xs font-semibold text-amber-600 bg-amber-50 border border-amber-100 px-3 py-2 rounded-xl hover:bg-amber-100 transition shadow-sm">
+                                                        Désactiver
+                                                    </button>
+                                                {% else %}
+                                                    <button type="submit" class="text-xs font-semibold text-white bg-indigo-600 px-3 py-2 rounded-xl hover:bg-indigo-700 transition shadow-sm shadow-indigo-100">
+                                                        Activer
+                                                    </button>
+                                                {% endif %}
+                                            </form>
+
+                                           
+                                            <form action="{{ path('superadmin_user_delete', {'id': user.id}) }}" method="POST" class="inline" onsubmit="return confirm('Confirmez-vous la suppression irréversible de cet utilisateur ?');">
+                                            
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete_user_' ~ user.id) }}">
+                                            <button type="submit" class="text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-100 px-3 py-2 rounded-xl hover:bg-rose-100 transition shadow-sm" title="Supprimer définitivement l'utilisateur">
+                                            <i class="fa-solid fa-user-slash"></i> Supprimer
                                             </button>
+                                            </form>
                                         {% endif %}
-                                    </form>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="4" class="px-6 py-12 text-center text-gray-400 italic">
-                                Aucun utilisateur trouvé dans la base.
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="px-6 py-12 text-center text-gray-400 italic">
+                                    Aucun utilisateur trouvé dans la base de données.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
+        </section>
+
     </main>
 
 </div>

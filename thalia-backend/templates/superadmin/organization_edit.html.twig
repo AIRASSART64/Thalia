@@ -1,0 +1,97 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}SuperAdmin - Modifier l'Établissement - Thalia{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-50/50 p-6 lg:p-10 font-sans">
+    
+    <div class="max-w-5xl mx-auto mb-8">
+        <nav class="flex text-[11px] font-semibold text-gray-400 uppercase tracking-wider gap-2 mb-2">
+            <a href="{{ path('superadmin_dashboard') }}" class="hover:text-gray-600">SuperAdmin</a>
+            <span>&gt;</span>
+            <span class="text-indigo-600">Modifier l'Établissement</span>
+        </nav>
+        <h1 class="text-2xl font-black text-gray-900 tracking-tight">
+            Édition de : {{ organization.name }}
+        </h1>
+        <p class="text-xs text-gray-400 mt-1">SIRET : {{ organization.siret }}</p>
+    </div>
+
+    <div class="max-w-5xl mx-auto">
+        {{ form_start(organizationForm, {'attr': {'class': 'space-y-6'}}) }}
+            <div class="bg-white rounded-2xl  border border-gray-100 p-8">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        {{ form_row(organizationForm.name, {'attr': {'class': 'w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition'}}) }}
+                    </div>
+                    <div>
+                        {{ form_row(organizationForm.siret, {'attr': {'class': 'w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition font-mono'}}) }}
+                    </div>
+                    <div>
+                        {{ form_row(organizationForm.business_name, {'attr': {'class': 'w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition'}}) }}
+                    </div>
+                    <div>
+                        {{ form_row(organizationForm.legal_status, {'attr': {'class': 'w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition'}}) }}
+                    </div>
+                    <div>
+                        {{ form_row(organizationForm.manager_name, {'attr': {'class': 'w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition'}}) }}
+                    </div>
+                     <div>
+                        {{ form_row(organizationForm.manager_title, {'attr': {'class': 'w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition'}}) }}
+                    </div>
+                </div>
+
+                <hr class="my-6 border-gray-100">
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        {{ form_row(organizationForm.licence_number, {'attr': {'class': 'w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm'}}) }}
+                    </div>
+                    <div>
+                        {{ form_row(organizationForm.erp_category, {'attr': {'class': 'w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm bg-white'}}) }}
+                    </div>
+                    <div>
+                        {{ form_row(organizationForm.erp_type, {'attr': {'class': 'w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm bg-white'}}) }}
+                    </div>
+                
+                    <div>
+                        {{ form_row(organizationForm.vat_number, {'attr': {'class': 'w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm bg-white'}}) }}
+                    </div>
+                    <div>
+                        {{ form_row(organizationForm.defaultVatRate, {'attr': {'class': 'w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm bg-white'}}) }}
+                    </div>
+                     <div>
+                        {{ form_row(organizationForm.spectacle_vat_rate, {'attr': {'class': 'w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm bg-white'}}) }}
+                    </div>
+
+                </div>
+
+                <hr class="my-6 border-gray-100">
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                   
+                    <div class="space-y-2"> 
+                       
+                        {{ form_row(organizationForm.phone, {'attr': {'class': 'w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm'}}) }}
+                    </div> 
+                      <div class="md:col-span-2">
+                        {{ form_row(organizationForm.adress, {'attr': {'class': 'w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm', 'rows': '3'}}) }}
+                     </div> 
+                </div>
+
+                <div class="flex items-center justify-end gap-3 mt-8 pt-6 border-t border-gray-100">
+                    <a href="{{ path('superadmin_dashboard') }}" class="px-4 py-2.5 bg-gray-100 text-gray-700 font-semibold rounded-xl text-xs hover:bg-gray-200 transition">
+                        Annuler
+                    </a>
+                    <button type="submit" class="px-4 py-2.5 bg-indigo-600 text-white font-semibold rounded-xl text-xs hover:bg-indigo-700 shadow-md transition">
+                        Confirmer les modifications
+                    </button>
+                </div>
+
+            </div>
+        {{ form_end(organizationForm) }}
+    </div>
+
+</div>
+{% endblock %}

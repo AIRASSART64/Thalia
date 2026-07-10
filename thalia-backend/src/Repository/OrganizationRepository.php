@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Organization;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -19,17 +20,16 @@ class OrganizationRepository extends ServiceEntityRepository
     //    /**
     //     * @return Organization[] Returns an array of Organization objects
     //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('o')
-    //            ->andWhere('o.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('o.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+       public function findByUser(User $user): ?Organization
+       {
+           return $this->createQueryBuilder('o')
+               ->innerJoin('o.users', 'u')
+               ->andWhere('u.id = :userId')
+               ->setParameter('userId', $user->getId())
+               ->getQuery()
+               ->getOneOrNullResult()
+           ;
+       }
 
     //    public function findOneBySomeField($value): ?Organization
     //    {
