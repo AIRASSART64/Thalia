@@ -2,7 +2,7 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
+
 use App\Enum\ErpCategory;
 use App\Enum\ErpType;
 use App\Repository\OrganizationRepository;
@@ -12,7 +12,9 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: OrganizationRepository::class)]
-#[ApiResource]
+#[ORM\HasLifecycleCallbacks]
+
+
 class Organization
 {
     #[ORM\Id]
@@ -37,6 +39,12 @@ class Organization
      */
     #[ORM\OneToMany(targetEntity: User::class, mappedBy: 'organization', orphanRemoval: true)]
     private Collection $users;
+
+    /**
+     * @var Collection<int, Show>
+     */
+    #[ORM\OneToMany(targetEntity: Show::class, mappedBy: 'organization', orphanRemoval: true)]
+    private Collection $shows;
 
     #[ORM\Column(length: 14, nullable: true)]
     private ?string $siret = null;
@@ -74,9 +82,16 @@ class Organization
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $legal_status = null;
 
+    #[ORM\Column]
+    private ?\DateTimeImmutable $created_at = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $updated_at = null;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
+        $this->shows = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -159,6 +174,32 @@ class Organization
             }
         }
 
+        return $this;
+    }
+    /**
+     * @return Collection<int, Show>
+     */
+    public function getShows(): Collection
+    {
+        return $this->shows;
+    }
+
+    public function addShow(Show $show): static
+    {
+        if (!$this->shows->contains($show)) {
+            $this->shows->add($show);
+            $show->setOrganization($this);
+        }
+        return $this;
+    }
+
+    public function removeShow(Show $show): static
+    {
+        if ($this->shows->removeElement($show)) {
+            if ($show->getOrganization() === $this) {
+                $show->setOrganization(null);
+            }
+        }
         return $this;
     }
 
@@ -302,5 +343,44 @@ class Organization
         $this->legal_status = $legal_status;
 
         return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->created_at;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $created_at): static
+    {
+        $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updated_at;
+    }
+
+    public function setUpdatedAt(\DateTimeImmutable $updated_at): static
+    {
+        $this->updated_at = $updated_at;
+
+        return $this;
+    }
+    
+    #[ORM\PrePersist]
+
+    public function setInitialDates(): void
+    {
+    $now = new \DateTimeImmutable();
+    $this->created_at = $now;
+    $this->updated_at = $now;
+    }
+
+    #[ORM\PreUpdate]
+    public function updateTimestamp(): void
+    {
+    $this->updated_at = new \DateTimeImmutable();
     }
 }

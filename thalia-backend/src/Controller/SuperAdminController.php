@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Organization;
 use App\Entity\User;
 use App\Form\OrganizationFormType;
+use App\Repository\OrganizationRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,10 +25,11 @@ class SuperAdminController extends AbstractController
     }
 
     #[Route('/dashboard', name: 'dashboard', methods: ['GET'])]
-    public function dashboard(UserRepository $userRepository): Response
+    public function dashboard(UserRepository $userRepository, OrganizationRepository $organizationRepository): Response
     {
         return $this->render('superadmin/index.html.twig', [
             'users' => $userRepository->findAll(),
+            'organizations'=> $organizationRepository->findAll(),
         ]);
     }
 
@@ -112,7 +114,7 @@ class SuperAdminController extends AbstractController
            }
           $em->remove($organization);
           $em->flush();
-           $this->addFlash('danger', sprintf( 'Action impossible : L’établissement "%s" ne peut pas être supprimé car %d utilisateur(s) y est/sont encore rattaché(s). Supprimez ou détachez d’abord ces utilisateurs.', $organizationName));
+           $this->addFlash( 'success', sprintf('L’établissement "%s" a été supprimé avec succès.', $organizationName));
 
         } else {
             $this->addFlash('danger', 'Jeton CSRF invalide. Impossible de supprimer l’établissement.');
