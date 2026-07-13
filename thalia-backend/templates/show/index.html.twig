@@ -1,20 +1,191 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello ShowController!{% endblock %}
+{% block title %}Thalia - Liste des Spectacles{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+<div class="flex min-h-screen bg-gray-50">
+    
+    {# ─── SIDEBAR GAUCHE (Fidèle à la maquette Thalia) ─── #}
+    <aside class="w-64 bg-white border-r border-gray-100 hidden md:flex flex-col justify-between p-4 shrink-0">
+        <div class="space-y-6">
+            <div>
+                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3 px-2">Spectacles & CRM</p>
+                <nav class="space-y-1">
+                    <a href="{{ path('show_index') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-semibold rounded-lg bg-indigo-50 text-indigo-600">
+                        <i class="fa-solid fa-list-ul w-4"></i> Liste des spectacles
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition">
+                        <i class="fa-solid fa-circle-info w-4"></i> Détails
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition">
+                        <i class="fa-solid fa-wand-magic-sparkles w-4"></i> Création / Smart import
+                    </a>
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition">
+                        <i class="fa-solid fa-users w-4"></i> Suivi des contacts
+                    </a>
+                </nav>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3 px-2">Saison Culturelle</p>
+                <nav class="space-y-1">
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 rounded-lg hover:bg-gray-50 transition">
+                        <i class="fa-solid fa-calendar-days w-4"></i> Calendrier
+                    </a>
+                </nav>
+            </div>
+            <div>
+                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3 px-2">Finances</p>
+                <nav class="space-y-1">
+                    <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 rounded-lg hover:bg-gray-50 transition">
+                        <i class="fa-solid fa-chart-line w-4"></i> Simulation budgétaire
+                    </a>
+                </nav>
+            </div>
+        </div>
+        
+        <div class="border-t border-gray-100 pt-4 space-y-1">
+            <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 rounded-lg hover:bg-gray-50 transition">
+                <i class="fa-solid fa-gear w-4"></i> Paramètres
+            </a>
+        </div>
+    </aside>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+    {# ─── CONTENU PRINCIPAL ─── #}
+    <main class="flex-grow p-6 lg:p-8 max-w-7xl mx-auto">
+        
+        {# En-tête de page #}
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div>
+                <h1 class="text-2xl font-black text-gray-900 tracking-tight">Liste des spectacles</h1>
+                <p class="text-sm text-gray-500 mt-1">Gérez vos productions et suivez l'état de prospection en temps réel.</p>
+            </div>
+            <div class="flex items-center gap-2 self-end sm:self-auto">
+                <button class="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-gray-50 transition shadow-sm">
+                    <i class="fa-solid fa-download text-gray-400"></i> Import groupé
+                </button>
+                {% if is_granted('SHOW_CREATE') %}
+                    <a href="{{ path('show_new') }}" class="inline-flex items-center gap-2 bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-indigo-700 transition shadow-sm shadow-indigo-100">
+                        <i class="fa-solid fa-plus"></i> Ajout manuel
+                    </a>
+                {% endif %}
+            </div>
+        </div>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>/var/www/thalia-backend/src/Controller/ShowController.php</code></li>
-        <li>Your template at <code>/var/www/thalia-backend/templates/show/index.html.twig</code></li>
-    </ul>
+        {# Barre de filtres et d'outils #}
+        <div class="bg-white p-2 rounded-xl border border-gray-100 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+            <div class="flex flex-wrap gap-1.5 w-full sm:w-auto">
+                <button class="bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm">Tous ({{ shows|length }})</button>
+                <button class="text-gray-500 hover:bg-gray-50 text-xs font-semibold px-3 py-1.5 rounded-lg transition">Théâtre</button>
+                <button class="text-gray-500 hover:bg-gray-50 text-xs font-semibold px-3 py-1.5 rounded-lg transition">Danse</button>
+                <button class="text-gray-500 hover:bg-gray-50 text-xs font-semibold px-3 py-1.5 rounded-lg transition">Musique</button>
+                <button class="text-gray-500 hover:bg-gray-50 text-xs font-semibold px-3 py-1.5 rounded-lg transition">Cirque</button>
+            </div>
+            <div class="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto text-xs border-t sm:border-t-0 border-gray-50 pt-2 sm:pt-0">
+                <div class="text-gray-400 font-medium">Saison : <span class="text-gray-900 font-bold">2026-2027</span></div>
+                <button class="inline-flex items-center gap-1.5 bg-white border border-gray-200 text-gray-700 px-2.5 py-1 rounded-lg font-medium hover:bg-gray-50 transition">
+                    <i class="fa-solid fa-sliders text-gray-400"></i> Filtres CRM
+                </button>
+            </div>
+        </div>
+
+        {# Grille de cartes #}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {% for show in shows %}
+                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col justify-between group hover:shadow-md hover:border-gray-200/80 transition duration-200 relative">
+                    
+                    {# Badge de discipline absolu #}
+                    <span class="absolute top-3 start-3 z-10 bg-indigo-600/90 text-white text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md backdrop-blur-sm shadow-sm">
+                        {{ show.discipline|default('Spectacle') }}
+                    </span>
+
+                    {# Zone d'image / Artwork #}
+                    <div class="h-48 bg-gray-100 relative overflow-hidden shrink-0">
+                        {% if show.artworkUrl %}
+                            <img src="{{ show.artworkUrl }}" class="w-full h-full object-cover group-hover:scale-102 transition duration-500" alt="{{ show.title }}">
+                        {% else %}
+                            <div class="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center text-slate-600">
+                                <i class="fa-solid fa-masks-theater text-4xl opacity-30"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {# Corps de la carte #}
+                    <div class="p-4 flex-grow flex flex-col justify-between gap-4">
+                        <div>
+                            <div class="flex items-start justify-between gap-2 mb-1">
+                                <h3 class="font-bold text-gray-900 text-sm leading-tight hover:text-indigo-600 transition">
+                                    <a href="{{ path('show_show', {'id': show.id}) }}" class="stretched-link">
+                                        {{ show.title }}
+                                    </a>
+                                </h3>
+                                
+                                {# Badge de statut #}
+                                {% set status = show.pipelineStatus|lower|default('prospection') %}
+                                <span class="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide
+                                    {% if 'sign' in status or 'valide' in status %} bg-emerald-50 text-emerald-700
+                                    {% elseif 'nego' in status or 'attente' in status %} bg-amber-50 text-amber-700
+                                    {% else %} bg-gray-50 text-gray-600 {% endif %}">
+                                    <span class="w-1 h-1 rounded-full {% if 'sign' in status or 'valide' in status %} bg-emerald-500 {% elseif 'nego' in status or 'attente' in status %} bg-amber-500 {% else %} bg-gray-400 {% endif %}"></span>
+                                    {{ show.pipelineStatus|default('Prospection') }}
+                                </span>
+                            </div>
+                            <p class="text-xs text-gray-400 font-medium">Compagnie de l'Instant Présent</p>
+                        </div>
+
+                        {# Footer de la carte #}
+                        <div class="flex items-center justify-between pt-3 border-t border-gray-50 text-xs text-gray-400 z-20 relative">
+                            <span class="font-medium"><i class="fa-regular fa-clock mr-1"></i> {{ show.durationMinutes }} min</span>
+                            
+                            {# Actions réservées #}
+                            <div class="flex items-center gap-1">
+                                {% if is_granted('SHOW_EDIT', show) %}
+                                    <a href="{{ path('show_edit', {'id': show.id}) }}" class="p-1 px-2 text-amber-600 hover:bg-amber-50 rounded-md transition" title="Modifier">
+                                        <i class="fa-regular fa-pen-to-square"></i>
+                                    </a>
+                                {% endif %}
+
+                                {% if is_granted('SHOW_DELETE', show) %}
+                                    <form method="post" action="{{ path('show_delete', {'id': show.id}) }}" onsubmit="return confirm('Supprimer ce spectacle ?');" class="inline">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ show.id) }}">
+                                        <button class="p-1 px-2 text-red-600 hover:bg-red-50 rounded-md transition" title="Supprimer">
+                                            <i class="fa-regular fa-trash-can"></i>
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            {% else %}
+                <div class="col-span-full bg-white border border-gray-100 rounded-2xl p-12 text-center">
+                    <div class="w-12 h-12 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fa-solid fa-folder-open text-lg"></i>
+                    </div>
+                    <p class="text-sm font-medium text-gray-500">Aucun spectacle n'a été enregistré pour cette organisation.</p>
+                </div>
+            {% endfor %}
+        </div>
+
+        {# Pagination #}
+        {% if shows|length > 0 %}
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-4 border-t border-gray-100 text-xs text-gray-500">
+                <p>Affichage de <span class="font-semibold text-gray-900">1-{{ shows|length }}</span> sur <span class="font-semibold text-gray-900">{{ shows|length }}</span> spectacles.</p>
+                <nav class="inline-flex shadow-sm rounded-lg border border-gray-200 bg-white overflow-hidden font-semibold">
+                    <button class="px-3 py-1.5 text-gray-400 hover:bg-gray-50 border-r border-gray-200 disabled:opacity-50" disabled>Précédent</button>
+                    <button class="px-3 py-1.5 bg-indigo-600 text-white border-r border-gray-200">1</button>
+                    <button class="px-3 py-1.5 text-gray-600 hover:bg-gray-50">Suivant</button>
+                </nav>
+            </div>
+        {% endif %}
+
+    </main>
 </div>
+
+{# Bouton d'action flottant (+) mobile #}
+{% if is_granted('SHOW_CREATE') %}
+    <a href="{{ path('show_new') }}" class="md:hidden fixed bottom-6 right-6 w-12 h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full flex items-center justify-center shadow-lg transition z-50">
+        <i class="fa-solid fa-plus text-lg"></i>
+    </a>
+{% endif %}
 {% endblock %}

@@ -3,10 +3,17 @@
 namespace App\Form;
 
 use App\Entity\Contact;
-use App\Entity\Organization;
 use App\Entity\Show;
+use App\Enum\DisciplineEnum;
+use App\Enum\PipelineStatusEnum;
+use App\Repository\ContactRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\EnumType;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -14,30 +21,59 @@ class ShowFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $organization = $options['current_organization'];
         $builder
-            ->add('title')
-            ->add('discipline')
-            ->add('duration_min')
-            ->add('synopsis')
-            ->add('min_stage_width')
-            ->add('min_stage_depth')
-            ->add('min_stage_height')
-            ->add('pipeline_status')
-            ->add('artwork_url')
-            ->add('created_at', null, [
-                'widget' => 'single_text',
+            ->add('title' , TextType::class, [
+                'label'=>"Titre du spectacle",
+                'required' => true,])
+            ->add('discipline', EnumType::class, [
+                'class'=> DisciplineEnum::class,
+                'label'=> 'Discipline',
+                'required'=>true,
             ])
-            ->add('updated_at', null, [
-                'widget' => 'single_text',
+            ->add('duration_min', IntegerType::class, [
+                'label'=>'Durée en minute (entracte compris)',
+                'required' => true,
             ])
-            ->add('organization', EntityType::class, [
-                'class' => Organization::class,
-                'choice_label' => 'id',
+            ->add('synopsis', TextType::class, [
+                'label'=>'Synopsis du spectacle',
+                'required' => true,
+            ])
+            ->add('min_stage_width', NumberType::class, [
+                'label' => 'Largeur scène min.',
+                'required' => false,
+            ])
+            ->add('min_stage_depth', NumberType::class, [
+                'label' => 'Profonder scène min.',
+                'required' => false,
+             ])
+            
+            ->add('min_stage_height', NumberType::class, [
+                'label' => 'hauteur sous perche min.',
+                'required' => false,
+             ])
+            ->add('pipeline_status', EnumType::class ,[
+                'class' => PipelineStatusEnum::class,
+                'label'=> 'Statut CRM',
+                'required'=>true,
+            ])
+            ->add('artworkUrl', UrlType::class, [
+                'required'=> false,
             ])
             ->add('contacts', EntityType::class, [
                 'class' => Contact::class,
-                'choice_label' => 'id',
+                'choice_label' => function (Contact $contact) {
+                    return $contact->getFirstName() . ' ' . $contact->getLastName();
+                },
                 'multiple' => true,
+                'required' => false,
+                'expanded' => false,
+                'query_builder' => function (ContactRepository $contactRepository) use ($organization) {
+                    return $contactRepository->createQueryBuilder('c')
+                        ->where('c.organization = :org')
+                        ->setParameter('org', $organization)
+                        ->orderBy('c.last_name', 'ASC');
+                }
             ])
         ;
     }
@@ -46,6 +82,8 @@ class ShowFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Show::class,
+            'current_organization' => null,
         ]);
+        $resolver->setRequired('current_organization');
     }
 }

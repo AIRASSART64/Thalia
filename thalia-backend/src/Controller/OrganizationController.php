@@ -19,10 +19,10 @@ final class OrganizationController extends AbstractController
         $user = $this->getUser();
         $organization = $organizationRepository->findByUser($user) ;
 
-        // Si l'utilisateur n'a pas d'organisation (cas particulier), on gère l'erreur ou on redirige
+        // Si l'utilisateur n'a pas d'organisation  o
         if (!$organization) {
             $this->addFlash('danger', 'Aucune organisation associée à votre compte.');
-            return $this->redirectToRoute('app_forgot_password_request'); // Ou une autre route par défaut
+            return $this->redirectToRoute('app_forgot_password_request'); 
         }
 
         return $this->render('organization/index.html.twig', [

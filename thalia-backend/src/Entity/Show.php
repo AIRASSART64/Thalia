@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use App\Enum\DisciplineEnum;
+use App\Enum\PipelineStatusEnum;
 use App\Repository\ShowRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -23,7 +25,7 @@ class Show
     private ?string $title = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $discipline = null;
+    private ?DisciplineEnum $discipline = null;
 
     #[ORM\Column(nullable: true)]
     private ?int $duration_min = null;
@@ -41,7 +43,7 @@ class Show
     private ?float $min_stage_height = null;
 
     #[ORM\Column(length: 100, nullable: true)]
-    private ?string $pipeline_status = null;
+    private ?PipelineStatusEnum $pipeline_status = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $artwork_url = null;
@@ -84,12 +86,12 @@ class Show
         return $this;
     }
 
-    public function getDiscipline(): ?string
+    public function getDiscipline(): ?DisciplineEnum
     {
         return $this->discipline;
     }
 
-    public function setDiscipline(?string $discipline): static
+    public function setDiscipline(?DisciplineEnum $discipline): static
     {
         $this->discipline = $discipline;
 
@@ -156,12 +158,12 @@ class Show
         return $this;
     }
 
-    public function getPipelineStatus(): ?string
+    public function getPipelineStatus(): ?PipelineStatusEnum
     {
         return $this->pipeline_status;
     }
 
-    public function setPipelineStatus(?string $pipeline_status): static
+    public function setPipelineStatus(?PipelineStatusEnum $pipeline_status): static
     {
         $this->pipeline_status = $pipeline_status;
 

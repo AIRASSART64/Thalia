@@ -10,16 +10,22 @@ security:
                 class: App\Entity\User
                 property: email
 
+    role_hierarchy:
+        ROLE_PROGRAMMATEUR: ROLE_USER
+        ROLE_TECHNICIEN:    ROLE_USER
+        ROLE_FINANCIER:     ROLE_USER
+        ROLE_ADMIN:         [ROLE_PROGRAMMATEUR, ROLE_TECHNICIEN, ROLE_FINANCIER]
+
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
-        # ➔ LE PARE-FEU UNIQUE POUR TOUT TON PROJET (Pages Twig & Endpoints JSON internes)
+        
         main:
             lazy: true
             provider: app_user_provider
-            user_checker: App\Security\UserChecker # 🔒 Ton validateur de compte actif veille au grain ici !
+            user_checker: App\Security\UserChecker 
             custom_authenticator: App\Security\AppAuthenticator
             logout:
                 path: app_logout
@@ -33,12 +39,16 @@ security:
         - { path: ^/$, roles: PUBLIC_ACCESS }             
         - { path: ^/login$, roles: PUBLIC_ACCESS }         
         - { path: ^/register$, roles: PUBLIC_ACCESS }
-        - { path: ^/profile, roles: ROLE_USER }            
+        - { path: ^/profile, roles: ROLE_USER }   
+
+        #. FILTRAGE GLOBAL PAR URL POUR LES PAGES EXCLUSIVES (Optionnel)
+        # Attention : si une page est partagée avec des droits différents (ex: les Shows), 
+        # ne mets rien ici, laisse l'accès à ROLE_USER et laisse le ShowVoter faire le travail fin !
+        # - { path: ^/financial-dashboard, roles: ROLE_FINANCIER }
+        # - { path: ^/technical-planning, roles: ROLE_TECHNICIEN }
+
         - { path: ^/superadmin, roles: ROLE_SUPER_ADMIN }
         
-        # 💡 Optionnel : Si tu crées des routes JSON pour ton JavaScript (ex: /internal-api/...)
-        # Elles seront automatiquement protégées par la session du user connecté !
-        # - { path: ^/internal-api, roles: ROLE_USER }
 
 when@test:
     security:

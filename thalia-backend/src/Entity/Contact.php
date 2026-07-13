@@ -50,6 +50,10 @@ class Contact
     #[ORM\Column]
     private ?\DateTimeImmutable $updated_at = null;
 
+    #[ORM\ManyToOne(inversedBy: 'contacts')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Organization $organization = null;
+
     
     public function __construct()
     {
@@ -198,5 +202,17 @@ class Contact
     public function updateTimestamp(): void
     {
         $this->updated_at = new \DateTimeImmutable();
+    }
+
+    public function getOrganization(): ?Organization
+    {
+        return $this->organization;
+    }
+
+    public function setOrganization(?Organization $organization): static
+    {
+        $this->organization = $organization;
+
+        return $this;
     }
 }

@@ -89,7 +89,7 @@ class FetchApiService
             $licenceNumber = $record->numero_recepisse ?? $record->numero_de_recepisse ?? null;
         }
         if (!$licenceNumber) {
-            $licenceNumber = 'PLATESV-R-NOT-FOUND'; 
+            $licenceNumber = 'NOT-FOUND'; 
         }
 
         return [

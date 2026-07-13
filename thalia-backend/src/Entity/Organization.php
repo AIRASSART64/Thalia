@@ -88,10 +88,24 @@ class Organization
     #[ORM\Column]
     private ?\DateTimeImmutable $updated_at = null;
 
+    /**
+     * @var Collection<int, Notification>
+     */
+    #[ORM\OneToMany(targetEntity: Notification::class, mappedBy: 'organization', orphanRemoval: true)]
+    private Collection $notifications;
+
+    /**
+     * @var Collection<int, Contact>
+     */
+    #[ORM\OneToMany(targetEntity: Contact::class, mappedBy: 'organization', orphanRemoval: true)]
+    private Collection $contacts;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
         $this->shows = new ArrayCollection();
+        $this->notifications = new ArrayCollection();
+        $this->contacts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -382,5 +396,65 @@ class Organization
     public function updateTimestamp(): void
     {
     $this->updated_at = new \DateTimeImmutable();
+    }
+
+    /**
+     * @return Collection<int, Notification>
+     */
+    public function getNotifications(): Collection
+    {
+        return $this->notifications;
+    }
+
+    public function addNotification(Notification $notification): static
+    {
+        if (!$this->notifications->contains($notification)) {
+            $this->notifications->add($notification);
+            $notification->setOrganization($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNotification(Notification $notification): static
+    {
+        if ($this->notifications->removeElement($notification)) {
+            // set the owning side to null (unless already changed)
+            if ($notification->getOrganization() === $this) {
+                $notification->setOrganization(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Contact>
+     */
+    public function getContacts(): Collection
+    {
+        return $this->contacts;
+    }
+
+    public function addContact(Contact $contact): static
+    {
+        if (!$this->contacts->contains($contact)) {
+            $this->contacts->add($contact);
+            $contact->setOrganization($this);
+        }
+
+        return $this;
+    }
+
+    public function removeContact(Contact $contact): static
+    {
+        if ($this->contacts->removeElement($contact)) {
+            // set the owning side to null (unless already changed)
+            if ($contact->getOrganization() === $this) {
+                $contact->setOrganization(null);
+            }
+        }
+
+        return $this;
     }
 }

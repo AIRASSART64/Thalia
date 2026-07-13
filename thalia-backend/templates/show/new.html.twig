@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Thalia - Nouveau spectacle{% endblock %}
+
+{% block body %}
+<div class="flex min-h-screen bg-gray-50">
+
+
+    <main class="flex-grow p-6 lg:p-8 max-w-4xl mx-auto">
+        <nav class="text-xs text-gray-400 font-medium mb-2 flex items-center gap-2">
+            <a href="{{ path('show_index') }}" class="hover:text-gray-600 transition">Spectacles</a>
+            <i class="fa-solid fa-chevron-right text-[9px]"></i>
+            <span class="text-gray-600">Ajouter un spectacle</span>
+        </nav>
+
+        <h1 class="text-2xl font-black text-gray-900 tracking-tight mb-6">Ajouter un spectacle</h1>
+
+        {{ include('show/_form.html.twig', {'button_label': 'Passer à la suite'}) }}
+
+    </main>
+</div>
+{% endblock %}
