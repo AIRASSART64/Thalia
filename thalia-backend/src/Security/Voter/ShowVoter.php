@@ -15,7 +15,6 @@ class ShowVoter extends Voter
     public const CREATE = 'SHOW_CREATE';
     public const DELETE = 'SHOW_DELETE';
 
-    // vérification des rôles proprement
     public function __construct(private Security $security) {}
 
     protected function supports(string $attribute, mixed $subject): bool
@@ -32,34 +31,66 @@ class ShowVoter extends Voter
             return false;
         }
 
+        // On récupère le spectacle s'il fait partie du sujet (subject)
+        $show = $subject instanceof Show ? $subject : null;
+
         return match ($attribute) {
-            self::VIEW => $this->canView(),
-            self::EDIT => $this->canEdit(),
+            self::VIEW => $this->canView($show, $user),
+            self::EDIT => $this->canEdit($show, $user),
             self::CREATE => $this->canCreate(),
-            self::DELETE => $this->canDelete(),
+            self::DELETE => $this->canDelete($show, $user),
             default => false,
         };
     }
 
-    private function canView(): bool
+    private function canView(?Show $show, User $user): bool
     {
-        // Accessible à n'importe quel utilisateur connecté (qui a donc au moins ROLE_USER)
-        return $this->security->isGranted('ROLE_USER'); 
+        // Vérification des droits du user
+        if (!$this->security->isGranted('ROLE_USER')) {
+            return false;
+        }
+
+        // Les users connectés ne peuvent afficher que les spectacles de leur organization
+        if ($show !== null) {
+            return $show->getOrganization() === $user->getOrganization();
+        }
+
+        return true;
     }
 
     private function canCreate(): bool
     {
-        // Vérifie le rôle en prenant en compte la hiérarchie du security.yaml
+        // Vérification du rôle
         return $this->security->isGranted('ROLE_PROGRAMMATEUR'); 
     }
 
-    private function canEdit(): bool
+    private function canEdit(?Show $show, User $user): bool
     {
-        return $this->security->isGranted('ROLE_PROGRAMMATEUR');
+        // Vérification du rôle
+        if (!$this->security->isGranted('ROLE_PROGRAMMATEUR')) {
+            return false;
+        }
+
+        // Vérification de l'organizattion
+        if ($show !== null) {
+            return $show->getOrganization() === $user->getOrganization();
+        }
+
+        return true;
     }
 
-    private function canDelete(): bool
+    private function canDelete(?Show $show, User $user): bool
     {
-        return $this->security->isGranted('ROLE_PROGRAMMATEUR');
+        // L'utilisateur doit être programmateur
+        if (!$this->security->isGranted('ROLE_PROGRAMMATEUR')) {
+            return false;
+        }
+
+        // Le spectacle doit appartenir à son organisation
+        if ($show !== null) {
+            return $show->getOrganization() === $user->getOrganization();
+        }
+
+        return true;
     }
 }

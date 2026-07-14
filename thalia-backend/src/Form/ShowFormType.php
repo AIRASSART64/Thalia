@@ -10,12 +10,14 @@ use App\Repository\ContactRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\Extension\Core\Type\UrlType;
 use Symfony\Component\Form\FormBuilderInterface;
+
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\File;
 
 class ShowFormType extends AbstractType
 {
@@ -57,9 +59,18 @@ class ShowFormType extends AbstractType
                 'label'=> 'Statut CRM',
                 'required'=>true,
             ])
-            ->add('artworkUrl', UrlType::class, [
-                'required'=> false,
-            ])
+            ->add('artworkUrl', FileType::class, [
+                'label' => 'Affiche du spectacle (JPG, PNG ou WebP)',
+                'mapped' => false, 
+                'required' => false,
+                'constraints' => [
+                new File([
+                'maxSize' => '1024k',
+                'mimeTypes' => ['image/jpeg', 'image/png', 'image/webp'],
+                'mimeTypesMessage' => 'Veuillez uploader une image valide.',
+                         ])
+                    ],
+                ])
             ->add('contacts', EntityType::class, [
                 'class' => Contact::class,
                 'choice_label' => function (Contact $contact) {
@@ -73,8 +84,8 @@ class ShowFormType extends AbstractType
                         ->where('c.organization = :org')
                         ->setParameter('org', $organization)
                         ->orderBy('c.last_name', 'ASC');
-                }
-            ])
+                    }
+             ])
         ;
     }
 
