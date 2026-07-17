@@ -118,7 +118,7 @@
                                 </div>
                                 <div>
                                     <h4 class="text-xs font-bold text-slate-900 group-hover:text-indigo-600 transition">{{ show.title }}</h4>
-                                    <span class="text-[10px] text-slate-400 font-semibold">{{ show.discipline|default('Spectacle') }}</span>
+                                    <span class="text-[10px] text-slate-400 font-semibold">{{ show.discipline.value|default('Spectacle') }}</span>
                                 </div>
                             </div>
                             <a href="{{ path('show_show', {'id': show.id}) }}" class="p-1 text-slate-400 hover:text-indigo-600 transition" title="Voir le spectacle">

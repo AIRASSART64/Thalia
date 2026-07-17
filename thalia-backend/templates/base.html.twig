@@ -8,6 +8,66 @@
         
         {# CDN FontAwesome pour les petites icônes du site #}
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+        
+        {# CDN CSS de Tom Select #}
+        <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+        
+        {# Personnalisation esthétique de Tom Select pour l'intégrer au design Tailwind de Thalia SaaS #}
+        <style>
+            /* Bordures, arrondis (rounded-xl) et couleur de fond par défaut (bg-gray-50) */
+            .ts-control {
+                border-radius: 0.75rem !important; /* rounded-xl */
+                background-color: rgb(249, 250, 251) !important; 
+                border: 1px solid rgb(229, 231, 235) !important; 
+                padding: 0.625rem 0.75rem !important; 
+                box-shadow: none !important;
+                transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            /* État focus (simule ring-2 ring-indigo-100 et border-indigo-500 sur fond blanc) */
+            .ts-wrapper.focus .ts-control {
+                background-color: #ffffff !important;
+                border-color: rgb(99, 102, 241) !important; 
+                box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important; 
+            }
+
+            /* Style des petits badges de sélection */
+            .ts-control .item {
+                background-color: rgb(238, 242, 255) !important; 
+                border: 1px solid rgb(224, 231, 255) !important; 
+                color: rgb(67, 56, 202) !important; 
+                border-radius: 0.5rem !important; 
+                padding: 2px 8px !important;
+                font-weight: 500;
+                display: inline-flex;
+                align-items: center;
+            }
+
+            /* Petit bouton de suppression 'x' à l'intérieur du badge */
+            .ts-control .item .remove {
+                border-left: 1px solid rgb(199, 210, 254) !important;
+                margin-left: 6px !important;
+                padding-left: 4px !important;
+                color: rgb(99, 102, 241) !important;
+            }
+            .ts-control .item .remove:hover {
+                background: rgba(99, 102, 241, 0.1) !important;
+                color: rgb(67, 56, 202) !important;
+            }
+
+            /* Liste déroulante des options */
+            .ts-dropdown {
+                border-radius: 0.75rem !important;
+                border: 1px solid rgb(243, 244, 246) !important;
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important; 
+                margin-top: 4px !important;
+                z-index: 50 !important;
+            }
+            .ts-dropdown .active {
+                background-color: rgb(79, 70, 229) !important; 
+                color: #ffffff !important;
+            }
+        </style>
 
         {% block stylesheets %}
         {% endblock %}
@@ -25,6 +85,7 @@
         <script src="https://cdn.jsdelivr.net/npm/frankenphp-hot-reload/+esm" type="module"></script>
         {% endif %}
     </head>
+    
     <body class="bg-gray-50 min-h-screen font-sans flex flex-col justify-between">
 
         <header class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-40">
@@ -110,5 +171,34 @@
             </div>
         </footer>
 
+        {# CDN JS de Tom Select #}
+        <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+        
+        <script>
+            function initTomSelect() {
+                document.querySelectorAll('.tom-select').forEach((el) => {
+                    // On évite de ré-initialiser Tom Select s'il est déjà actif sur cet élément
+                    if (el.classList.contains('tomselected')) return;
+
+                    new TomSelect(el, {
+                        plugins: {
+                            remove_button: {
+                                title: 'Supprimer ce choix',
+                            }
+                        },
+                        persist: false,
+                        create: false,
+                        placeholder: 'Sélectionnez un ou plusieurs spectacles...',
+                        controlInput: null,
+                    });
+                });
+            }
+
+            // Initialisation classique au chargement initial de la page DOM
+            document.addEventListener("DOMContentLoaded", initTomSelect);
+
+            // Ré-initialise proprement le script lors des rechargements asynchrones de page
+            document.addEventListener("turbo:load", initTomSelect);
+        </script>
     </body>
 </html>

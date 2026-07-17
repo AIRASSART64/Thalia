@@ -45,6 +45,7 @@ class ContactController extends AbstractController
         $this->denyAccessUnlessGranted('CONTACT_CREATE');
 
         $contact = new Contact();
+        
         // si redirection depuis un spectacle, association du contact au spectacle
         $showId = $request->query->get('show_id');
         $show = null;
