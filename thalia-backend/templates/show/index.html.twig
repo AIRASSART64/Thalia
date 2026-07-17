@@ -60,12 +60,10 @@
                 <p class="text-sm text-gray-500 mt-1">Gérez vos productions et suivez l'état de prospection en temps réel.</p>
             </div>
             <div class="flex items-center gap-2 self-end sm:self-auto">
-                <button class="inline-flex items-center gap-2 bg-white border border-gray-200 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-gray-50 transition shadow-sm">
-                    <i class="fa-solid fa-download text-gray-400"></i> Import groupé
-                </button>
+            
                 {% if is_granted('SHOW_CREATE') %}
                     <a href="{{ path('show_new') }}" class="inline-flex items-center gap-2 bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-indigo-700 transition shadow-sm shadow-indigo-100">
-                        <i class="fa-solid fa-plus"></i> Ajout manuel
+                        <i class="fa-solid fa-plus"></i> Ajouter un spectacle
                     </a>
                 {% endif %}
             </div>
@@ -95,19 +93,22 @@
                     
                     {# Badge de discipline absolu #}
                     <span class="absolute top-3 start-3 z-10 bg-indigo-600/90 text-white text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md backdrop-blur-sm shadow-sm">
-                        {{ show.discipline|default('Spectacle') }}
+                        {{ show.discipline.value|default('Spectacle') }}
                     </span>
 
                     {# Zone d'image / Artwork #}
-                    <div class="h-48 bg-gray-100 relative overflow-hidden shrink-0">
-                        {% if show.artworkUrl %}
-                            <img src="{{ show.artworkUrl }}" class="w-full h-full object-cover group-hover:scale-102 transition duration-500" alt="{{ show.title }}">
-                        {% else %}
-                            <div class="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center text-slate-600">
-                                <i class="fa-solid fa-masks-theater text-4xl opacity-30"></i>
-                            </div>
-                        {% endif %}
+                <div class="h-48 bg-gray-100 relative overflow-hidden shrink-0">
+                 
+                    {% if show.id and show.artworkUrl %}
+                        <img src="{{ path('secure_show_image', {'id': show.id}) }}" 
+                         class="w-full h-full object-cover group-hover:scale-102 transition duration-500" 
+                        alt="{{ show.title }}">
+                     {% else %}
+                    <div class="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center text-slate-600">
+                        <i class="fa-solid fa-masks-theater text-4xl opacity-30"></i>
                     </div>
+                    {% endif %}
+            </div>
 
                     {# Corps de la carte #}
                     <div class="p-4 flex-grow flex flex-col justify-between gap-4">
@@ -120,13 +121,13 @@
                                 </h3>
                                 
                                 {# Badge de statut #}
-                                {% set status = show.pipelineStatus|lower|default('prospection') %}
+                                {% set status = show.pipelineStatus.value|lower|default('prospection') %}
                                 <span class="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide
                                     {% if 'sign' in status or 'valide' in status %} bg-emerald-50 text-emerald-700
                                     {% elseif 'nego' in status or 'attente' in status %} bg-amber-50 text-amber-700
                                     {% else %} bg-gray-50 text-gray-600 {% endif %}">
                                     <span class="w-1 h-1 rounded-full {% if 'sign' in status or 'valide' in status %} bg-emerald-500 {% elseif 'nego' in status or 'attente' in status %} bg-amber-500 {% else %} bg-gray-400 {% endif %}"></span>
-                                    {{ show.pipelineStatus|default('Prospection') }}
+                                    {{ show.pipelineStatus.value|default('Prospection') }}
                                 </span>
                             </div>
                             <p class="text-xs text-gray-400 font-medium">Compagnie de l'Instant Présent</p>
@@ -134,7 +135,7 @@
 
                         {# Footer de la carte #}
                         <div class="flex items-center justify-between pt-3 border-t border-gray-50 text-xs text-gray-400 z-20 relative">
-                            <span class="font-medium"><i class="fa-regular fa-clock mr-1"></i> {{ show.durationMinutes }} min</span>
+                            <span class="font-medium"><i class="fa-regular fa-clock mr-1"></i> {{ show.DurationMin }} min</span>
                             
                             {# Actions réservées #}
                             <div class="flex items-center gap-1">

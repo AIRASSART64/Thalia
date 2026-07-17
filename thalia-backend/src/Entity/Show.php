@@ -55,7 +55,7 @@ class Show
     /**
      * @var Collection<int, Contact>
      */
-    #[ORM\ManyToMany(targetEntity: Contact::class, inversedBy: 'shows')]
+    #[ORM\ManyToMany(targetEntity: Contact::class, inversedBy: 'shows', cascade:['persist'])]
     private Collection $contacts;
 
     #[ORM\Column]
@@ -204,8 +204,11 @@ class Show
 
     public function addContact(Contact $contact): static
     {
-        if (!$this->contacts->contains($contact)) {
-            $this->contacts->add($contact);
+       if (!$this->contacts->contains($contact)) {
+        $this->contacts->add($contact);
+      
+        $contact->addShow($this);
+    
         }
 
         return $this;

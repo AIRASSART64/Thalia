@@ -27,11 +27,10 @@ class ShowVoter extends Voter
     {
         /** @var User|null $user */
         $user = $token->getUser();
-        if (!$user) {
+        if (!$user instanceof User) {
             return false;
         }
 
-        // On récupère le spectacle s'il fait partie du sujet (subject)
         $show = $subject instanceof Show ? $subject : null;
 
         return match ($attribute) {
@@ -45,52 +44,45 @@ class ShowVoter extends Voter
 
     private function canView(?Show $show, User $user): bool
     {
-        // Vérification des droits du user
-        if (!$this->security->isGranted('ROLE_USER')) {
-            return false;
+        // Si aucun spectacle n'est spécifié (accès à la liste globale), 
+        // n'importe quel utilisateur connecté peut y accéder.
+        if ($show === null) {
+            return true;
         }
 
-        // Les users connectés ne peuvent afficher que les spectacles de leur organization
-        if ($show !== null) {
-            return $show->getOrganization() === $user->getOrganization();
-        }
-
-        return true;
+        // Si un spectacle est spécifié, il doit appartenir à l'organisation de l'utilisateur
+        return $show->getOrganization() === $user->getOrganization();
     }
 
     private function canCreate(): bool
     {
-        // Vérification du rôle
+        // Utilisation propre de isGranted uniquement pour tester le rôle spécifique
         return $this->security->isGranted('ROLE_PROGRAMMATEUR'); 
     }
 
     private function canEdit(?Show $show, User $user): bool
     {
-        // Vérification du rôle
         if (!$this->security->isGranted('ROLE_PROGRAMMATEUR')) {
             return false;
         }
 
-        // Vérification de l'organizattion
-        if ($show !== null) {
-            return $show->getOrganization() === $user->getOrganization();
+        if ($show === null) {
+            return true;
         }
 
-        return true;
+        return $show->getOrganization() === $user->getOrganization();
     }
 
     private function canDelete(?Show $show, User $user): bool
     {
-        // L'utilisateur doit être programmateur
         if (!$this->security->isGranted('ROLE_PROGRAMMATEUR')) {
             return false;
         }
 
-        // Le spectacle doit appartenir à son organisation
-        if ($show !== null) {
-            return $show->getOrganization() === $user->getOrganization();
+        if ($show === null) {
+            return true;
         }
 
-        return true;
+        return $show->getOrganization() === $user->getOrganization();
     }
 }

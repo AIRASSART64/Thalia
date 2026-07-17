@@ -67,7 +67,7 @@ class ShowController extends AbstractController
             }
 
             $this->crudManager->create($show);
-            return $this->redirectToRoute('show_index');
+            return $this->redirectToRoute('show_setup_contacts', ['id'=>$show->getId()]);
         }
         return $this->render('show/new.html.twig', ['show'=> $show, 'form' => $formShow]);
 
@@ -78,8 +78,15 @@ class ShowController extends AbstractController
     {
         $this->denyAccessUnlessGranted('SHOW_EDIT', $show);
         $oldArtwork = $show->getArtworkUrl();
+        $user= $this->getUser();
 
-        $formShow = $this->createForm(ShowFormType::class, $show);
+       if (!$user instanceof \App\Entity\User) {
+            throw new \LogicException('L\'utilisateur doit être connecté avec un compte valide.');
+        }
+        $formShow = $this->createForm(ShowFormType::class, $show, [
+            'current_organization' => $user->getOrganization(),
+        ]);
+
         $formShow->handleRequest($request);
 
         if($formShow->isSubmitted() && $formShow->isValid()){
@@ -105,7 +112,7 @@ class ShowController extends AbstractController
 
 
             $this->crudManager->update($show);
-            return $this->redirectToRoute('show');
+            return $this->redirectToRoute('show_index');
         }
         return $this->render('show/edit.html.twig', ['show'=> $show, 'form' => $formShow]);
 
@@ -120,6 +127,18 @@ class ShowController extends AbstractController
 
 
     }
+    
+    #[Route('/{id}/setup-contacts', name:'show_setup_contacts', requirements:['id'=>'\d+'], methods:['GET'])]
+    public function setupContacts(Show $show, ): Response
+    {
+        $this->denyAccessUnlessGranted('SHOW_CREATE');
+        return $this->render('show/setup_contacts.html.twig', [
+            'show'=> $show,
+        ]);
+
+
+    }
+
     #[ Route('/delete/{id}', name:'show_delete', methods:['POST'])]
     public function delete(Request $request, Show $show): Response
     {
@@ -139,8 +158,6 @@ class ShowController extends AbstractController
        
         return $this->redirectToRoute('show_index', []);
 
-
     }
     
-
 }

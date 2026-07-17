@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Thalia - Nouveau Contact{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-slate-50 text-slate-800">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        
+        {# ─── BREADCRUMB & HEADER ─── #}
+        <div>
+            <nav class="flex mb-2 text-xs font-semibold text-slate-400 uppercase tracking-wider gap-2">
+                <a href="{{ path('contact_index') }}" class="hover:text-slate-600">CRM</a>
+                <span>/</span>
+                <span class="text-slate-500">Nouveau</span>
+            </nav>
+            <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                Ajouter un contact
+            </h1>
+            <p class="text-sm text-slate-500 mt-1">
+                Renseignez les informations ci-dessous pour ajouter une nouvelle relation à votre réseau.
+            </p>
+        </div>
+
+        {# ─── INCLUSION DU FORMULAIRE PARTAGÉ ─── #}
+        {{ include('contact/_form.html.twig', {'button_label': 'Créer le contact'}) }}
+
+    </div>
+</div>
+{% endblock %}

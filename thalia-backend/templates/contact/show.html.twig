@@ -1,0 +1,140 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Thalia - {{ contact.firstName }} {{ contact.lastName }}{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-slate-50 text-slate-800">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        
+        {# ─── RETOUR ET ACTIONS ─── #}
+        <div class="flex items-center justify-between">
+            <a href="{{ path('contact_index') }}" class="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-800 transition">
+                <i class="fa-solid fa-arrow-left"></i> Retour à la liste
+            </a>
+            <a href="{{ path('contact_edit', {'id': contact.id}) }}" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition shadow-sm">
+                <i class="fa-regular fa-pen-to-square"></i> Modifier la fiche
+            </a>
+        </div>
+
+        {# ─── PROFILE CARD (HEADER) ─── #}
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col sm:flex-row items-center sm:items-start gap-6 relative overflow-hidden">
+            {# Décor d'arrière-plan #}
+            <div class="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-indigo-50/20 to-transparent pointer-events-none"></div>
+
+            {# Initiale géante style Avatar #}
+            <div class="w-20 h-20 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-3xl font-black text-indigo-600 shrink-0 shadow-inner">
+                {{ contact.firstName|slice(0, 1)|upper }}{{ contact.lastName|slice(0, 1)|upper }}
+            </div>
+
+            <div class="text-center sm:text-left space-y-2 z-10">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2.5">
+                    <h1 class="text-2xl font-black text-slate-900">{{ contact.firstName }} {{ contact.lastName }}</h1>
+                    {% if contact.role %}
+                        <span class="inline-block px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-wider self-center mx-auto sm:mx-0">
+                            {{ contact.role }}
+                        </span>
+                    {% endif %}
+                </div>
+                
+                <p class="text-sm text-slate-500 font-medium">
+                    {% if contact.companyName %}
+                        <i class="fa-solid fa-building text-slate-300 mr-1.5"></i> {{ contact.companyName }}
+                    {% else %}
+                        <span class="text-slate-400 italic">Aucune structure renseignée</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        {# ─── COORDONNÉES ET DETAILS (GRID) ─── #}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            {# Fiche contact rapide (Col-1) #}
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 space-y-4">
+                <h3 class="text-xs font-black text-slate-400 uppercase tracking-wider border-b border-slate-50 pb-2">Coordonnées</h3>
+                
+                <div class="space-y-3">
+                    {# Email #}
+                    <div>
+                        <span class="block text-[10px] font-bold text-slate-400 uppercase">Adresse e-mail</span>
+                        {% if contact.email %}
+                            <a href="mailto:{{ contact.email }}" class="text-xs font-bold text-indigo-600 hover:text-indigo-700 break-all transition">
+                                {{ contact.email }}
+                            </a>
+                        {% else %}
+                            <span class="text-xs text-slate-400 italic">-</span>
+                        {% endif %}
+                    </div>
+                    
+                    {# Téléphone #}
+                    <div>
+                        <span class="block text-[10px] font-bold text-slate-400 uppercase">Téléphone</span>
+                        {% if contact.phone %}
+                            <a href="tel:{{ contact.phone }}" class="text-xs font-bold text-slate-700 hover:text-indigo-600 transition">
+                                {{ contact.phone }}
+                            </a>
+                        {% else %}
+                            <span class="text-xs text-slate-400 italic">-</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {# Bloc Notes & Historique (Col-2) #}
+            <div class="md:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-wider border-b border-slate-50 pb-2 mb-3">Notes Internes</h3>
+                    <div class="text-xs sm:text-sm text-slate-600 leading-relaxed bg-slate-50 rounded-xl p-4 border border-slate-100 min-h-[100px]">
+                        {% if contact.notes %}
+                            {{ contact.notes|nl2br }}
+                        {% else %}
+                            <span class="text-slate-400 italic">Aucune note ou historique enregistré pour le moment.</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        {# ─── RELATION : SPECTACLES ASSOCIÉS ─── #}
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+            <h3 class="text-xs font-black text-slate-400 uppercase tracking-wider border-b border-slate-50 pb-3 mb-4">
+                Spectacles associés
+            </h3>
+            
+            {% if contact.shows is defined and contact.shows|length > 0 %}
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {% for show in contact.shows %}
+                        <div class="p-4 rounded-xl border border-slate-100 hover:border-indigo-100 bg-slate-50/50 flex items-center justify-between group transition">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-12 rounded bg-slate-200 overflow-hidden shrink-0">
+                                    {% if show.artworkUrl %}
+                                        <img src="{{ path('secure_show_image', {'id': show.id}) }}" class="w-full h-full object-cover" alt="{{ show.title }}">
+                                    {% else %}
+                                        <div class="w-full h-full flex items-center justify-center text-slate-400 bg-slate-200">
+                                            <i class="fa-solid fa-masks-theater text-xs"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-900 group-hover:text-indigo-600 transition">{{ show.title }}</h4>
+                                    <span class="text-[10px] text-slate-400 font-semibold">{{ show.discipline|default('Spectacle') }}</span>
+                                </div>
+                            </div>
+                            <a href="{{ path('show_show', {'id': show.id}) }}" class="p-1 text-slate-400 hover:text-indigo-600 transition" title="Voir le spectacle">
+                                <i class="fa-solid fa-arrow-right text-xs"></i>
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-6 text-xs text-slate-400 italic bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+                    <i class="fa-solid fa-masks-theater text-lg mb-2 block opacity-40"></i>
+                    Ce contact n'est lié à aucun spectacle pour le moment.
+                </div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

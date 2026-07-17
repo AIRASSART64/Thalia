@@ -2,17 +2,15 @@
 
 namespace App\Form;
 
-use App\Entity\Contact;
 use App\Entity\Show;
 use App\Enum\DisciplineEnum;
 use App\Enum\PipelineStatusEnum;
-use App\Repository\ContactRepository;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 
@@ -37,7 +35,7 @@ class ShowFormType extends AbstractType
                 'label'=>'Durée en minute (entracte compris)',
                 'required' => true,
             ])
-            ->add('synopsis', TextType::class, [
+            ->add('synopsis', TextareaType::class, [
                 'label'=>'Synopsis du spectacle',
                 'required' => true,
             ])
@@ -71,21 +69,6 @@ class ShowFormType extends AbstractType
                          ])
                     ],
                 ])
-            ->add('contacts', EntityType::class, [
-                'class' => Contact::class,
-                'choice_label' => function (Contact $contact) {
-                    return $contact->getFirstName() . ' ' . $contact->getLastName();
-                },
-                'multiple' => true,
-                'required' => false,
-                'expanded' => false,
-                'query_builder' => function (ContactRepository $contactRepository) use ($organization) {
-                    return $contactRepository->createQueryBuilder('c')
-                        ->where('c.organization = :org')
-                        ->setParameter('org', $organization)
-                        ->orderBy('c.last_name', 'ASC');
-                    }
-             ])
         ;
     }
 

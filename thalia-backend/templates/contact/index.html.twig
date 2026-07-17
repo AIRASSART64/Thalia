@@ -1,20 +1,290 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello ContactController!{% endblock %}
+{% block title %}Thalia - Base de Contacts{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+<div class="min-h-screen bg-slate-50 text-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        
+        {# ─── BREADCRUMB & HEADER ─── #}
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+                <nav class="flex mb-2 text-xs font-semibold text-slate-400 uppercase tracking-wider gap-2">
+                    <a href="#" class="hover:text-slate-600">CRM</a>
+                    <span>/</span>
+                    <span class="text-slate-500">Base de Contacts</span>
+                </nav>
+                <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                    Base de Contacts
+                </h1>
+                <p class="text-sm text-slate-500 mt-1">
+                    Gérez vos relations professionnelles et vos ressources artistiques.
+                </p>
+            </div>
+            <div>
+                <a href="{{ path('contact_new')|default('#') }}" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl transition shadow-sm hover:shadow-md">
+                    <i class="fa-solid fa-plus text-xs"></i> Nouveau Contact
+                </a>
+            </div>
+        </div>
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+        {# ─── SECTION FILTRES & STATS (GRID RESPONSIVE) ─── #}
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            
+            {# Onglets, recherche et filtre (col-span-3) #}
+            <div class="lg:col-span-3 bg-white rounded-2xl border border-slate-100 shadow-sm p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                {# Filtres par Type de contact (Pills) #}
+                <div class="flex flex-wrap items-center gap-2">
+                    <button class="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 text-white transition">
+                        Tous
+                    </button>
+                    <button class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-50 text-slate-600 hover:bg-slate-100 transition">
+                        Agents
+                    </button>
+                    <button class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-50 text-slate-600 hover:bg-slate-100 transition">
+                        Directeurs
+                    </button>
+                    <button class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-50 text-slate-600 hover:bg-slate-100 transition">
+                        Techniciens
+                    </button>
+                </div>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>/var/www/thalia-backend/src/Controller/ContactController.php</code></li>
-        <li>Your template at <code>/var/www/thalia-backend/templates/contact/index.html.twig</code></li>
-    </ul>
+                {# Boutons de tri et d'affichage #}
+                <div class="flex items-center gap-2 self-end sm:self-auto border-t sm:border-t-0 pt-3 sm:pt-0">
+                    <button class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition" title="Filtrer">
+                        <i class="fa-solid fa-sliders"></i>
+                    </button>
+                    <button class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition" title="Trier par ordre alphabétique">
+                        <i class="fa-solid fa-arrow-down-a-z"></i>
+                    </button>
+                    <div class="h-6 w-[1px] bg-slate-200 mx-1"></div>
+                    <button class="p-2 text-indigo-600 bg-indigo-50 rounded-lg transition" title="Vue Grille">
+                        <i class="fa-solid fa-grip-vertical"></i>
+                    </button>
+                    <button class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition" title="Vue Liste">
+                        <i class="fa-solid fa-list"></i>
+                    </button>
+                </div>
+            </div>
+
+            {# Card de statistique rapide (col-span-1) #}
+            <div class="bg-indigo-600 text-white rounded-2xl p-5 shadow-sm relative overflow-hidden flex flex-col justify-between">
+                {# Décor de fond subtil #}
+                <div class="absolute -right-6 -bottom-6 text-white opacity-5 text-8xl">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+                
+                <span class="text-xs font-extrabold uppercase tracking-wider text-indigo-200">Total Contacts</span>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span class="text-3xl font-black tracking-tight">1,284</span>
+                    <span class="text-xs font-bold text-emerald-300 flex items-center gap-0.5">
+                        <i class="fa-solid fa-caret-up"></i> 12%
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        {# ─── GRILLE DE CARDS (CONTACTS EN AVANT) ─── #}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            {# Card 1 #}
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col justify-between relative group hover:shadow-md transition duration-300">
+                <span class="absolute top-4 right-4 bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">
+                    Agent
+                </span>
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-xl overflow-hidden bg-slate-100 border border-slate-150 shrink-0">
+                        {# Remplacer l'URL par la tienne ou un avatar de secours #}
+                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150" class="w-full h-full object-cover" alt="Sophie Laurent">
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 group-hover:text-indigo-600 transition">Sophie Laurent</h3>
+                        <p class="text-xs text-slate-400 mt-0.5">Agence des Talents Associés</p>
+                    </div>
+                </div>
+                <div class="border-t border-slate-50 pt-4 mt-5 flex items-center justify-between text-xs text-slate-400">
+                    <span class="flex items-center gap-1.5 font-medium"><i class="fa-solid fa-masks-theater text-indigo-400"></i> 24 projets</span>
+                    <a href="#" class="text-indigo-600 hover:text-indigo-700 font-extrabold flex items-center gap-0.5">
+                        Détails <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            {# Card 2 #}
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col justify-between relative group hover:shadow-md transition duration-300">
+                <span class="absolute top-4 right-4 bg-orange-50 text-orange-600 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">
+                    Directeur
+                </span>
+                <div class="flex items-start gap-4">
+                    {# Si pas d'avatar physique, on affiche un placeholder propre #}
+                    <div class="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center shrink-0 border border-slate-150 text-slate-400">
+                        <i class="fa-regular fa-user text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 group-hover:text-indigo-600 transition">Marc-Antoine Vasseur</h3>
+                        <p class="text-xs text-slate-400 mt-0.5">Théâtre National Populaire</p>
+                    </div>
+                </div>
+                <div class="border-t border-slate-50 pt-4 mt-5 flex items-center justify-between text-xs text-slate-400">
+                    <span class="flex items-center gap-1.5 font-medium max-w-[120px] truncate" title="m.vasseur@tnp.fr">
+                        <i class="fa-regular fa-envelope text-slate-400"></i> m.vasseur@tnp.fr
+                    </span>
+                    <a href="#" class="text-indigo-600 hover:text-indigo-700 font-extrabold flex items-center gap-0.5">
+                        Détails <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            {# Card 3 #}
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col justify-between relative group hover:shadow-md transition duration-300">
+                <span class="absolute top-4 right-4 bg-sky-50 text-sky-600 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">
+                    Technicien
+                </span>
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-xl overflow-hidden bg-slate-100 border border-slate-150 shrink-0">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150" class="w-full h-full object-cover" alt="Jean-Pierre Dubois">
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 group-hover:text-indigo-600 transition">Jean-Pierre Dubois</h3>
+                        <p class="text-xs text-slate-400 mt-0.5">Indépendant / Régie Lumière</p>
+                    </div>
+                </div>
+                <div class="border-t border-slate-50 pt-4 mt-5 flex items-center justify-between text-xs text-slate-400">
+                    <span class="inline-flex items-center gap-1.5 font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md text-[10px] uppercase">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Disponible
+                    </span>
+                    <a href="#" class="text-indigo-600 hover:text-indigo-700 font-extrabold flex items-center gap-0.5">
+                        Détails <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+            {# Card 4 #}
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col justify-between relative group hover:shadow-md transition duration-300">
+                <span class="absolute top-4 right-4 bg-orange-50 text-orange-600 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">
+                    Directeur
+                </span>
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-xl overflow-hidden bg-slate-100 border border-slate-150 shrink-0">
+                        <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150" class="w-full h-full object-cover" alt="Camille Petit">
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-900 group-hover:text-indigo-600 transition">Camille Petit</h3>
+                        <p class="text-xs text-slate-400 mt-0.5">Compagnie du Levant</p>
+                    </div>
+                </div>
+                <div class="border-t border-slate-50 pt-4 mt-5 flex items-center justify-between text-xs text-slate-400">
+                    <span class="flex items-center gap-1.5 font-medium"><i class="fa-solid fa-masks-theater text-indigo-400"></i> 8 projets</span>
+                    <a href="#" class="text-indigo-600 hover:text-indigo-700 font-extrabold flex items-center gap-0.5">
+                        Détails <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        {# ─── VUE TABLEAU (DERNIÈREMENT CONSULTÉS) ─── #}
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+                <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wider">
+                    Vue Tableur — Dernièrement consultés
+                </h2>
+                <a href="#" class="text-xs font-bold text-slate-500 hover:text-indigo-600 transition flex items-center gap-1">
+                    Tout voir <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                </a>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="bg-slate-50/70 border-b border-slate-100 text-[11px] font-black text-slate-400 uppercase tracking-wider">
+                            <th class="py-4 px-6">Contact</th>
+                            <th class="py-4 px-6">Organisation</th>
+                            <th class="py-4 px-6">Rôle</th>
+                            <th class="py-4 px-6">Dernière interaction</th>
+                            <th class="py-4 px-6">Statut</th>
+                            <th class="py-4 px-6 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                        
+                        {# Ligne de contact 1 #}
+                        <tr class="hover:bg-slate-50/50 transition duration-150">
+                            <td class="py-4 px-6">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-xs font-extrabold text-indigo-600 shrink-0">
+                                        BM
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-slate-900">Benoît Morel</h4>
+                                        <span class="text-[11px] text-slate-400">benoit@morel-prod.com</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-4 px-6 font-medium text-slate-600">
+                                Morel Productions
+                            </td>
+                            <td class="py-4 px-6">
+                                <span class="bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md">
+                                    Agent
+                                </span>
+                            </td>
+                            <td class="py-4 px-6 text-slate-500 font-medium text-xs">
+                                12 Jan 2026
+                            </td>
+                            <td class="py-4 px-6">
+                                <span class="inline-flex items-center gap-1 text-emerald-600 text-xs font-bold">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Actif
+                                </span>
+                            </td>
+                            <td class="py-4 px-6 text-right relative">
+                                <button class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition" title="Options">
+                                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                        {# Ligne de contact 2 #}
+                        <tr class="hover:bg-slate-50/50 transition duration-150">
+                            <td class="py-4 px-6">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-xs font-extrabold text-indigo-600 shrink-0">
+                                        ED
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-slate-900">Élodie Durand</h4>
+                                        <span class="text-[11px] text-slate-400">e.durand@mairie-lyon.fr</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-4 px-6 font-medium text-slate-600">
+                                Mairie de Lyon (Culture)
+                            </td>
+                            <td class="py-4 px-6">
+                                <span class="bg-orange-50 text-orange-600 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md">
+                                    Directeur
+                                </span>
+                            </td>
+                            <td class="py-4 px-6 text-slate-500 font-medium text-xs">
+                                08 Jan 2026
+                            </td>
+                            <td class="py-4 px-6">
+                                <span class="inline-flex items-center gap-1 text-amber-500 text-xs font-bold">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> En attente
+                                </span>
+                            </td>
+                            <td class="py-4 px-6 text-right relative">
+                                <button class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition" title="Options">
+                                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
 </div>
 {% endblock %}
