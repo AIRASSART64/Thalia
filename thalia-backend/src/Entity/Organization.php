@@ -100,12 +100,19 @@ class Organization
     #[ORM\OneToMany(targetEntity: Contact::class, mappedBy: 'organization', orphanRemoval: true)]
     private Collection $contacts;
 
+    /**
+     * @var Collection<int, Venue>
+     */
+    #[ORM\OneToMany(targetEntity: Venue::class, mappedBy: 'organization')]
+    private Collection $venues;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
         $this->shows = new ArrayCollection();
         $this->notifications = new ArrayCollection();
         $this->contacts = new ArrayCollection();
+        $this->venues = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -452,6 +459,36 @@ class Organization
             // set the owning side to null (unless already changed)
             if ($contact->getOrganization() === $this) {
                 $contact->setOrganization(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Venue>
+     */
+    public function getVenues(): Collection
+    {
+        return $this->venues;
+    }
+
+    public function addVenue(Venue $venue): static
+    {
+        if (!$this->venues->contains($venue)) {
+            $this->venues->add($venue);
+            $venue->setOrganization($this);
+        }
+
+        return $this;
+    }
+
+    public function removeVenue(Venue $venue): static
+    {
+        if ($this->venues->removeElement($venue)) {
+            // set the owning side to null (unless already changed)
+            if ($venue->getOrganization() === $this) {
+                $venue->setOrganization(null);
             }
         }
 

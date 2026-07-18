@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Thalia — Modifier {{ venue.name }}{% block title %}
+
+{% block body %}
+<div class="max-w-5xl mx-auto px-4 py-8">
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-white tracking-tight">Modifier la salle : {{ venue.name }}</h1>
+        <p class="text-slate-400 text-sm">Mettez à jour les capacités, dimensions ou fiches de cet espace.</p>
+    </div>
+
+    {{ include('venue/_form.html.twig', {'button_label': 'Sauvegarder les modifications'}) }}
+</div>
+{% endblock %}

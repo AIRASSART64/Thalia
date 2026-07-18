@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Thalia — Nouvelle salle{% endblock %}
+
+{% block body %}
+<div class="max-w-5xl mx-auto px-4 py-8">
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-white tracking-tight">Ajouter une nouvelle salle</h1>
+        <p class="text-slate-400 text-sm">Configurez un nouvel espace scénique pour votre organisation.</p>
+    </div>
+
+    {{ include('venue/_form.html.twig', {'button_label': 'Créer la salle'}) }}
+</div>
+{% endblock %}

@@ -30,9 +30,12 @@ class ShowController extends AbstractController
     public function index(ShowRepository $showRepository): Response
     {
         $this->denyAccessUnlessGranted('SHOW_VIEW');
-     
+         $user = $this->getUser();
+        if (!$user instanceof \App\Entity\User) {
+            throw new \LogicException('L\'utilisateur doit être connecté avec un compte valide.');
+        }
 
-        $shows = $showRepository->findAll();
+        $shows = $showRepository->findBy(['organization'=> $user->getOrganization()]);
 
         return $this->render('show/index.html.twig', [ 'shows' => $shows]);
             

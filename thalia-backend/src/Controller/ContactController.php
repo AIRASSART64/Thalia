@@ -32,7 +32,7 @@ class ContactController extends AbstractController
             throw new \LogicException('L\'utilisateur doit être connecté avec un compte valide.');
         }
 
-        $contacts = $contactRepository->findAll();
+        $contacts = $contactRepository->findBy(['organization' => $user->getOrganization()]);
 
         return $this->render('contact/index.html.twig', [
             'contacts' => $contacts,

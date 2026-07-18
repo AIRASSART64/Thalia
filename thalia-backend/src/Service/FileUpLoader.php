@@ -33,4 +33,22 @@ class FileUpLoader
         // Return du nom définitif de l'image pour enregistrement en base de données
         return $fileName;
     }
+
+    // suppression des fichiers du serveur
+    public function remove(?string $targetDirectory, ?string $fileName): bool
+    {
+        if (!$targetDirectory || !$fileName) {
+            return false;
+        }
+
+        // On recompose le chemin absolu du fichier
+        $absolutePath = rtrim($targetDirectory, '/') . '/' . $fileName;
+
+        if (file_exists($absolutePath)) {
+            return unlink($absolutePath);
+        }
+
+        return false;
+    }
+
 }
