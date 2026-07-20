@@ -7,8 +7,8 @@ parameters:
     uploads_directory: '%kernel.project_dir%/var/uploads'
     shows_directory: '%uploads_directory%/shows'
     profiles_directory: '%uploads_directory%/profiles'
-    venues_images_directory: '%kernel.project_dir%/venues/images'
-    venues_plans_directory: '%kernel.project_dir%/venues/plans'
+    venues_images_directory: '%uploads_directory%/venues/images'
+    venues_plans_directory: '%uploads_directory%/venues/plans'
 services:
     # default configuration for services in *this* file
     _defaults:

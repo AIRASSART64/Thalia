@@ -8,6 +8,7 @@ use App\Repository\VenueRepository;
 use App\Service\CrudManagerService;
 use App\Service\FileUpLoader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -21,6 +22,7 @@ class VenueController extends AbstractController
     public function __construct(
         private CrudManagerService $crudManager,
         private FileUpLoader $fileUpLoader,
+         private ParameterBagInterface $params,
     ) {}
 
     #[Route('/', name: 'venue_index', methods:['GET'])]
@@ -54,25 +56,23 @@ class VenueController extends AbstractController
         ]);
         $formVenue->handleRequest($request);
         if($formVenue->isSubmitted() && $formVenue->isValid()){
+            // 1. Upload de l'Image de la salle
             /** @var UploadedFile|null $imageFile */
             $imageFile = $formVenue->get('venueImageFile')->getData();
             if ($imageFile) {
-                $newImageName = $this->fileUpLoader->upload($imageFile, $this->getParameter('venues_images_directory'));
+                $newImageName = $this->fileUpLoader->upload($imageFile, $this->params->get('venues_images_directory'));
                 if ($newImageName) {
                     $venue->setVenueImage($newImageName);
-                } else {
-                    $this->addFlash('error', 'Erreur lors du traitement de l\'image.');
                 }
             }
 
+            // 2. Upload du Plan technique
             /** @var UploadedFile|null $planFile */
             $planFile = $formVenue->get('venuePlanFile')->getData();
             if ($planFile) {
-                $newPlanName = $this->fileUpLoader->upload($planFile, $this->getParameter('venues_plans_directory'));
+                $newPlanName = $this->fileUpLoader->upload($planFile, $this->params->get('venues_plans_directory'));
                 if ($newPlanName) {
                     $venue->setVenuePlan($newPlanName);
-                } else {
-                    $this->addFlash('error', 'Erreur lors du traitement du plan technique.');
                 }
             }
   
@@ -98,27 +98,42 @@ class VenueController extends AbstractController
         ]);
         $formVenue->handleRequest($request);
         if($formVenue->isSubmitted() && $formVenue->isValid()){
+            // 1. Traitement de l'Image
             /** @var UploadedFile|null $imageFile */
             $imageFile = $formVenue->get('venueImageFile')->getData();
             if ($imageFile) {
-                $newImageName = $this->fileUpLoader->upload($imageFile, $this->getParameter('venues_images_directory'));
+                $newImageName = $this->fileUpLoader->upload($imageFile, $this->params->get('venues_images_directory'));
                 if ($newImageName) {
-                    $venue->setVenueImage($newImageName);
+                    // Suppression de l'ancienne image physique
                     if ($oldImage) {
-                        $this->fileUpLoader->remove($this->getParameter('venues_images_directory'), $oldImage);
+                        $oldImagePath = $this->params->get('venues_images_directory') . '/' . $oldImage;
+                        if (file_exists($oldImagePath)) {
+                            unlink($oldImagePath);
+                        }
                     }
+                    $venue->setVenueImage($newImageName);
                 }
+            } else {
+                $venue->setVenueImage($oldImage);
             }
+
+            // 2. Traitement du Plan
             /** @var UploadedFile|null $planFile */
             $planFile = $formVenue->get('venuePlanFile')->getData();
             if ($planFile) {
-                $newPlanName = $this->fileUpLoader->upload($planFile, $this->getParameter('venues_plans_directory'));
+                $newPlanName = $this->fileUpLoader->upload($planFile, $this->params->get('venues_plans_directory'));
                 if ($newPlanName) {
-                    $venue->setVenuePlan($newPlanName);
+                    // Suppression du plan obsolète
                     if ($oldPlan) {
-                        $this->fileUpLoader->remove($this->getParameter('venues_plans_directory'), $oldPlan);
+                        $oldPlanPath = $this->params->get('venues_plans_directory') . '/' . $oldPlan;
+                        if (file_exists($oldPlanPath)) {
+                            unlink($oldPlanPath);
+                        }
                     }
+                    $venue->setVenuePlan($newPlanName);
                 }
+            } else {
+                $venue->setVenuePlan($oldPlan);
             }
             $this->crudManager->update($venue);
             $this->addFlash('success', 'Modification réussie.');
@@ -142,18 +157,25 @@ class VenueController extends AbstractController
         $token = $request->getPayload()->get('_token') ?? $request->request->get('_token');
 
         if ($this->isCsrfTokenValid('delete' . $venue->getId(), $token)) {
-            $oldImage = $venue->getVenueImage() ? $this->getParameter('venues_images_directory') . '/' . $venue->getVenueImage() : null;
-            $oldPlan = $venue->getVenuePlan() ? $this->getParameter('venues_plans_directory') . '/' . $venue->getVenuePlan() : null;
+            if ($venue->getVenueImage()) {
+                $imagePath = $this->params->get('venues_images_directory') . '/' . $venue->getVenueImage();
+                if (file_exists($imagePath)) {
+                    unlink($imagePath);
+                }
+            }
+
+            // Suppression physique du plan de la salle
+            if ($venue->getVenuePlan()) {
+                $planPath = $this->params->get('venues_plans_directory') . '/' . $venue->getVenuePlan();
+                if (file_exists($planPath)) {
+                    unlink($planPath);
+                }
+            }
 
             $this->crudManager->delete($venue);
-
-           $this->fileUpLoader->remove($this->getParameter('venues_images_directory'), $oldImage);
-           $this->fileUpLoader->remove($this->getParameter('venues_plans_directory'), $oldPlan);
-
-            $this->addFlash('success', 'Suppression réussie.');
         }
 
-        return $this->redirectToRoute('venue_index');
+        return $this->redirectToRoute('organization');
     }
 
    

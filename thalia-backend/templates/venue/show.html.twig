@@ -1,4 +1,4 @@
-{# templates/venue/show.html.twig #}
+
 {% extends 'base.html.twig' %}
 
 {% block title %}Thalia — {{ venue.name }}{% endblock %}
@@ -29,7 +29,7 @@
             {# BANNIÈRE #}
             <div class="relative h-80 rounded-2xl overflow-hidden shadow-lg bg-slate-900 text-white">
                 {% if venue.venueImage %}
-                    <img src="{{ asset('uploads/venues/images/' ~ venue.venueImage) }}" alt="{{ venue.name }}" class="w-full h-full object-cover opacity-80">
+                    <img src="{{ path('secure_venue_image', {'id': venue.id}) }}" alt="{{ venue.name }}" class="w-full h-full object-cover opacity-80">
                 {% else %}
                     {# Image par défaut style théâtre si aucune image n'est présente #}
                     <div class="w-full h-full bg-gradient-to-r from-slate-900 to-indigo-950 flex items-center justify-center">
