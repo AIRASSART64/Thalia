@@ -23,11 +23,12 @@ class VenueVoter extends Voter
             return false;
         }
 
-        if (in_array($attribute, [self::EDIT, self::DELETE])) {
+        // Pour VIEW, EDIT et DELETE, le sujet DOIT être une instance de Venue
+        if (in_array($attribute, [self::VIEW, self::EDIT, self::DELETE])) {
             return $subject instanceof Venue;
         }
 
-        return true;
+        return true; // Uniquement pour CREATE (qui n'a pas besoin d'instance Venue)
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
@@ -47,19 +48,24 @@ class VenueVoter extends Voter
         };
     }
 
+    /**
+     * Vérifie si l'utilisateur possède au moins un des rôles autorisés
+     */
     private function hasRequiredRole(): bool
     {
-    
         return $this->security->isGranted('ROLE_TECHNICIEN') 
-            || $this->security->isGranted('ROLE_PROGRAMMATEUR');
+            || $this->security->isGranted('ROLE_PROGRAMMATEUR')
+            || $this->security->isGranted('ROLE_FINANCIER'); 
     }
 
-    private function canView(mixed $venue, User $user): bool
+    private function canView(Venue $venue, User $user): bool
     {
-        
-        if (!$venue instanceof Venue) {
-            return true;
+        // L'utilisateur doit avoir un rôle autorisé (Technicien, Programmateur ou Financier)
+        if (!$this->hasRequiredRole()) {
+            return false;
         }
+
+        // La salle doit appartenir à la même organisation que l'utilisateur
         return $venue->getOrganization() === $user->getOrganization();
     }
 

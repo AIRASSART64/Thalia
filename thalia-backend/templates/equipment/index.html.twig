@@ -1,20 +1,136 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello EquipmentController!{% endblock %}
+{% block title %}Inventaire des équipements{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
-<div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+    {# EN-TÊTE #}
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-2 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
+                <span>Parc Matériel</span>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-900">Équipements</h1>
+            <p class="text-xs text-gray-500 mt-1">Gérez le matériel technique, son emplacement et son état.</p>
+        </div>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code>/var/www/thalia-backend/src/Controller/EquipmentController.php</code></li>
-        <li>Your template at <code>/var/www/thalia-backend/templates/equipment/index.html.twig</code></li>
-    </ul>
+        {% if is_granted('EQUIPMENT_CREATE') %}
+            <a href="{{ path('equipment_new') }}" class="inline-flex items-center justify-center gap-2 bg-slate-900 text-white text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-slate-800 transition shadow-sm">
+                <i class="fa-solid fa-plus text-xs"></i>
+                <span>Ajouter un équipement</span>
+            </a>
+        {% endif %}
+    </div>
+
+    {# LISTE DU MATÉRIEL #}
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        
+        {% if equipments is empty %}
+            <div class="p-8 text-center space-y-3">
+                <div class="w-12 h-12 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center mx-auto text-lg">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                </div>
+                <p class="text-sm font-semibold text-gray-700">Aucun équipement enregistré</p>
+                <p class="text-xs text-gray-400 max-w-sm mx-auto">Vous n'avez pas encore ajouté de matériel dans votre inventaire.</p>
+                {% if is_granted('EQUIPMENT_CREATE') %}
+                    <a href="{{ path('equipment_new') }}" class="inline-flex items-center gap-2 text-xs font-bold text-indigo-600 hover:text-indigo-800 transition pt-2">
+                        Créer le premier équipement <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                    </a>
+                {% endif %}
+            </div>
+        {% else %}
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-gray-100 bg-gray-50/50 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                            <th class="py-3.5 px-4 sm:px-6">Matériel</th>
+                            <th class="py-3.5 px-4">Catégorie</th>
+                            <th class="py-3.5 px-4">Salle / Emplacement</th>
+                            <th class="py-3.5 px-4 text-center">Quantité</th>
+                            <th class="py-3.5 px-4">État</th>
+                            <th class="py-3.5 px-4 sm:px-6 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50 text-xs text-gray-700">
+                        {% for equipment in equipments %}
+                            <tr class="hover:bg-gray-50/60 transition">
+                                {# Nom + Numéro de série #}
+                                <td class="py-4 px-4 sm:px-6 font-bold text-gray-900">
+                                    <a href="{{ path('equipment_show', {'id': equipment.id}) }}" class="hover:text-indigo-600 transition block">
+                                        {{ equipment.name }}
+                                    </a>
+                                    {% if equipment.serialNumber is defined and equipment.serialNumber %}
+                                        <span class="text-[11px] font-mono font-normal text-gray-400 block mt-0.5">
+                                            S/N: {{ equipment.serialNumber }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+
+                               
+                                <td class="py-4 px-4">
+                                    
+                                <span class="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide z-10 relative">
+            
+                                    {{ equipment.category.value|default('Non renseigné') }}
+                                </span>
+                                </td>
+
+                                {# Salle rattachée #}
+                                <td class="py-4 px-4">
+                                    {% if equipment.venue is defined and equipment.venue %}
+                                        <div class="flex items-center gap-1.5 text-gray-600 font-medium">
+                                            <i class="fa-regular fa-building text-gray-400 text-[11px]"></i>
+                                            <span>{{ equipment.venue.name }}</span>
+                                        </div>
+                                    {% else %}
+                                        <span class="text-gray-400 font-normal italic">Non assigné</span>
+                                    {% endif %}
+                                </td>
+
+                                {# Quantité #}
+                                <td class="py-4 px-4 text-center font-bold text-gray-800">
+                                    {{ equipment.totalQuantity|default(1) }}
+                                </td>
+
+                                
+                                {# <td class="py-4 px-4">
+                                    {% set rawStatus = equipment.status|default('OK') %}
+                                    {% set statusStr = rawStatus is iterable ? rawStatus|first : rawStatus.value|default(rawStatus) %}
+                                    
+                                    {% if statusStr in ['OK', 'Excellent', 'Bon état', 'Disponible'] %}
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> {{ statusStr }}
+                                        </span>
+                                    {% elseif statusStr in ['En maintenance', 'À réparer', 'Endommagé'] %}
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-100">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> {{ statusStr }}
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-gray-100 text-gray-600 border border-gray-200">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span> {{ statusStr }}
+                                        </span>
+                                    {% endif %}
+                                </td> #}
+
+                                {# Boutons d'action #}
+                                {# <td class="py-4 px-4 sm:px-6 text-right space-x-1">
+                                    <a href="{{ path('equipment_show', {'id': equipment.id}) }}" class="inline-flex items-center justify-center p-2 rounded-lg text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 transition" title="Consulter">
+                                        <i class="fa-regular fa-eye text-sm"></i>
+                                    </a>
+                                    {% if is_granted('EQUIPMENT_EDIT', equipment) %}
+                                        <a href="{{ path('equipment_edit', {'id': equipment.id}) }}" class="inline-flex items-center justify-center p-2 rounded-lg text-gray-400 hover:text-slate-800 hover:bg-gray-100 transition" title="Modifier">
+                                            <i class="fa-regular fa-pen-to-square text-sm"></i>
+                                        </a>
+                                    {% endif %}
+                                </td> #}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+
+    </div>
 </div>
 {% endblock %}

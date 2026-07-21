@@ -7,8 +7,8 @@
 
     {# ─── 1. BANDEAU DE COUVERTURE IMMERSIF (HERO BANNER) ─── #}
     <div class="relative w-full h-[320px] md:h-[380px] rounded-3xl overflow-hidden shadow-md bg-slate-900 mb-8">
-        {# Image de fond (Affiche sécurisée) #}
-        {% if show.artworkUrl %}
+        {# Image de fond #}
+        {% if show.artworkUrl is defined and show.artworkUrl %}
             <img src="{{ path('secure_show_image', {'id': show.id}) }}" class="absolute inset-0 w-full h-full object-cover opacity-45" alt="{{ show.title }}">
         {% else %}
             <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 opacity-80"></div>
@@ -20,13 +20,18 @@
         {# Contenu du bandeau #}
         <div class="absolute inset-x-0 bottom-0 p-6 md:p-8 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <div class="space-y-3 max-w-2xl">
-                {# Badge Discipline #}
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-sky-500 text-white shadow-sm">
-                    <i class="fa-solid fa-masks-theater text-[10px]"></i>
-                    {{ show.discipline.value|capitalize }}
-                </span>
+                {# Badge Discipline - CORRIGÉ & SÉCURISÉ #}
+               {% if show.discipline is defined and show.discipline is not null %}
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-sky-500 text-white shadow-sm">
+                        <i class="fa-solid fa-masks-theater text-[10px]"></i>
+                        {% if show.discipline.value is defined %}
+                            {{ show.discipline.value|capitalize }}
+                        {% else %}
+                            {{ show.discipline|capitalize }}
+                        {% endif %}
+                    </span>
+                {% endif %}
                 
-                {# Compagnie (Si gérée dans ton entité, sinon texte générique de la maquette) #}
                 <p class="text-slate-300 text-sm font-medium tracking-wide">Compagnie de l'Instant Présent</p>
                 
                 {# Titre du spectacle #}
@@ -36,10 +41,12 @@
                 
                 {# Méta-infos (Durée, Âge) #}
                 <div class="flex flex-wrap items-center gap-4 text-slate-300 text-xs font-semibold pt-1">
-                    <span class="flex items-center gap-1.5">
-                        <i class="fa-regular fa-clock text-sky-400"></i>
-                        Durée : {{ show.durationMin }} min
-                    </span>
+                    {% if show.durationMin is defined and show.durationMin %}
+                        <span class="flex items-center gap-1.5">
+                            <i class="fa-regular fa-clock text-sky-400"></i>
+                            Durée : {{ show.durationMin }} min
+                        </span>
+                    {% endif %}
                     <span class="flex items-center gap-1.5">
                         <i class="fa-solid fa-user-group text-sky-400"></i>
                         Public : 12+ ans
@@ -49,10 +56,12 @@
 
             {# Actions rapides #}
             <div class="flex items-center gap-3 shrink-0">
-                <a href="{{ path('show_edit', {'id': show.id}) }}" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-semibold text-xs shadow-sm transition">
-                    <i class="fa-regular fa-pen-to-square text-indigo-600 text-sm"></i>
-                    Modifier le spectacle
-                </a>
+                {% if is_granted('SHOW_EDIT', show) %}
+                    <a href="{{ path('show_edit', {'id': show.id}) }}" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-semibold text-xs shadow-sm transition">
+                        <i class="fa-regular fa-pen-to-square text-indigo-600 text-sm"></i>
+                        Modifier le spectacle
+                    </a>
+                {% endif %}
                 <button class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700 text-slate-200 hover:text-white font-semibold text-xs shadow-sm transition">
                     <i class="fa-solid fa-file-pdf text-rose-500 text-sm"></i>
                     Exporter PDF
@@ -79,17 +88,16 @@
         </nav>
     </div>
 
-    {# ─── 3. GRILLE DE CONTENU PRINCIPALE (2 COLONNES) ─── #}
+    {# ─── 3. GRILLE DE CONTENU PRINCIPALE ─── #}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         
-        {# ─── COLONNE GAUCHE : DÉTAILS DU SPECTACLE (2/3 de large sur PC) ─── #}
+        {# COLONNE GAUCHE #}
         <div class="lg:col-span-2 space-y-6">
             
             {# Bloc Synopsis #}
             <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
                 <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider">Synopsis</h3>
                 <p class="text-slate-600 text-sm leading-relaxed">
-                    {# Si ton entité possède un champ description/synopsis #}
                     {% if show.description is defined and show.description %}
                         {{ show.description|nl2br }}
                     {% else %}
@@ -106,7 +114,6 @@
                 </div>
                 
                 <div class="divide-y divide-slate-100">
-                    {# Membre 1 (Exemple statique tiré de la maquette, à lier à une relation si présente) #}
                     <div class="flex items-center justify-between py-3.5 first:pt-0 last:pb-0">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-slate-600 text-xs overflow-hidden">
@@ -122,49 +129,15 @@
                             <span class="inline-flex items-center px-2 py-0.5 mt-1 rounded text-[10px] font-bold bg-green-50 text-green-700 border border-green-100 uppercase">sous contrat</span>
                         </div>
                     </div>
-
-                    {# Membre 2 #}
-                    <div class="flex items-center justify-between py-3.5">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-slate-600 text-xs overflow-hidden">
-                                <i class="fa-regular fa-user text-sm"></i>
-                            </div>
-                            <div>
-                                <h4 class="text-sm font-bold text-slate-800">Marc Lefeuvre</h4>
-                                <p class="text-xs text-slate-400">Danseur</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-xs font-semibold text-slate-600 block">Chorégraphe & Enseigne</span>
-                            <span class="inline-flex items-center px-2 py-0.5 mt-1 rounded text-[10px] font-bold bg-green-50 text-green-700 border border-green-100 uppercase">sous contrat</span>
-                        </div>
-                    </div>
-
-                    {# Membre 3 #}
-                    <div class="flex items-center justify-between py-3.5">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-slate-600 text-xs overflow-hidden">
-                                <i class="fa-regular fa-user text-sm"></i>
-                            </div>
-                            <div>
-                                <h4 class="text-sm font-bold text-slate-800">Sofia Benali</h4>
-                                <p class="text-xs text-slate-400">Scénographe</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-xs font-semibold text-slate-600 block">Conception décor</span>
-                            <span class="inline-flex items-center px-2 py-0.5 mt-1 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-100 uppercase">En attente signature</span>
-                        </div>
-                    </div>
                 </div>
             </div>
 
         </div>
 
-        {# ─── COLONNE DROITE : FINANCES & TECHNIQUES (1/3 de large sur PC) ─── #}
+        {# COLONNE DROITE #}
         <div class="space-y-6">
             
-            {# Bloc Finances de Production #}
+            {# Bloc Finances #}
             <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
                 <div class="flex items-center justify-between">
                     <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider">Finances de Production</h3>
@@ -181,22 +154,10 @@
                         <span class="text-slate-400">Rentabilité</span>
                         <span class="text-sky-500">72% atteint</span>
                     </div>
-                    {# Barre de progression stylisée #}
                     <div class="w-full bg-slate-100 rounded-full h-2">
                         <div class="bg-sky-500 h-2 rounded-full" style="width: 72%"></div>
                     </div>
                 </div>
-
-                {# Histogramme de projection (Inspiré du graphique de ta maquette) #}
-                <div class="flex items-end justify-between h-16 pt-4 px-2 bg-slate-50/50 rounded-xl">
-                    <div class="w-5 bg-slate-200 rounded-t h-8"></div>
-                    <div class="w-5 bg-slate-200 rounded-t h-12"></div>
-                    <div class="w-5 bg-sky-300 rounded-t h-10"></div>
-                    <div class="w-5 bg-sky-500 rounded-t h-14"></div>
-                    <div class="w-5 bg-sky-400 rounded-t h-12"></div>
-                    <div class="w-5 bg-slate-200 rounded-t h-6"></div>
-                </div>
-                <p class="text-center text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Projection 12 mois</p>
             </div>
 
             {# Bloc Besoins Techniques #}
@@ -204,7 +165,6 @@
                 <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider">Besoins Techniques</h3>
                 
                 <div class="space-y-3">
-                    {# Éclairage #}
                     <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
                         <div class="p-2 rounded-lg bg-sky-50 text-sky-500">
                             <i class="fa-regular fa-lightbulb text-sm"></i>
@@ -214,31 +174,8 @@
                             <p class="text-[11px] text-slate-500 mt-0.5">Plan de feu complexe. 12 PAR LED RGBW.</p>
                         </div>
                     </div>
-
-                    {# Sonorisation #}
-                    <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
-                        <div class="p-2 rounded-lg bg-indigo-50 text-indigo-500">
-                            <i class="fa-solid fa-volume-high text-sm"></i>
-                        </div>
-                        <div>
-                            <h4 class="text-xs font-bold text-slate-800">Sonorisation</h4>
-                            <p class="text-[11px] text-slate-500 mt-0.5">Système Spatialisé 5.1. Console 32 entrées.</p>
-                        </div>
-                    </div>
-
-                    {# Vidéo #}
-                    <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
-                        <div class="p-2 rounded-lg bg-rose-50 text-rose-500">
-                            <i class="fa-solid fa-video text-sm"></i>
-                        </div>
-                        <div>
-                            <h4 class="text-xs font-bold text-slate-800">Vidéo</h4>
-                            <p class="text-[11px] text-slate-500 mt-0.5">Projecteur 10k lumens. Toile noire.</p>
-                        </div>
-                    </div>
                 </div>
 
-                {# Bouton Télécharger fiche technique #}
                 <button class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-slate-200 hover:border-sky-500 text-slate-600 hover:text-sky-600 font-bold text-xs transition">
                     <i class="fa-solid fa-download"></i>
                     Télécharger la fiche technique
@@ -249,7 +186,7 @@
 
     </div>
 
-    {# Bouton d'action flottant en bas à droite (identique à la maquette) #}
+    {# Bouton d'action flottant #}
     <div class="fixed bottom-6 right-6">
         <button class="w-14 h-14 rounded-full bg-sky-500 hover:bg-sky-600 text-white flex items-center justify-center shadow-lg transition duration-200 transform hover:scale-105">
             <i class="fa-solid fa-plus text-xl"></i>

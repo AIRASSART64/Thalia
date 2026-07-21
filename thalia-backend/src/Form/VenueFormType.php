@@ -116,10 +116,10 @@ class VenueFormType extends AbstractType
         $resolver->setDefaults([
             'data_class' => Venue::class,
             
-            'current_organization' => null, 
+            'user_organization' => null, 
         ]);
 
         
-        $resolver->setAllowedTypes('current_organization', [Organization::class, 'null']);
+        $resolver->setAllowedTypes('user_organization', [Organization::class, 'null']);
     }
 }

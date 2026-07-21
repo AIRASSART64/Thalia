@@ -51,7 +51,7 @@ class ShowVoter extends Voter
         }
 
         // Si un spectacle est spécifié, il doit appartenir à l'organisation de l'utilisateur
-        return $show->getOrganization() === $user->getOrganization();
+        return $show->getOrganization()->getId() === $user->getOrganization()->getId();
     }
 
     private function canCreate(): bool

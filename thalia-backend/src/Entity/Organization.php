@@ -106,6 +106,12 @@ class Organization
     #[ORM\OneToMany(targetEntity: Venue::class, mappedBy: 'organization')]
     private Collection $venues;
 
+    /**
+     * @var Collection<int, Equipment>
+     */
+    #[ORM\OneToMany(targetEntity: Equipment::class, mappedBy: 'organization', orphanRemoval: true)]
+    private Collection $equipment;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -113,6 +119,7 @@ class Organization
         $this->notifications = new ArrayCollection();
         $this->contacts = new ArrayCollection();
         $this->venues = new ArrayCollection();
+        $this->equipment = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -489,6 +496,36 @@ class Organization
             // set the owning side to null (unless already changed)
             if ($venue->getOrganization() === $this) {
                 $venue->setOrganization(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Equipment>
+     */
+    public function getEquipment(): Collection
+    {
+        return $this->equipment;
+    }
+
+    public function addEquipment(Equipment $equipment): static
+    {
+        if (!$this->equipment->contains($equipment)) {
+            $this->equipment->add($equipment);
+            $equipment->setOrganization($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEquipment(Equipment $equipment): static
+    {
+        if ($this->equipment->removeElement($equipment)) {
+            // set the owning side to null (unless already changed)
+            if ($equipment->getOrganization() === $this) {
+                $equipment->setOrganization(null);
             }
         }
 

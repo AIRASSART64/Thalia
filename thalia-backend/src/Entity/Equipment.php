@@ -8,6 +8,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: EquipmentRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Equipment
 {
     #[ORM\Id]
@@ -18,14 +19,24 @@ class Equipment
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $name = null;
 
-    #[ORM\Column(type: Types::SIMPLE_ARRAY, nullable: true, enumType: EquipmentCategoyEnum::class)]
-    private ?array $category = null;
+    #[ORM\Column(length:255, nullable: true, enumType: EquipmentCategoyEnum::class)]
+    private ?EquipmentCategoyEnum $category = null;
 
     #[ORM\Column(nullable: true)]
     private ?int $total_quantity = null;
 
     #[ORM\ManyToOne(inversedBy: 'equipment')]
     private ?Venue $venue = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $created_at = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $updated_at = null;
+
+    #[ORM\ManyToOne(inversedBy: 'equipment')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Organization $organization = null;
 
     public function getId(): ?int
     {
@@ -44,15 +55,13 @@ class Equipment
         return $this;
     }
 
-    /**
-     * @return EquipmentCategoyEnum[]|null
-     */
-    public function getCategory(): ?array
+    
+    public function getCategory(): ?EquipmentCategoyEnum
     {
         return $this->category;
     }
 
-    public function setCategory(?array $category): static
+    public function setCategory(?EquipmentCategoyEnum $category): static
     {
         $this->category = $category;
 
@@ -81,5 +90,54 @@ class Equipment
         $this->venue = $venue;
 
         return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->created_at;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $created_at): static
+    {
+        $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updated_at;
+    }
+
+    public function setUpdatedAt(\DateTimeImmutable $updated_at): static
+    {
+        $this->updated_at = $updated_at;
+
+        return $this;
+    }
+
+    public function getOrganization(): ?Organization
+    {
+        return $this->organization;
+    }
+
+    public function setOrganization(?Organization $organization): static
+    {
+        $this->organization = $organization;
+
+        return $this;
+    }
+       #[ORM\PrePersist]
+     public function setInitialDates(): void
+    {
+    $now = new \DateTimeImmutable();
+    $this->created_at = $now;
+    $this->updated_at = $now;
+    }
+
+    #[ORM\PreUpdate]
+    public function updateTimestamp(): void
+    {
+    $this->updated_at = new \DateTimeImmutable();
     }
 }

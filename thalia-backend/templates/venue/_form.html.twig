@@ -88,9 +88,9 @@
             <div>
                 {{ form_label(form.venueImageFile, null, {'label_attr': {'class': 'block text-xs font-bold text-gray-500 uppercase mb-2'}}) }}
                 <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
-                    {% if venue is defined and venue.id and venue.imageName %}
+                    {% if venue is defined and venue.id and venue.venueImage %}
                         <div class="w-16 h-16 rounded-xl overflow-hidden bg-gray-200 shrink-0 border border-gray-100 shadow-sm mx-auto sm:mx-0">
-                            <img src="{{ asset('uploads/venues/images/' ~ venue.imageName) }}" class="w-full h-full object-cover" alt="Affiche actuelle">
+                            <img src="{{ path('secure_venue_image', {'id': venue.id}) }}" alt="{{ venue.name }}" " class="w-full h-full object-cover">
                         </div>
                     {% else %}
                         <div class="w-16 h-16 rounded-xl bg-gray-200 flex items-center justify-center shrink-0 text-gray-400 mx-auto sm:mx-0">

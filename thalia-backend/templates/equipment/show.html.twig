@@ -1,0 +1,120 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ equipment.name }}{% endblock %}
+
+{% block body %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+
+
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-2 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
+                <a href="{{ path('equipment_index') }}" class="hover:text-gray-600 transition">Équipements</a>
+                <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                <span class="text-indigo-600">Détails</span>
+            </div>
+            <h1 class="text-2xl font-bold text-gray-900">{{ equipment.name }}</h1>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <a href="{{ path('equipment_index') }}" class="px-3.5 py-2 text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition">
+                <i class="fa-solid fa-arrow-left text-[10px] mr-1"></i> Retour
+            </a>
+
+            {% if is_granted('EQUIPMENT_EDIT', equipment) %}
+                <a href="{{ path('equipment_edit', {'id': equipment.id}) }}" class="inline-flex items-center gap-2 bg-slate-900 text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-slate-800 transition shadow-sm">
+                    <i class="fa-regular fa-pen-to-square text-xs"></i> Modifier
+                </a>
+            {% endif %}
+
+            {% if is_granted('EQUIPMENT_DELETE', equipment) %}
+                <form method="post" action="{{ path('equipment_delete', {'id': equipment.id}) }}" onsubmit="return confirm('Êtes-vous certain de vouloir supprimer cet équipement ?');" class="inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ equipment.id) }}">
+                    <button type="submit" class="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition text-xs font-bold" title="Supprimer">
+                        <i class="fa-regular fa-trash-can"></i>
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+    {# PRINCIPALES DONNÉES #}
+    {# <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6 space-y-6">
+        
+        <h2 class="text-sm font-bold text-gray-900 border-b border-gray-150 pb-3 uppercase tracking-wider flex justify-between items-center">
+            <span>Fiche technique de l'équipement</span>
+            
+            {% set status = equipment.status|default('OK') %}
+            {% if status in ['OK', 'Excellent', 'Bon état', 'Disponible'] %}
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 normal-case">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> {{ status }}
+                </span>
+            {% elseif status in ['En maintenance', 'À réparer', 'Endommagé'] %}
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-100 normal-case">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> {{ status }}
+                </span>
+            {% else %}
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-gray-100 text-gray-600 border border-gray-200 normal-case">
+                    <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span> {{ status }}
+                </span>
+            {% endif %}
+        </h2> #}
+
+        {# INFORMATIONS GÉNÉRALES #}
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="bg-gray-50 rounded-xl p-3.5 border border-gray-100">
+                <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Catégorie</span>
+                <span class="text-sm font-bold text-gray-800 mt-1 block">
+                    {{ equipment.category.value|default('Non renseigné') }}
+                </span>
+            </div>
+
+            <div class="bg-gray-50 rounded-xl p-3.5 border border-gray-100">
+                <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Quantité disponible</span>
+                <span class="text-sm font-bold text-gray-800 mt-1 block">
+                    {{ equipment.totalQuantity|default(1) }} unité(s)
+                </span>
+            </div>
+
+            <div class="bg-gray-50 rounded-xl p-3.5 border border-gray-100">
+                <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">Numéro de série</span>
+                <span class="text-sm font-mono font-bold text-gray-800 mt-1 block">
+                    {{ equipment.serialNumber|default('Non renseigné') }}
+                </span>
+            </div>
+        </div>
+
+        {# EMPLACEMENT & RATTACHEMENT #}
+        <div class="border-t border-gray-50 pt-4 space-y-3">
+            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Affectation & Emplacement</h3>
+            
+            <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                    <i class="fa-regular fa-building text-base"></i>
+                </div>
+                <div>
+                    <span class="block text-[11px] font-bold text-gray-400 uppercase">Salle / Espace associé</span>
+                    {% if equipment.venue is defined and equipment.venue %}
+                        <a href="{{ path('venue_show', {'id': equipment.venue.id}) }}" class="text-sm font-bold text-gray-900 hover:text-indigo-600 transition">
+                            {{ equipment.venue.name }} <i class="fa-solid fa-arrow-up-right-from-square text-[10px] ml-1 text-gray-400"></i>
+                        </a>
+                    {% else %}
+                        <span class="text-sm font-semibold text-gray-500 italic">Aucune salle spécifique attribuée (Stock général)</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {# NOTES ET REMARQUES DE MAINTENANCE #}
+        {% if equipment.description is defined and equipment.description %}
+            <div class="border-t border-gray-50 pt-4 space-y-2">
+                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Notes & Remarques</h3>
+                <div class="p-4 bg-gray-50 rounded-xl border border-gray-100 text-xs text-gray-700 leading-relaxed whitespace-pre-line">
+                    {{ equipment.description }}
+                </div>
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

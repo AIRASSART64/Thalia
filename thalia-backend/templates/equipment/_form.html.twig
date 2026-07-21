@@ -1,0 +1,98 @@
+{{ form_start(form, {'attr': {'class': 'space-y-6', 'novalidate': 'novalidate'}}) }}
+
+<div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-6 space-y-6">
+    
+    <h2 class="text-sm font-bold text-gray-900 border-b border-gray-150 pb-3 uppercase tracking-wider">
+        Données du matériel
+    </h2>
+
+    {# INFORMATIONS GÉNÉRALES #}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {# Nom du matériel #}
+        <div>
+            {{ form_label(form.name, null, {'label_attr': {'class': 'block text-xs font-bold text-gray-500 uppercase mb-2'}}) }}
+            {{ form_widget(form.name, {'attr': {'class': 'w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition outline-none text-gray-800', 'placeholder': 'Ex: Enceinte L-Acoustics X8, Projecteur Lyre LED...'}}) }}
+            {{ form_errors(form.name, {'attr': {'class': 'text-red-500 text-xs mt-1'}}) }}
+        </div>
+
+        {# Catégorie ou Type d'équipement #}
+        {% if form.category is defined %}
+        <div>
+            {{ form_label(form.category, null, {'label_attr': {'class': 'block text-xs font-bold text-gray-500 uppercase mb-2'}}) }}
+            {{ form_widget(form.category, {'attr': {'class': 'w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition outline-none text-gray-800'}}) }}
+            {{ form_errors(form.category, {'attr': {'class': 'text-red-500 text-xs mt-1'}}) }}
+        </div>
+        {% endif %}
+    </div>
+
+    {# LOCALISATION #}
+    <div class="border-t border-gray-50 pt-4 space-y-4">
+        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Emplacement & Quantité</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {# Salle attribuée (Venue) #}
+            {% if form.venue is defined %}
+            <div>
+                {{ form_label(form.venue, null, {'label_attr': {'class': 'block text-xs font-bold text-gray-500 uppercase mb-2'}}) }}
+                {{ form_widget(form.venue, {'attr': {'class': 'w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition outline-none text-gray-800'}}) }}
+                {{ form_errors(form.venue, {'attr': {'class': 'text-red-500 text-xs mt-1'}}) }}
+            </div>
+            {% endif %}
+
+            {# Quantité #}
+            {% if form.total_quantity is defined %}
+            <div>
+                {{ form_label(form.total_quantity, null, {'label_attr': {'class': 'block text-xs font-bold text-gray-500 uppercase mb-2'}}) }}
+                {{ form_widget(form.total_quantity, {'attr': {'class': 'w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition outline-none text-gray-800'}}) }}
+                {{ form_errors(form.total_quantity, {'attr': {'class': 'text-red-500 text-xs mt-1'}}) }}
+            </div>
+            {% endif %}
+
+            {# État matériel #}
+            {% if form.status is defined %}
+            <div>
+                {{ form_label(form.status, null, {'label_attr': {'class': 'block text-xs font-bold text-gray-500 uppercase mb-2'}}) }}
+                {{ form_widget(form.status, {'attr': {'class': 'w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition outline-none text-gray-800'}}) }}
+                {{ form_errors(form.status, {'attr': {'class': 'text-red-500 text-xs mt-1'}}) }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {# 3. SUIVI DÉTAILLÉ & DÉSIGNATION #}
+    <div class="border-t border-gray-50 pt-4 space-y-4">
+        <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Identifiants & Détails</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {# Numéro de série ou Code Barre #}
+            {% if form.serialNumber is defined %}
+            <div>
+                {{ form_label(form.serialNumber, null, {'label_attr': {'class': 'block text-xs font-bold text-gray-500 uppercase mb-2'}}) }}
+                {{ form_widget(form.serialNumber, {'attr': {'class': 'w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition outline-none text-gray-800', 'placeholder': 'Ex: SN-894723-X'}}) }}
+                {{ form_errors(form.serialNumber, {'attr': {'class': 'text-red-500 text-xs mt-1'}}) }}
+            </div>
+            {% endif %}
+
+            {# Remarques / Notes d'entretien #}
+            {% if form.description is defined %}
+            <div class="md:col-span-2">
+                {{ form_label(form.description, null, {'label_attr': {'class': 'block text-xs font-bold text-gray-500 uppercase mb-2'}}) }}
+                {{ form_widget(form.description, {'attr': {'class': 'w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition outline-none text-gray-800', 'rows': '3', 'placeholder': 'Notes particulières, accessoires inclus ou défauts d\'usure...'}}) }}
+                {{ form_errors(form.description, {'attr': {'class': 'text-red-500 text-xs mt-1'}}) }}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {# ACTIONS #}
+    <div class="border-t border-gray-50 pt-4 flex flex-col-reverse sm:flex-row justify-between items-center gap-4">
+        <a href="{{ path('equipment_index') }}" class="w-full sm:w-auto text-center text-xs font-semibold text-gray-500 hover:text-gray-700 transition py-2">
+            Annuler
+        </a>
+        <button type="submit" class="w-full sm:w-auto justify-center bg-slate-900 text-white text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-slate-800 transition shadow-sm inline-flex items-center gap-2">
+            {{ button_label|default('Enregistrer') }} <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </button>
+    </div>
+
+</div>
+
+{{ form_rest(form) }}
+{{ form_end(form) }}

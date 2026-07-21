@@ -7,6 +7,7 @@ use App\Form\VenueFormType;
 use App\Repository\VenueRepository;
 use App\Service\CrudManagerService;
 use App\Service\FileUpLoader;
+use App\Service\UserContextService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,7 +23,8 @@ class VenueController extends AbstractController
     public function __construct(
         private CrudManagerService $crudManager,
         private FileUpLoader $fileUpLoader,
-         private ParameterBagInterface $params,
+        private ParameterBagInterface $params,
+        private UserContextService $userContext,
     ) {}
 
     #[Route('/', name: 'venue_index', methods:['GET'])]
@@ -30,11 +32,7 @@ class VenueController extends AbstractController
     {
         $this->denyAccessUnlessGranted('VENUE_VIEW');
 
-        $user = $this->getUser();
-        if (!$user instanceof \App\Entity\User) {
-            throw new \LogicException('L\'utilisateur doit être connecté avec un compte valide.');
-        }
-        $venues = $venueRepository->findBy(['organization' => $user->getOrganization()]);
+        $venues = $venueRepository->findBy(['organization' => $this->userContext->getOrganization()]);
         return $this->render('venue/index.html.twig', [
             'venues' => $venues,
         ]);
@@ -46,13 +44,8 @@ class VenueController extends AbstractController
 
         $venue = new Venue();
 
-        $user = $this->getUser();
-         if (!$user instanceof \App\Entity\User) {
-        throw new \LogicException('L\'utilisateur doit être connecté avec un compte valide.');
-        }
-
         $formVenue = $this->createForm(VenueFormType::class, $venue, [
-            'current_organization'=> $user->getOrganization(),
+            'user_organization'=> $this->userContext->getOrganization(),
         ]);
         $formVenue->handleRequest($request);
         if($formVenue->isSubmitted() && $formVenue->isValid()){
@@ -87,14 +80,11 @@ class VenueController extends AbstractController
     {
         $this->denyAccessUnlessGranted('VENUE_EDIT', $venue);
 
-       $user = $this->getUser();
-         if (!$user instanceof \App\Entity\User) {
-        throw new \LogicException('L\'utilisateur doit être connecté avec un compte valide.');
-        }
+      
         $oldImage = $venue->getVenueImage();
         $oldPlan = $venue->getVenuePlan();
         $formVenue = $this->createForm(VenueFormType::class, $venue, [
-            'current_organization'=> $user->getOrganization(),
+            'user_organization'=> $this->userContext->getOrganization(),
         ]);
         $formVenue->handleRequest($request);
         if($formVenue->isSubmitted() && $formVenue->isValid()){

@@ -7,6 +7,7 @@ use App\Form\ShowFormType;
 use App\Repository\ShowRepository;
 use App\Service\CrudManagerService;
 use App\Service\FileUpLoader;
+use App\Service\UserContextService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,6 +24,7 @@ class ShowController extends AbstractController
     public function __construct(
         private CrudManagerService $crudManager,
         private FileUpLoader $fileUpLoader,
+        private UserContextService $userContext,
         private ParameterBagInterface $params)
     {}
  
@@ -30,12 +32,8 @@ class ShowController extends AbstractController
     public function index(ShowRepository $showRepository): Response
     {
         $this->denyAccessUnlessGranted('SHOW_VIEW');
-         $user = $this->getUser();
-        if (!$user instanceof \App\Entity\User) {
-            throw new \LogicException('L\'utilisateur doit être connecté avec un compte valide.');
-        }
 
-        $shows = $showRepository->findBy(['organization'=> $user->getOrganization()]);
+        $shows = $showRepository->findBy(['organization'=> $this->userContext->getOrganization()]);
 
         return $this->render('show/index.html.twig', [ 'shows' => $shows]);
             
@@ -47,13 +45,9 @@ class ShowController extends AbstractController
     {
         $this->denyAccessUnlessGranted('SHOW_CREATE');
         $show = new Show();
-        $user = $this->getUser();
-
-    if (!$user instanceof \App\Entity\User) {
-    throw new \LogicException('L\'utilisateur doit être connecté avec un compte valide.');
-    }
+       
         $formShow = $this->createForm(ShowFormType::class, $show , [
-            'current_organization'=> $user->getOrganization(),
+            'user_organization'=> $this->userContext->getOrganization(),
         ]);
         $formShow->handleRequest($request);
 
@@ -81,13 +75,9 @@ class ShowController extends AbstractController
     {
         $this->denyAccessUnlessGranted('SHOW_EDIT', $show);
         $oldArtwork = $show->getArtworkUrl();
-        $user= $this->getUser();
-
-       if (!$user instanceof \App\Entity\User) {
-            throw new \LogicException('L\'utilisateur doit être connecté avec un compte valide.');
-        }
+       
         $formShow = $this->createForm(ShowFormType::class, $show, [
-            'current_organization' => $user->getOrganization(),
+            'user_organization' => $this->userContext->getOrganization(),
         ]);
 
         $formShow->handleRequest($request);

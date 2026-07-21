@@ -76,8 +76,8 @@ class ShowFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Show::class,
-            'current_organization' => null,
+            'user_organization' => null,
         ]);
-        $resolver->setRequired('current_organization');
+        $resolver->setRequired('user_organization');
     }
 }
