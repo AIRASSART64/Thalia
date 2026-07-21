@@ -1,0 +1,105 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Finances - Thalia{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-[#f8fafc] text-slate-800 pb-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+
+        {# En-tête de la page #}
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <div class="flex items-center gap-2 text-xs font-bold text-sky-600 uppercase tracking-wider mb-1">
+                    <i class="fa-solid fa-vault"></i>
+                    <span>Gestion Budgétaire</span>
+                </div>
+                <h1 class="text-2xl font-black text-slate-900 tracking-tight">Finances & Flux</h1>
+                <p class="text-xs text-slate-500 mt-1">Consultez et gérez les lignes budgétaires de votre organisation.</p>
+            </div>
+
+            {% if is_granted('FINANCIAL_CREATE') %}
+                <a href="{{ path('financial_new') }}" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-semibold text-xs shadow-md shadow-sky-500/20 transition">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    Nouvelle ligne
+                </a>
+            {% endif %}
+        </div>
+
+        {# Carte tableau #}
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50/80 border-b border-slate-100 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                            <th class="py-4 px-6">ID</th>
+                            <th class="py-4 px-6">Catégorie</th>
+                            <th class="py-4 px-6">Type</th>
+                            <th class="py-4 px-6">Description</th>
+                            <th class="py-4 px-6">Créé le</th>
+                            <th class="py-4 px-6 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-xs font-medium">
+                        {% for financial in financials %}
+                            <tr class="hover:bg-slate-50/60 transition">
+                                <td class="py-4 px-6 font-bold text-slate-400">#{{ financial.id }}</td>
+                                
+                                {# Badge Catégorie #}
+                                <td class="py-4 px-6">
+                                    {% if financial.category is not null %}
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-sky-50 text-sky-700 border border-sky-100">
+                                            <i class="fa-solid fa-chart-pie text-[10px]"></i>
+                                            {{ financial.category.value|default(financial.category)|capitalize }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-slate-400 italic">Non définie</span>
+                                    {% endif %}
+                                </td>
+
+                                {# Type #}
+                                <td class="py-4 px-6 font-semibold text-slate-800">
+                                    {{ financial.type.value|default(financial.type)|capitalize }}
+                                </td>
+
+                                {# Description #}
+                                <td class="py-4 px-6 text-slate-600 max-w-xs truncate">
+                                    {{ financial.description|default('—') }}
+                                </td>
+
+                                {# Date création #}
+                                <td class="py-4 px-6 text-slate-400 font-semibold">
+                                    <i class="fa-regular fa-calendar text-slate-300 mr-1"></i>
+                                    {{ financial.createdAt ? financial.createdAt|date('d/m/Y') : '—' }}
+                                </td>
+
+                                {# Actions rapides #}
+                                <td class="py-4 px-6 text-right space-x-1">
+                                    <a href="{{ path('financial_show', {'id': financial.id}) }}" class="p-2 rounded-lg text-slate-400 hover:text-sky-600 hover:bg-sky-50 transition inline-flex items-center" title="Consulter">
+                                        <i class="fa-regular fa-eye text-sm"></i>
+                                    </a>
+                                    
+                                    {% if is_granted('FINANCIAL_EDIT', financial) %}
+                                        <a href="{{ path('financial_edit', {'id': financial.id}) }}" class="p-2 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition inline-flex items-center" title="Modifier">
+                                            <i class="fa-regular fa-pen-to-square text-sm"></i>
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="6" class="py-12 text-center text-slate-400">
+                                    <div class="flex flex-col items-center gap-2">
+                                        <i class="fa-solid fa-coins text-3xl text-slate-200"></i>
+                                        <p class="font-semibold text-xs">Aucune ligne budgétaire enregistrée pour le moment.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

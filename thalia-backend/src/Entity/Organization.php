@@ -112,6 +112,12 @@ class Organization
     #[ORM\OneToMany(targetEntity: Equipment::class, mappedBy: 'organization', orphanRemoval: true)]
     private Collection $equipment;
 
+    /**
+     * @var Collection<int, Financial>
+     */
+    #[ORM\OneToMany(targetEntity: Financial::class, mappedBy: 'organization')]
+    private Collection $financials;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -120,6 +126,7 @@ class Organization
         $this->contacts = new ArrayCollection();
         $this->venues = new ArrayCollection();
         $this->equipment = new ArrayCollection();
+        $this->financials = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -526,6 +533,36 @@ class Organization
             // set the owning side to null (unless already changed)
             if ($equipment->getOrganization() === $this) {
                 $equipment->setOrganization(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Financial>
+     */
+    public function getFinancials(): Collection
+    {
+        return $this->financials;
+    }
+
+    public function addFinancial(Financial $financial): static
+    {
+        if (!$this->financials->contains($financial)) {
+            $this->financials->add($financial);
+            $financial->setOrganization($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFinancial(Financial $financial): static
+    {
+        if ($this->financials->removeElement($financial)) {
+            // set the owning side to null (unless already changed)
+            if ($financial->getOrganization() === $this) {
+                $financial->setOrganization(null);
             }
         }
 

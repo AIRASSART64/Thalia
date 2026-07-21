@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle Ligne Budgétaire - Thalia{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-[#f8fafc] text-slate-800 pb-12">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-6">
+
+        {# Fil d'Ariane #}
+        <div class="flex items-center gap-2 text-xs font-semibold text-slate-400">
+            <a href="{{ path('financial_index') }}" class="hover:text-slate-600 transition">Finances</a>
+            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+            <span class="text-slate-700">Création</span>
+        </div>
+
+        {# Carte du Formulaire #}
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 md:p-8 space-y-6">
+            <div class="border-b border-slate-100 pb-4">
+                <h1 class="text-xl font-bold text-slate-900 tracking-tight">Ajouter une ligne budgétaire</h1>
+                <p class="text-xs text-slate-500 mt-1">Renseignez la catégorie et le type de ligne pour mettre à jour la comptabilité prévisionnelle.</p>
+            </div>
+
+            {% include 'financial/_form.html.twig' with {'button_label': 'Créer la ligne'} %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

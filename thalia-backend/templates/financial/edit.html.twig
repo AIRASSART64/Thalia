@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier la Ligne #{{ financial.id }} - Thalia{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-[#f8fafc] text-slate-800 pb-12">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-6">
+
+        {# Fil d'Ariane #}
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2 text-xs font-semibold text-slate-400">
+                <a href="{{ path('financial_index') }}" class="hover:text-slate-600 transition">Finances</a>
+                <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                <a href="{{ path('financial_show', {'id': financial.id}) }}" class="hover:text-slate-600 transition">#{{ financial.id }}</a>
+                <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                <span class="text-slate-700">Modification</span>
+            </div>
+
+            {% if is_granted('FINANCIAL_DELETE', financial) %}
+                <form method="post" action="{{ path('financial_delete', {'id': financial.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette ligne budgétaire ?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ financial.id) }}">
+                    <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-rose-600 hover:bg-rose-50 text-xs font-bold transition">
+                        <i class="fa-regular fa-trash-can"></i>
+                        Supprimer
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+
+        {# Carte du Formulaire #}
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 md:p-8 space-y-6">
+            <div class="border-b border-slate-100 pb-4">
+                <h1 class="text-xl font-bold text-slate-900 tracking-tight">Modifier la ligne budgétaire</h1>
+                {# <p class="text-xs text-slate-500 mt-1">Ajustez les éléments comptables de cette transaction.</p> #}
+            </div>
+
+            {% include 'financial/_form.html.twig' with {'button_label': 'Mettre à jour'} %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}
