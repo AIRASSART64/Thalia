@@ -48,7 +48,7 @@ class FinancialController extends AbstractController
         $formFinancial->handleRequest($request);
 
         if ($formFinancial->isSubmitted() && $formFinancial->isValid()) {
-
+       
             $this->crudManager->create($financial);
             $this->addFlash('success', 'La ligne budgétaire a bien été créée.');
             return $this->redirectToRoute('financial_index');

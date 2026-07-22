@@ -1,103 +1,197 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Finances - Thalia{% endblock %}
+{% block title %}Budget & Finances - Thalia{% endblock %}
 
 {% block body %}
+{% set totalCredit = 0 %}
+{% set totalDebit = 0 %}
+
+{# Calcul préalable des totaux TTC #}
+{% for financial in financials %}
+    {% set vatMultiplier = (financial.vatRate is not null and financial.vatRate.getMultiplier is defined) ? financial.vatRate.getMultiplier() : 0 %}
+    {% set amountHt = financial.amountHt ?? 0 %}
+    {% set amountTtc = amountHt * (1 + vatMultiplier) %}
+
+    {% if financial.type is not null and financial.type.value == 'Credit' %}
+        {% set totalCredit = totalCredit + amountTtc %}
+    {% else %}
+        {% set totalDebit = totalDebit + amountTtc %}
+    {% endif %}
+{% endfor %}
+
+{% set balance = totalCredit - totalDebit %}
+
 <div class="min-h-screen bg-[#f8fafc] text-slate-800 pb-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
 
-        {# En-tête de la page #}
+        {# En-tête avec action #}
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
                 <div class="flex items-center gap-2 text-xs font-bold text-sky-600 uppercase tracking-wider mb-1">
-                    <i class="fa-solid fa-vault"></i>
-                    <span>Gestion Budgétaire</span>
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>Équilibre Budgétaire</span>
                 </div>
-                <h1 class="text-2xl font-black text-slate-900 tracking-tight">Finances & Flux</h1>
-                <p class="text-xs text-slate-500 mt-1">Consultez et gérez les lignes budgétaires de votre organisation.</p>
+                <h1 class="text-2xl font-black text-slate-900 tracking-tight">Tableau de Budget</h1>
             </div>
 
             {% if is_granted('FINANCIAL_CREATE') %}
                 <a href="{{ path('financial_new') }}" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-semibold text-xs shadow-md shadow-sky-500/20 transition">
                     <i class="fa-solid fa-plus text-xs"></i>
-                    Nouvelle ligne
+                    Ajouter une ligne
                 </a>
             {% endif %}
         </div>
 
-        {# Carte tableau #}
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-slate-50/80 border-b border-slate-100 text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                            <th class="py-4 px-6">ID</th>
-                            <th class="py-4 px-6">Catégorie</th>
-                            <th class="py-4 px-6">Type</th>
-                            <th class="py-4 px-6">Description</th>
-                            <th class="py-4 px-6">Créé le</th>
-                            <th class="py-4 px-6 text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100 text-xs font-medium">
-                        {% for financial in financials %}
-                            <tr class="hover:bg-slate-50/60 transition">
-                                <td class="py-4 px-6 font-bold text-slate-400">#{{ financial.id }}</td>
-                                
-                                {# Badge Catégorie #}
-                                <td class="py-4 px-6">
-                                    {% if financial.category is not null %}
-                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-sky-50 text-sky-700 border border-sky-100">
-                                            <i class="fa-solid fa-chart-pie text-[10px]"></i>
-                                            {{ financial.category.value|default(financial.category)|capitalize }}
-                                        </span>
-                                    {% else %}
-                                        <span class="text-slate-400 italic">Non définie</span>
-                                    {% endif %}
-                                </td>
-
-                                {# Type #}
-                                <td class="py-4 px-6 font-semibold text-slate-800">
-                                    {{ financial.type.value|default(financial.type)|capitalize }}
-                                </td>
-
-                                {# Description #}
-                                <td class="py-4 px-6 text-slate-600 max-w-xs truncate">
-                                    {{ financial.description|default('—') }}
-                                </td>
-
-                                {# Date création #}
-                                <td class="py-4 px-6 text-slate-400 font-semibold">
-                                    <i class="fa-regular fa-calendar text-slate-300 mr-1"></i>
-                                    {{ financial.createdAt ? financial.createdAt|date('d/m/Y') : '—' }}
-                                </td>
-
-                                {# Actions rapides #}
-                                <td class="py-4 px-6 text-right space-x-1">
-                                    <a href="{{ path('financial_show', {'id': financial.id}) }}" class="p-2 rounded-lg text-slate-400 hover:text-sky-600 hover:bg-sky-50 transition inline-flex items-center" title="Consulter">
-                                        <i class="fa-regular fa-eye text-sm"></i>
-                                    </a>
-                                    
-                                    {% if is_granted('FINANCIAL_EDIT', financial) %}
-                                        <a href="{{ path('financial_edit', {'id': financial.id}) }}" class="p-2 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition inline-flex items-center" title="Modifier">
-                                            <i class="fa-regular fa-pen-to-square text-sm"></i>
-                                        </a>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% else %}
-                            <tr>
-                                <td colspan="6" class="py-12 text-center text-slate-400">
-                                    <div class="flex flex-col items-center gap-2">
-                                        <i class="fa-solid fa-coins text-3xl text-slate-200"></i>
-                                        <p class="font-semibold text-xs">Aucune ligne budgétaire enregistrée pour le moment.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+        {# KPIs Synthèse Budgétaire #}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {# Total Crédits #}
+            <div class="p-6 bg-white rounded-2xl border border-emerald-100 shadow-sm space-y-1">
+                <span class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider block">
+                    <i class="fa-solid fa-arrow-down-left mr-1"></i> Total Crédits (Recettes)
+                </span>
+                <p class="text-2xl font-black text-emerald-600">
+                    {{ totalCredit|number_format(2, ',', ' ') }} €
+                </p>
             </div>
+
+            {# Total Débits #}
+            <div class="p-6 bg-white rounded-2xl border border-rose-100 shadow-sm space-y-1">
+                <span class="text-[11px] font-bold text-rose-600 uppercase tracking-wider block">
+                    <i class="fa-solid fa-arrow-up-right mr-1"></i> Total Débits (Dépenses)
+                </span>
+                <p class="text-2xl font-black text-rose-600">
+                    {{ totalDebit|number_format(2, ',', ' ') }} €
+                </p>
+            </div>
+
+            {# Solde / Balance #}
+            <div class="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm space-y-1">
+                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                    Solde du Budget
+                </span>
+                <p class="text-2xl font-black {{ balance >= 0 ? 'text-sky-600' : 'text-rose-600' }}">
+                    {{ balance > 0 ? '+' : '' }}{{ balance|number_format(2, ',', ' ') }} €
+                </p>
+            </div>
+        </div>
+
+        {# Grille Budgétaire : Crédits d'un côté, Débits de l'autre #}
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+            {# SECTION CRÉDITS (RECETTES) #}
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between">
+                <div>
+                    <div class="p-5 bg-emerald-50/50 border-b border-emerald-100 flex items-center justify-between">
+                        <h2 class="font-bold text-sm text-emerald-800 flex items-center gap-2">
+                            <i class="fa-solid fa-circle-arrow-down text-emerald-600"></i>
+                            CRÉDIT (Recettes)
+                        </h2>
+                        <span class="text-xs font-black text-emerald-700 bg-emerald-100/80 px-2.5 py-1 rounded-full">
+                            {{ totalCredit|number_format(2, ',', ' ') }} €
+                        </span>
+                    </div>
+
+                    <div class="divide-y divide-slate-100 text-xs">
+                        {% set hasCredit = false %}
+                        {% for financial in financials %}
+                            {% if financial.type is not null and financial.type.value == 'credit' %}
+                                {% set hasCredit = true %}
+                                {% set vatMultiplier = (financial.vatRate is not null and financial.vatRate.getMultiplier is defined) ? financial.vatRate.getMultiplier() : 0 %}
+                                {% set amountHt = financial.amountHt ?? 0 %}
+                                {% set amountTtc = amountHt * (1 + vatMultiplier) %}
+
+                                <div class="p-4 hover:bg-slate-50/60 transition flex items-center justify-between gap-4">
+                                    <div class="space-y-0.5 max-w-[60%]">
+                                        <p class="font-bold text-slate-800">
+                                            {{ financial.category ? (financial.category.getLabel is defined ? financial.category.getLabel() : financial.category.value) : 'Sans catégorie' }}
+                                        </p>
+                                        <p class="text-[11px] text-slate-400 truncate">
+                                            {{ financial.description|default('Aucune description') }}
+                                        </p>
+                                    </div>
+                                    <div class="text-right flex items-center gap-3">
+                                        <div>
+                                            <p class="font-bold text-emerald-600 whitespace-nowrap">
+                                                +{{ amountTtc|number_format(2, ',', ' ') }} €
+                                            </p>
+                                            <p class="text-[10px] font-semibold text-slate-400">
+                                                HT: {{ amountHt|number_format(2, ',', ' ') }} €
+                                            </p>
+                                        </div>
+                                        <a href="{{ path('financial_show', {'id': financial.id}) }}" class="p-1.5 rounded-lg text-slate-300 hover:text-sky-600 hover:bg-sky-50 transition">
+                                            <i class="fa-regular fa-eye"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if not hasCredit %}
+                            <div class="p-8 text-center text-slate-400 text-xs">
+                                Aucune recette enregistrée.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {# SECTION DÉBITS (DÉPENSES) #}
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between">
+                <div>
+                    <div class="p-5 bg-rose-50/50 border-b border-rose-100 flex items-center justify-between">
+                        <h2 class="font-bold text-sm text-rose-800 flex items-center gap-2">
+                            <i class="fa-solid fa-circle-arrow-up text-rose-600"></i>
+                            DÉBIT (Dépenses)
+                        </h2>
+                        <span class="text-xs font-black text-rose-700 bg-rose-100/80 px-2.5 py-1 rounded-full">
+                            {{ totalDebit|number_format(2, ',', ' ') }} €
+                        </span>
+                    </div>
+
+                    <div class="divide-y divide-slate-100 text-xs">
+                        {% set hasDebit = false %}
+                        {% for financial in financials %}
+                            {% if financial.type is null or financial.type.value == 'debit' %}
+                                {% set hasDebit = true %}
+                                {% set vatMultiplier = (financial.vatRate is not null and financial.vatRate.getMultiplier is defined) ? financial.vatRate.getMultiplier() : 0 %}
+                                {% set amountHt = financial.amountHt ?? 0 %}
+                                {% set amountTtc = amountHt * (1 + vatMultiplier) %}
+
+                                <div class="p-4 hover:bg-slate-50/60 transition flex items-center justify-between gap-4">
+                                    <div class="space-y-0.5 max-w-[60%]">
+                                        <p class="font-bold text-slate-800">
+                                            {{ financial.category ? (financial.category.getLabel is defined ? financial.category.getLabel() : financial.category.value) : 'Sans catégorie' }}
+                                        </p>
+                                        <p class="text-[11px] text-slate-400 truncate">
+                                            {{ financial.description|default('Aucune description') }}
+                                        </p>
+                                    </div>
+                                    <div class="text-right flex items-center gap-3">
+                                        <div>
+                                            <p class="font-bold text-rose-600 whitespace-nowrap">
+                                                -{{ amountTtc|number_format(2, ',', ' ') }} €
+                                            </p>
+                                            <p class="text-[10px] font-semibold text-slate-400">
+                                                HT: {{ amountHt|number_format(2, ',', ' ') }} €
+                                            </p>
+                                        </div>
+                                        <a href="{{ path('financial_show', {'id': financial.id}) }}" class="p-1.5 rounded-lg text-slate-300 hover:text-sky-600 hover:bg-sky-50 transition">
+                                            <i class="fa-regular fa-eye"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if not hasDebit %}
+                            <div class="p-8 text-center text-slate-400 text-xs">
+                                Aucune dépense enregistrée.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
         </div>
 
     </div>

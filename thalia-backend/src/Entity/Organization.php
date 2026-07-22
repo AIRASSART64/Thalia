@@ -118,6 +118,12 @@ class Organization
     #[ORM\OneToMany(targetEntity: Financial::class, mappedBy: 'organization')]
     private Collection $financials;
 
+    /**
+     * @var Collection<int, Season>
+     */
+    #[ORM\OneToMany(targetEntity: Season::class, mappedBy: 'organization')]
+    private Collection $seasons;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -127,6 +133,7 @@ class Organization
         $this->venues = new ArrayCollection();
         $this->equipment = new ArrayCollection();
         $this->financials = new ArrayCollection();
+        $this->seasons = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -563,6 +570,36 @@ class Organization
             // set the owning side to null (unless already changed)
             if ($financial->getOrganization() === $this) {
                 $financial->setOrganization(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Season>
+     */
+    public function getSeasons(): Collection
+    {
+        return $this->seasons;
+    }
+
+    public function addSeason(Season $season): static
+    {
+        if (!$this->seasons->contains($season)) {
+            $this->seasons->add($season);
+            $season->setOrganization($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSeason(Season $season): static
+    {
+        if ($this->seasons->removeElement($season)) {
+            // set the owning side to null (unless already changed)
+            if ($season->getOrganization() === $this) {
+                $season->setOrganization(null);
             }
         }
 

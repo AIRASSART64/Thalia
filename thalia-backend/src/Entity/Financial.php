@@ -39,7 +39,7 @@ class Financial
     #[ORM\Column]
     private ?float $amount_ht = null;
 
-    #[ORM\Column(enumType: VatRateEnum::class, nullable: true)]
+    #[ORM\Column(type:'string', enumType: VatRateEnum::class, nullable: true)]
     private ?VatRateEnum $vat_rate = null;
 
     public function getId(): ?int
@@ -53,8 +53,12 @@ class Financial
     }
 
     public function setCategory(FinancialCategoryEnum $category): static
-    {
-        $this->category = $category;
+    {   
+        $this->category =$category;
+        if($category !== null){
+           $this->setType($category->getFinancialTypeEnum());
+        }
+        
 
         return $this;
     }
@@ -106,7 +110,7 @@ class Financial
 
         return $this;
     }
-         #[ORM\PrePersist]
+    #[ORM\PrePersist]
      public function setInitialDates(): void
     {
     $now = new \DateTimeImmutable();

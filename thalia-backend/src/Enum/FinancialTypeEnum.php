@@ -4,8 +4,8 @@ namespace App\Enum;
 
 enum FinancialTypeEnum: string
 {
-    case DEPENSE = "Dépnese";
-    case RECETTE = "Recette";
+    case DEBIT = "Debit";
+    case CREDIT = "Credit";
     case INVESTISSEMENT = "Investissement";
 
 }

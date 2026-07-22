@@ -37,35 +37,82 @@
         <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
             <div class="p-6 md:p-8 space-y-6">
                 
-                <div class="flex items-center justify-between border-b border-slate-100 pb-6">
+                {# Titre et Badges #}
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-6">
                     <div>
                         <span class="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-1">Entrée Financière</span>
                         <h1 class="text-2xl font-black text-slate-900">Ligne Budgétaire #{{ financial.id }}</h1>
                     </div>
 
-                    {% if financial.category is not null %}
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-sky-50 text-sky-700 border border-sky-100">
-                            <i class="fa-solid fa-chart-pie"></i>
-                            {{ financial.category.value|default(financial.category)|capitalize }}
-                        </span>
-                    {% endif %}
+                    <div class="flex flex-wrap items-center gap-2">
+                        {% if financial.category is not null %}
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-sky-50 text-sky-700 border border-sky-100">
+                                <i class="fa-solid fa-chart-pie"></i>
+                                {{ financial.category.value|default(financial.category)|capitalize }}
+                            </span>
+                        {% endif %}
+
+                        {% if financial.type is not null %}
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                <i class="fa-solid fa-tag"></i>
+                                {{ financial.type.value|default(financial.type)|capitalize }}
+                            </span>
+                        {% endif %}
+                    </div>
                 </div>
 
-                {# Grille de propriétés #}
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Type de flux</span>
-                        <p class="text-sm font-bold text-slate-800">
-                            {{ financial.type.value|default(financial.type)|capitalize }}
+                {# Bloc financier : Montants HT, TVA et TTC #}
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 p-5 rounded-2xl bg-slate-50/80 border border-slate-100">
+                    
+                    {# Montant HT #}
+                    <div class="space-y-1">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Montant HT</span>
+                        <p class="text-xl font-extrabold text-slate-900">
+                            {{ financial.amountHt is not null ? financial.amountHt|number_format(2, ',', ' ') ~ ' €' : '—' }}
                         </p>
                     </div>
 
-                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-1">
-                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Organisation Rattachée</span>
-                        <p class="text-sm font-bold text-slate-800">
-                            {{ financial.organization ? financial.organization.name|default('ID: ' ~ financial.organization.id) : '—' }}
+                    {# Taux de TVA & Montant de TVA #}
+                    <div class="space-y-1">
+                        <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">TVA</span>
+                        {% if financial.vatRate is not null %}
+                            <p class="text-sm font-bold text-slate-700">
+                                {{ financial.vatRate.getLabel is defined ? financial.vatRate.getLabel() : (financial.vatRate.value ~ ' %') }}
+                            </p>
+                            {% if financial.amountHt is not null and financial.vatRate.getMultiplier is defined %}
+                                {% set vatAmount = financial.amountHt * financial.vatRate.getMultiplier() %}
+                                <p class="text-xs font-semibold text-slate-400">
+                                    + {{ vatAmount|number_format(2, ',', ' ') }} € de TVA
+                                </p>
+                            {% endif %}
+                        {% else %}
+                            <p class="text-sm font-bold text-slate-400">0 %</p>
+                        {% endif %}
+                    </div>
+
+                    {# Total TTC #}
+                    <div class="space-y-1 sm:text-right border-t sm:border-t-0 sm:border-l border-slate-200 pt-3 sm:pt-0 sm:pl-4">
+                        <span class="text-[11px] font-bold text-sky-600 uppercase tracking-wider block">Total TTC</span>
+                        <p class="text-xl font-black text-sky-600">
+                            {% if financial.amountHt is not null %}
+                                {% set multiplier = (financial.vatRate is not null and financial.vatRate.getMultiplier is defined) ? financial.vatRate.getMultiplier() : 0 %}
+                                {% set amountTtc = financial.amountHt * (1 + multiplier) %}
+                                {{ amountTtc|number_format(2, ',', ' ') }} €
+                            {% else %}
+                                —
+                            {% endif %}
                         </p>
                     </div>
+
+                </div>
+
+                {# Organisation Rattachée #}
+                <div class="p-4 rounded-xl bg-white border border-slate-100 space-y-1">
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Organisation Rattachée</span>
+                    <p class="text-sm font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-building-columns text-slate-400"></i>
+                        {{ financial.organization ? financial.organization.name|default('ID: ' ~ financial.organization.id) : '—' }}
+                    </p>
                 </div>
 
                 {# Description #}

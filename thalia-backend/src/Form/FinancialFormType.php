@@ -5,15 +5,15 @@ namespace App\Form;
 use App\Entity\Financial;
 use App\Entity\Organization;
 use App\Enum\FinancialCategoryEnum;
-use App\Enum\FinancialTypeEnum;
+// use App\Enum\FinancialTypeEnum;
 use App\Enum\VatRateEnum;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
+// use Symfony\Component\Form\FormEvent;
+// use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class FinancialFormType extends AbstractType
@@ -28,19 +28,19 @@ class FinancialFormType extends AbstractType
                 'class' => FinancialCategoryEnum::class,
                 'label' => 'Catégorie financière',
                 'placeholder' => 'Sélectionnez une catégorie',
-                'choice_label' => fn ($choice) => ucfirst($choice->value ?? $choice->name),
+                'choice_label' => fn (FinancialCategoryEnum $choice) => $choice->getLabel(),
                 'required' => true,
             ])
-            ->add('type', EnumType::class, [
-                'class' => FinancialTypeEnum::class,
-                'label' => 'Type de transaction',
-                'placeholder' => 'Sélectionnez un type',
-                'choice_label' => fn ($choice) => ucfirst($choice->value ?? $choice->name),
-                'required' => true,
-            ])
+            // ->add('type', EnumType::class, [
+            //     'class' => FinancialTypeEnum::class,
+            //     'label' => 'Type de transaction',
+            //     'placeholder' => 'Sélectionnez un type',
+            //     'choice_label' => fn ($choice) => ucfirst($choice->value ?? $choice->name),
+            //     'required' => true,
+            // ])
             ->add('amount_ht', MoneyType::class, [
                 'label' => 'Montant HT',
-                'currency' => 'EUR',
+                'currency' => false,
                 'scale' => 2,
                 'required' => false,
                 'attr' => [
@@ -55,7 +55,7 @@ class FinancialFormType extends AbstractType
                 'required' => true,
             ])
             ->add('description', TextareaType::class, [
-                'label' => 'Description ou motif',
+                'label' => 'Description',
                 'required' => false,
                 'attr' => [
                     'rows' => 4,
@@ -63,19 +63,19 @@ class FinancialFormType extends AbstractType
                 ],
             ]);
 
-        // Positionne la valeur de TVA par défaut de l'organisation lors de la création
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($organization) {
-            /** @var Financial|null $data */
-            $data = $event->getData();
+        // // Positionne la valeur de TVA par défaut de l'organisation lors de la création
+        // $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($organization) {
+        //     /** @var Financial|null $data */
+        //     $data = $event->getData();
 
-            if ($data && null === $data->getId() && null === $data->getVatRate()) {
-                if ($organization && method_exists($organization, 'getDefaultVatRate') && $organization->getDefaultVatRate()) {
-                    $data->setVatRate($organization->getDefaultVatRate());
-                } else {
-                    $data->setVatRate(VatRateEnum::DEFAULT_VAT);
-                }
-            }
-        });
+        //     if ($data && null === $data->getId() && null === $data->getVatRate()) {
+        //         if ($organization && method_exists($organization, 'getDefaultVatRate') && $organization->getDefaultVatRate()) {
+        //             $data->setVatRate($organization->getDefaultVatRate());
+        //         } else {
+        //             $data->setVatRate(VatRateEnum::DEFAULT_VAT);
+        //         }
+        //     }
+        // });
     }
 
     public function configureOptions(OptionsResolver $resolver): void
