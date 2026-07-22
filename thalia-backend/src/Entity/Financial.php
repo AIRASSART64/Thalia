@@ -8,9 +8,14 @@ use App\Enum\VatRateEnum;
 use App\Repository\FinancialRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: FinancialRepository::class)]
 #[ORM\HasLifecycleCallbacks]
+#[UniqueEntity(
+    fields: ['organization', 'season', 'category'],
+    message: 'Une ligne budgétaire pour cette catégorie existe déjà pour cette saison culturelle.'
+)]
 class Financial
 {
     #[ORM\Id]
@@ -41,6 +46,9 @@ class Financial
 
     #[ORM\Column(type:'string', enumType: VatRateEnum::class, nullable: true)]
     private ?VatRateEnum $vat_rate = null;
+
+    #[ORM\ManyToOne(inversedBy: 'financials')]
+    private ?Season $season = null;
 
     public function getId(): ?int
     {
@@ -156,6 +164,18 @@ class Financial
     public function setVatRate(?VatRateEnum $vat_rate): static
     {
         $this->vat_rate = $vat_rate;
+
+        return $this;
+    }
+
+    public function getSeason(): ?Season
+    {
+        return $this->season;
+    }
+
+    public function setSeason(?Season $season): static
+    {
+        $this->season = $season;
 
         return $this;
     }

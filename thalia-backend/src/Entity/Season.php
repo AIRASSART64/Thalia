@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\SeasonRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -19,7 +21,7 @@ class Season
     private ?string $name = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
-    private ?\DateTimeImmutable $start_year = null;
+    private ?\DateTimeImmutable $start_date = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
     private ?\DateTimeImmutable $end_date = null;
@@ -32,6 +34,17 @@ class Season
 
     #[ORM\ManyToOne(inversedBy: 'seasons')]
     private ?Organization $organization = null;
+
+    /**
+     * @var Collection<int, Financial>
+     */
+    #[ORM\OneToMany(targetEntity: Financial::class, mappedBy: 'season')]
+    private Collection $financials;
+
+    public function __construct()
+    {
+        $this->financials = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -50,14 +63,14 @@ class Season
         return $this;
     }
 
-    public function getStartYear(): ?\DateTimeImmutable
+    public function getStartDate(): ?\DateTimeImmutable
     {
-        return $this->start_year;
+        return $this->start_date;
     }
 
-    public function setStartYear(\DateTimeImmutable $start_year): static
+    public function setStartDate(\DateTimeImmutable $start_date): static
     {
-        $this->start_year = $start_year;
+        $this->start_date = $start_date;
 
         return $this;
     }
@@ -116,5 +129,35 @@ class Season
     $this->created_at = $now;
 
     }
+
+      /**
+       * @return Collection<int, Financial>
+       */
+      public function getFinancials(): Collection
+      {
+          return $this->financials;
+      }
+
+      public function addFinancial(Financial $financial): static
+      {
+          if (!$this->financials->contains($financial)) {
+              $this->financials->add($financial);
+              $financial->setSeason($this);
+          }
+
+          return $this;
+      }
+
+      public function removeFinancial(Financial $financial): static
+      {
+          if ($this->financials->removeElement($financial)) {
+              // set the owning side to null (unless already changed)
+              if ($financial->getSeason() === $this) {
+                  $financial->setSeason(null);
+              }
+          }
+
+          return $this;
+      }
 
 }

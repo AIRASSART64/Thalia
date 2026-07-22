@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ season.name }}{% endblock %}
+
+{% block body %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    
+    {# En-tête #}
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div>
+            <a href="{{ path('season_index') }}" class="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-700 transition-colors mb-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                Retour aux saisons
+            </a>
+            <div class="flex items-center gap-3">
+                <h1 class="text-3xl font-bold text-slate-800">{{ season.name }}</h1>
+                {% if season.isActive %}
+                    <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">Active</span>
+                {% else %}
+                    <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600">Inactive</span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="{{ path('season_edit', {'id': season.id}) }}" class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 rounded-xl shadow-sm transition-all">
+                Modifier
+            </a>
+        </div>
+    </div>
+
+    {# Détails de la saison #}
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+            <span class="text-xs font-medium text-slate-400 uppercase tracking-wider block mb-1">Date de début</span>
+            <span class="text-lg font-semibold text-slate-800">{{ season.startYear|date('d/m/Y') }}</span>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+            <span class="text-xs font-medium text-slate-400 uppercase tracking-wider block mb-1">Date de fin</span>
+            <span class="text-lg font-semibold text-slate-800">{{ season.endDate|date('d/m/Y') }}</span>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+            <span class="text-xs font-medium text-slate-400 uppercase tracking-wider block mb-1">Créée le</span>
+            <span class="text-lg font-semibold text-slate-800">{{ season.createdAt|date('d/m/Y à H:i') }}</span>
+        </div>
+    </div>
+
+    {# Aperçu des finances rattachées #}
+    <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-bold text-slate-800">Lignes budgétaires associées</h2>
+            <span class="text-xs font-medium text-slate-500">{{ season.financials|length }} ligne(s)</span>
+        </div>
+
+        {% if season.financials is not empty %}
+            <div class="divide-y divide-slate-100">
+                {% for financial in season.financials %}
+                    <div class="py-3 flex items-center justify-between">
+                        <div>
+                            <span class="font-medium text-slate-700 block">{{ financial.category.label|default(financial.category.value) }}</span>
+                            <span class="text-xs text-slate-400">{{ financial.description }}</span>
+                        </div>
+                        <span class="font-semibold text-sm {{ financial.type.value == 'Credit' ? 'text-emerald-600' : 'text-slate-700' }}">
+                            {{ financial.type.value == 'Credit' ? '+' : '-' }} {{ financial.amountHt|number_format(2, ',', ' ') }} € HT
+                        </span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-sm text-slate-400 text-center py-6">Aucune ligne budgétaire enregistrée pour cette saison.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
