@@ -163,34 +163,4 @@ class Season
           return $this;
       }
      
-
-    public function getDebits(): array
-    {
-        return array_filter($this->financials->toArray(), function ($financial) {
-            return $financial->getCategory() && $financial->getCategory()->isExpense(); // Ou isDebit()
-        });
-    }
-
-    public function getCredits(): array
-    {
-        return array_filter($this->financials->toArray(), function ($financial) {
-            return $financial->getCategory() && !$financial->getCategory()->isExpense();
-        });
-    }
-
-    public function getTotalDebitHt(): float
-    {
-        return array_reduce($this->getDebits(), fn($sum, $item) => $sum + ($item->getAmountHt() ?? 0), 0.0);
-    }
-
-    public function getTotalCreditHt(): float
-    {
-        return array_reduce($this->getCredits(), fn($sum, $item) => $sum + ($item->getAmountHt() ?? 0), 0.0);
-    }
-
-        public function getNetBalance(): float
-    {
-        return $this->getTotalCreditHt() - $this->getTotalDebitHt();
-    }
-
 }

@@ -34,7 +34,7 @@ class FinancialController extends AbstractController
         return $this->render('financial/index.html.twig', ['financials' => $financials]);
     }
 
-    #[Route('/new/{season}', name: 'financial_new', methods:['POST'])]
+    #[Route('/new/{season}', name: 'financial_new', methods:['GET','POST'])]
     public function new( Request $request, Season $season): Response
     {
          $this->denyAccessUnlessGranted('FINANCIAL_CREATE');
@@ -50,13 +50,13 @@ class FinancialController extends AbstractController
        
             $this->crudManager->create($financial);
             $this->addFlash('success', 'La ligne budgétaire a bien été créée.');
-          
-        }else{
-            foreach ($formFinancial->getErrors(true) as $error) {
-                $this->addFlash('danger', $error->getMessage());
-            }
+            return $this->redirectToRoute('season_show', ['id' => $season->getId()]);
         }
-        return $this->redirectToRoute('season_show', ['id'=> $season->getId()]);
+        return $this->render('financial/new.html.twig', [
+                'financial'=> $financial,
+                'season'=>$season,
+                'form'=>$formFinancial->createView(),
+        ]);
 
     }
 
@@ -72,13 +72,14 @@ class FinancialController extends AbstractController
 
             $this->crudManager->update($financial);
             $this->addFlash('success', 'La ligne budgétaire a bien été actualisée.');
-        }else{
-            foreach ($formFinancial->getErrors(true) as $error) {
-                $this->addFlash('danger', $error->getMessage());
-            }
+             return $this->redirectToRoute('season_show', ['id'=> $season->getId()]);
         }
 
-        return $this->redirectToRoute('season_show', ['id'=> $season->getId()]);
+       return $this->render('financial/edit.html.twig', [
+                'financial'=> $financial,
+                'season'=>$season,
+                'form'=>$formFinancial->createView(),
+        ]);
 
     }
     #[Route('/{id}', name: 'financial_show', methods:['GET'])]

@@ -2,10 +2,11 @@
 
 namespace App\Controller;
 
-use App\Entity\Financial;
+
 use App\Entity\Season;
-use App\Form\FinancialFormType;
+use App\Enum\FinancialTypeEnum;
 use App\Form\SeasonFormType;
+use App\Repository\FinancialRepository;
 use App\Repository\SeasonRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Service\CrudManagerService;
@@ -84,17 +85,33 @@ class SeasonController extends AbstractController
 
     }
     #[Route('/{id}', name: 'season_show', methods:['GET'])]
-    public function show(Season $season): Response
+    public function show(Season $season, FinancialRepository $financialRepository): Response
     {
          $this->denyAccessUnlessGranted('SEASON_VIEW', $season);
-         $financial = new Financial();
-         $financial->setSeason($season);
-         $financialForm = $this->createForm(FinancialFormType::class, $financial, [
-            'action' => $this->generateUrl('financial_new', ['season' => $season->getId()]),
-            'method' => 'POST',
-        ]);
+
+         // 1. Récupération des tableaux filtrés (Débits & Crédits)
+        $debits = $financialRepository->findBySeasonAndType($season, FinancialTypeEnum::DEBIT);
+        $credits = $financialRepository->findBySeasonAndType($season, FinancialTypeEnum::CREDIT);
+
+        // 2. Calculs agrégés en BDD
+        $totalDebitHt = $financialRepository->getTotalHtBySeasonAndType($season, FinancialTypeEnum::DEBIT);
+        $totalCreditHt = $financialRepository->getTotalHtBySeasonAndType($season, FinancialTypeEnum::CREDIT);
+        $netBalance = $totalCreditHt - $totalDebitHt;
+
+        //  $financial = new Financial();
+        //  $financial->setSeason($season);
+        //  $financialForm = $this->createForm(FinancialFormType::class, $financial, [
+        //     'action' => $this->generateUrl('financial_new', ['season' => $season->getId()]),
+        //     'method' => 'POST',
+        // ]);
      
-        return $this->render('season/show.html.twig', ['season'=> $season, 'financialForm'=>$financialForm->createView()]);
+        return $this->render('season/show.html.twig', [
+            'season' => $season,
+            'debits' => $debits,
+            'credits' => $credits,
+            'totalDebitHt' => $totalDebitHt,
+            'totalCreditHt' => $totalCreditHt,
+            'netBalance' => $netBalance,]);
 
     }
     #[Route('/delete/{id}', name: 'season_delete', methods: ['POST'])]
