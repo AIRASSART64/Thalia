@@ -23,10 +23,10 @@ class Financial
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(enumType: FinancialCategoryEnum::class)]
+    #[ORM\Column(type: 'string', enumType: FinancialCategoryEnum::class)]
     private ?FinancialCategoryEnum $category = null;
 
-    #[ORM\Column(enumType: FinancialTypeEnum::class)]
+    #[ORM\Column(type: 'string', enumType: FinancialTypeEnum::class)]
     private ?FinancialTypeEnum $type = null;
 
     #[ORM\Column]
@@ -48,6 +48,7 @@ class Financial
     private ?VatRateEnum $vat_rate = null;
 
     #[ORM\ManyToOne(inversedBy: 'financials')]
+    #[ORM\JoinColumn(nullable: false)]
     private ?Season $season = null;
 
     public function getId(): ?int

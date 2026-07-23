@@ -98,7 +98,7 @@ class SuperAdminController extends AbstractController
     #[Route('organization/delete/{id}', name:'organization_delete', methods:['POST'])]
     public function deleteOrganieation(Organization $organization, Request $request, EntityManagerInterface $em, UserRepository $userRepository) : Response
     {
-        if($this->isCsrfTokenValid('delete_organization_' . $organization->getId(), $request->get('_token'))){
+        if($this->isCsrfTokenValid('delete_organization_' . $organization->getId(), $request->request->get('_token'))){
            $organizationName = $organization->getName();
 
            // vérification de l'existence d'un user rattaché à une orrganization

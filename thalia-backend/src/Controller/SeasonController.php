@@ -2,8 +2,9 @@
 
 namespace App\Controller;
 
-
+use App\Entity\Financial;
 use App\Entity\Season;
+use App\Form\FinancialFormType;
 use App\Form\SeasonFormType;
 use App\Repository\SeasonRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,9 +30,15 @@ class SeasonController extends AbstractController
     public function index(SeasonRepository $seasonRepository): Response
     {
          $this->denyAccessUnlessGranted('SEASON_VIEW');
+         $organization = $this->userContext->getOrganization();
         
-        $seasons = $seasonRepository->findBy(['organization' => $this->userContext->getOrganization()]);
-        return $this->render('season/index.html.twig', ['seasons' => $seasons]);
+        $seasons = $seasonRepository->findByOrganization($organization);
+        $activeSeason = $seasonRepository->findActiveSeason($organization);
+        $openSeasons = $seasonRepository->findOpenSeason($organization);
+        return $this->render('season/index.html.twig', [
+            'seasons' => $seasons,
+            'activeSeason' => $activeSeason,
+            'openSeasons' => $openSeasons]);
     }
 
     #[Route('/new', name: 'season_new', methods:['GET', 'POST'])]
@@ -80,8 +87,14 @@ class SeasonController extends AbstractController
     public function show(Season $season): Response
     {
          $this->denyAccessUnlessGranted('SEASON_VIEW', $season);
+         $financial = new Financial();
+         $financial->setSeason($season);
+         $financialForm = $this->createForm(FinancialFormType::class, $financial, [
+            'action' => $this->generateUrl('financial_new', ['season' => $season->getId()]),
+            'method' => 'POST',
+        ]);
      
-        return $this->render('season/show.html.twig', ['season'=> $season]);
+        return $this->render('season/show.html.twig', ['season'=> $season, 'financialForm'=>$financialForm->createView()]);
 
     }
     #[Route('/delete/{id}', name: 'season_delete', methods: ['POST'])]
@@ -89,7 +102,7 @@ class SeasonController extends AbstractController
     {
         $this->denyAccessUnlessGranted('SEASON_DELETE', $season);
 
-        if($this->isCsrfTokenValid('delete' . $season->getId() , $request->get('_token'))) {
+        if($this->isCsrfTokenValid('delete' . $season->getId() , $request->request->get('_token'))) {
             
             $this->crudManager->delete($season);
         }

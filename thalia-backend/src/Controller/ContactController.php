@@ -127,7 +127,7 @@ class ContactController extends AbstractController
     {
         $this->denyAccessUnlessGranted('CONTACT_DELETE', $contact);
 
-        if ($this->isCsrfTokenValid('delete' . $contact->getId(), $request->get('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $contact->getId(), $request->request->get('_token'))) {
             $this->crudManager->delete($contact);
             $this->addFlash('success', 'Le contact a été supprimé avec succès.');
         }

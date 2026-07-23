@@ -137,7 +137,7 @@ class ShowController extends AbstractController
     {
         $this->denyAccessUnlessGranted('SHOW_DELETE' , $show);
 
-        if($this->isCsrfTokenValid('delete' . $show->getId() , $request->get('_token'))) {
+        if($this->isCsrfTokenValid('delete' . $show->getId() , $request->request->get('_token'))) {
             // suppression de l'image associée au spectacle
             if($show->getArtworkUrl()){
                 $filePath = $this->params->get('shows_directory') . '/' . $show->getArtworkUrl();

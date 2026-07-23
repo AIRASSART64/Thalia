@@ -2,7 +2,9 @@
 
 namespace App\Repository;
 
+use App\Entity\Organization;
 use App\Entity\Season;
+use App\Enum\SeasonStatusEnum;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -16,28 +18,46 @@ class SeasonRepository extends ServiceEntityRepository
         parent::__construct($registry, Season::class);
     }
 
-    //    /**
-    //     * @return Season[] Returns an array of Season objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('s.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    //récuparation de la saison active d'une organization
+    public function findActiveSeason(Organization $organization): ?Season
+    {
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.organization = :org')
+            ->andWhere('s.season_status = :status')
+            ->setParameter('org', $organization)
+            ->setParameter('status', SeasonStatusEnum::ACTIVE)
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+           
+    }
 
-    //    public function findOneBySomeField($value): ?Season
-    //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+       /**
+        * Récupérttion de toutes les saisons ouvertes (active et en préparation)
+        * @return Season[] Returns an array of Season objects
+        */
+       public function findOpenSeason(Organization $organization): array
+       {
+           return $this->createQueryBuilder('s')
+               ->andWhere('s.organization = :org')
+               ->andWhere('s.season_status IN (:statuses)')
+               ->setParameter('org', $organization)
+               ->setParameter('statuses', [SeasonStatusEnum::ACTIVE, SeasonStatusEnum::DRAFT])
+               ->orderBy('s.start_date', 'DESC')
+               ->getQuery()
+               ->getResult();
+
+       }
+
+        // récupération de toutes les saisons d'une organization 
+       public function findByOrganization(Organization $organization): array
+       {
+           return $this->createQueryBuilder('s')
+               ->andWhere('s.organization = :org')
+               ->setParameter('org', $organization)
+                ->orderBy('s.start_date', 'DESC')
+               ->getQuery()
+               ->getResult()
+           ;
+       }
 }

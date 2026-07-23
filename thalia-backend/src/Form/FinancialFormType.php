@@ -20,8 +20,21 @@ class FinancialFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        /** @var Organization|null $organization */
-        $organization = $options['user_organization'];
+
+        /** @var Financial|null $financial */
+        $financial = $options['data'] ?? null;
+        $season = $financial?->getSeason();
+
+        // Récupère les catégories déjà utilisées pour une sainson donnée
+        $usedCategories = [];
+        if ($season) {
+            foreach ($season->getFinancials() as $existingFinancial) {
+                // Ignore la ligne courante en cas de modification
+                if ($financial && $existingFinancial->getId() !== $financial->getId()) {
+                    $usedCategories[] = $existingFinancial->getCategory();
+                }
+            }
+        }
 
         $builder
             ->add('category', EnumType::class, [
@@ -30,14 +43,16 @@ class FinancialFormType extends AbstractType
                 'placeholder' => 'Sélectionnez une catégorie',
                 'choice_label' => fn (FinancialCategoryEnum $choice) => $choice->getLabel(),
                 'required' => true,
+                'choice_attr' => function (FinancialCategoryEnum $choice) use ($usedCategories) {
+                    if (in_array($choice, $usedCategories, true)) {
+                        return [
+                            'disabled' => 'disabled',
+                            'class' => 'text-slate-300 bg-slate-100',
+                        ];
+                    }
+                    return [];
+                },
             ])
-            // ->add('type', EnumType::class, [
-            //     'class' => FinancialTypeEnum::class,
-            //     'label' => 'Type de transaction',
-            //     'placeholder' => 'Sélectionnez un type',
-            //     'choice_label' => fn ($choice) => ucfirst($choice->value ?? $choice->name),
-            //     'required' => true,
-            // ])
             ->add('amount_ht', MoneyType::class, [
                 'label' => 'Montant HT',
                 'currency' => false,
@@ -63,19 +78,6 @@ class FinancialFormType extends AbstractType
                 ],
             ]);
 
-        // // Positionne la valeur de TVA par défaut de l'organisation lors de la création
-        // $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event) use ($organization) {
-        //     /** @var Financial|null $data */
-        //     $data = $event->getData();
-
-        //     if ($data && null === $data->getId() && null === $data->getVatRate()) {
-        //         if ($organization && method_exists($organization, 'getDefaultVatRate') && $organization->getDefaultVatRate()) {
-        //             $data->setVatRate($organization->getDefaultVatRate());
-        //         } else {
-        //             $data->setVatRate(VatRateEnum::DEFAULT_VAT);
-        //         }
-        //     }
-        // });
     }
 
     public function configureOptions(OptionsResolver $resolver): void

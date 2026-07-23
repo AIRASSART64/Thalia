@@ -4,9 +4,10 @@ namespace App\Form;
 
 use App\Entity\Organization;
 use App\Entity\Season;
+use App\Enum\SeasonStatusEnum;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -18,6 +19,11 @@ class SeasonFormType extends AbstractType
         $inputClasses = 'w-full rounded-xl border-slate-200 text-sm focus:border-sky-500 focus:ring-sky-500';
 
         $builder
+            ->add('season_status', EnumType::class, [
+                'class'=> SeasonStatusEnum::class,
+                'choice_label'=> fn (SeasonStatusEnum $choice)=> $choice->getLabel(),
+                'label'=>"Statut de la saison"
+            ])
             ->add('name', TextType::class, [
                 'label' => 'Nom de la saison',
                 'attr' => [
@@ -39,13 +45,7 @@ class SeasonFormType extends AbstractType
                     'class' => $inputClasses,
                 ],
             ])
-            ->add('is_active', CheckboxType::class, [
-                'label' => 'Définir comme saison active',
-                'required' => false,
-                'attr' => [
-                    'class' => 'rounded border-slate-300 text-sky-600 focus:ring-sky-500 h-4 w-4 mr-2',
-                ],
-            ])
+       
         ;
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\SeasonStatusEnum;
 use App\Repository\SeasonRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -26,8 +27,6 @@ class Season
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
     private ?\DateTimeImmutable $end_date = null;
 
-    #[ORM\Column]
-    private ?bool $is_active = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $created_at = null;
@@ -40,6 +39,9 @@ class Season
      */
     #[ORM\OneToMany(targetEntity: Financial::class, mappedBy: 'season')]
     private Collection $financials;
+
+    #[ORM\Column(enumType: SeasonStatusEnum::class)]
+    private ?SeasonStatusEnum $season_status = null;
 
     public function __construct()
     {
@@ -87,17 +89,6 @@ class Season
         return $this;
     }
 
-    public function isActive(): ?bool
-    {
-        return $this->is_active;
-    }
-
-    public function setIsActive(bool $is_active): static
-    {
-        $this->is_active = $is_active;
-
-        return $this;
-    }
 
     public function getCreatedAt(): ?\DateTimeImmutable
     {
@@ -159,5 +150,47 @@ class Season
 
           return $this;
       }
+
+      public function getSeasonStatus(): ?SeasonStatusEnum
+      {
+          return $this->season_status;
+      }
+
+      public function setSeasonStatus(SeasonStatusEnum $season_status): static
+      {
+          $this->season_status = $season_status;
+
+          return $this;
+      }
+     
+
+    public function getDebits(): array
+    {
+        return array_filter($this->financials->toArray(), function ($financial) {
+            return $financial->getCategory() && $financial->getCategory()->isExpense(); // Ou isDebit()
+        });
+    }
+
+    public function getCredits(): array
+    {
+        return array_filter($this->financials->toArray(), function ($financial) {
+            return $financial->getCategory() && !$financial->getCategory()->isExpense();
+        });
+    }
+
+    public function getTotalDebitHt(): float
+    {
+        return array_reduce($this->getDebits(), fn($sum, $item) => $sum + ($item->getAmountHt() ?? 0), 0.0);
+    }
+
+    public function getTotalCreditHt(): float
+    {
+        return array_reduce($this->getCredits(), fn($sum, $item) => $sum + ($item->getAmountHt() ?? 0), 0.0);
+    }
+
+        public function getNetBalance(): float
+    {
+        return $this->getTotalCreditHt() - $this->getTotalDebitHt();
+    }
 
 }

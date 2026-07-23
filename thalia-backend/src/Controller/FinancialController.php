@@ -4,6 +4,7 @@ namespace App\Controller;
 
 
 use App\Entity\Financial;
+use App\Entity\Season;
 use App\Form\FinancialFormType;
 use App\Repository\FinancialRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -20,7 +21,6 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class FinancialController extends AbstractController
 
 {   
-    
     public function __construct(
          private CrudManagerService $crudManager,
          private UserContextService $userContext) {}
@@ -34,26 +34,29 @@ class FinancialController extends AbstractController
         return $this->render('financial/index.html.twig', ['financials' => $financials]);
     }
 
-    #[Route('/new', name: 'financial_new', methods:['GET', 'POST'])]
-    public function new( Request $request): Response
+    #[Route('/new/{season}', name: 'financial_new', methods:['POST'])]
+    public function new( Request $request, Season $season): Response
     {
          $this->denyAccessUnlessGranted('FINANCIAL_CREATE');
          
          $financial = new Financial();
+         $financial->setSeason($season);
          $financial->setOrganization($this->userContext->getOrganization());
         
-        $formFinancial = $this->createForm(FinancialFormType::class, $financial , [
-            'user_organization'=> $this->userContext->getOrganization(),
-        ]);
-        $formFinancial->handleRequest($request);
+         $formFinancial = $this->createForm(FinancialFormType::class, $financial);
+         $formFinancial->handleRequest($request);
 
         if ($formFinancial->isSubmitted() && $formFinancial->isValid()) {
        
             $this->crudManager->create($financial);
             $this->addFlash('success', 'La ligne budgétaire a bien été créée.');
-            return $this->redirectToRoute('financial_index');
+          
+        }else{
+            foreach ($formFinancial->getErrors(true) as $error) {
+                $this->addFlash('danger', $error->getMessage());
+            }
         }
-        return $this->render('financial/new.html.twig', ['financial'=> $financial, 'form' => $formFinancial]);
+        return $this->redirectToRoute('season_show', ['id'=> $season->getId()]);
 
     }
 
@@ -61,19 +64,21 @@ class FinancialController extends AbstractController
     public function edit(Financial $financial, Request $request): Response
     {
          $this->denyAccessUnlessGranted('FINANCIAL_EDIT', $financial);
-       
-        $formFinancial = $this->createForm(FinancialFormType::class, $financial , [
-            'user_organization'=> $this->userContext->getOrganization(),
-        ]);
+        $season = $financial->getSeason();
+        $formFinancial = $this->createForm(FinancialFormType::class, $financial);
         $formFinancial->handleRequest($request);
 
         if ($formFinancial->isSubmitted() && $formFinancial->isValid()) {
 
             $this->crudManager->update($financial);
             $this->addFlash('success', 'La ligne budgétaire a bien été actualisée.');
-            return $this->redirectToRoute('financial_index');
+        }else{
+            foreach ($formFinancial->getErrors(true) as $error) {
+                $this->addFlash('danger', $error->getMessage());
+            }
         }
-        return $this->render('financial/edit.html.twig', ['financial'=> $financial, 'form' => $formFinancial]);
+
+        return $this->redirectToRoute('season_show', ['id'=> $season->getId()]);
 
     }
     #[Route('/{id}', name: 'financial_show', methods:['GET'])]
@@ -88,13 +93,14 @@ class FinancialController extends AbstractController
     public function delete(Request $request, Financial $financial): Response
     {
         $this->denyAccessUnlessGranted('FINANCIAL_DELETE', $financial);
+        $season = $financial->getSeason();
 
-        if($this->isCsrfTokenValid('delete' . $financial->getId() , $request->get('_token'))) {
-            
+        if($this->isCsrfTokenValid('delete' . $financial->getId() , $request->request->get('_token'))) {
             $this->crudManager->delete($financial);
-        }
+            $this->addFlash('success', 'La ligne budgétaire a bien été supprimée.');
+        }else{ $this->addFlash('danger', "CSRF invalide");}
 
-        return $this->redirectToRoute('financial_index');
+        return $this->redirectToRoute('season_show', ['id'=> $season->getId()]);
     }
 
 

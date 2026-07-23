@@ -86,7 +86,7 @@ class EquipmentController extends AbstractController
     {
         $this->denyAccessUnlessGranted('EQUIPMENT_DELETE', $equipment);
 
-        if($this->isCsrfTokenValid('delete' . $equipment->getId() , $request->get('_token'))) {
+        if($this->isCsrfTokenValid('delete' . $equipment->getId() , $request->request->get('_token'))) {
             
             $this->crudManager->delete($equipment);
         }

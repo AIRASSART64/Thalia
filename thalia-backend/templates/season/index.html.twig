@@ -9,11 +9,11 @@
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
             <h1 class="text-2xl font-bold text-slate-800">Saisons culturelles</h1>
-            <p class="text-sm text-slate-500">Gérez les exercices et périodes budgétaires de votre structure.</p>
+            <p class="text-sm text-slate-500">Gérez les exercices budgétaires et la préparation de vos saisons.</p>
         </div>
         <div>
-            <a href="{{ path('season_new') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-sky-600 hover:bg-sky-700 text-white text-sm font-medium rounded-xl shadow-sm transition-all">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <a href="{{ path('season_new') }}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-sky-600 hover:bg-sky-700 text-white text-sm font-medium rounded-xl shadow-sm shadow-sky-600/20 transition-all">
+                <i class="fa-solid fa-plus text-xs"></i>
                 Nouvelle saison
             </a>
         </div>
@@ -21,8 +21,11 @@
 
     {# Messages Flash #}
     {% for message in app.flashes('success') %}
-        <div class="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm rounded-xl flex items-center justify-between">
-            <span>{{ message }}</span>
+        <div class="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm rounded-xl flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                <span>{{ message }}</span>
+            </div>
         </div>
     {% endfor %}
 
@@ -30,9 +33,9 @@
     <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm text-slate-600">
-                <thead class="bg-slate-50 border-b border-slate-200 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <thead class="bg-slate-50 border-b border-slate-200 text-xs font-bold uppercase tracking-wider text-slate-500">
                     <tr>
-                        <th class="px-6 py-4">Nom</th>
+                        <th class="px-6 py-4">Saison</th>
                         <th class="px-6 py-4">Période</th>
                         <th class="px-6 py-4">Statut</th>
                         <th class="px-6 py-4 text-center">Lignes budgétaires</th>
@@ -41,38 +44,55 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                 {% for season in seasons %}
-                    <tr class="hover:bg-slate-50/50 transition-colors">
-                        <td class="px-6 py-4 font-semibold text-slate-800">
-                            <a href="{{ path('season_show', {'id': season.id}) }}" class="hover:text-sky-600">
+                    <tr class="hover:bg-slate-50/60 transition-colors {% if activeSeason is defined and activeSeason and activeSeason.id == season.id %}bg-sky-50/30{% endif %}">
+                        
+                        {# Nom de la saison #}
+                        <td class="px-6 py-4">
+                            <a href="{{ path('season_show', {'id': season.id}) }}" class="font-bold text-slate-800 hover:text-sky-600 transition-colors">
                                 {{ season.name }}
                             </a>
                         </td>
-                        <td class="px-6 py-4 text-slate-500">
-                            {{ season.startDate|date('d/m/Y') }} — {{ season.endDate|date('d/m/Y') }}
+
+                        {# Période (dates formatées avec start_date / end_date) #}
+                        <td class="px-6 py-4 text-slate-500 font-medium">
+                            <div class="flex items-center gap-2 text-xs">
+                                <i class="fa-regular fa-calendar text-slate-400"></i>
+                                <span>{{ season.startDate ? season.startDate|date('d/m/Y') : '-' }} — {{ season.endDate ? season.endDate|date('d/m/Y') : '-' }}</span>
+                            </div>
                         </td>
+
+                        {# Statut géré via l'Enum SeasonStatus #}
                         <td class="px-6 py-4">
-                            {% if season.isActive %}
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
-                                    ● Active
+                            {% if season.seasonStatus is defined and season.seasonStatus %}
+                                {# Utilisation des méthodes helper getLabel() et getColor() définies dans l'Enum #}
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border {{ season.seasonStatus.color }}">
+                                    {% if season.seasonStatus.value == 'En cours' %}
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    {% endif %}
+                                    {{ season.seasonStatus.label }}
                                 </span>
                             {% else %}
-                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
-                                    Inactive
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+                                    Non défini
                                 </span>
                             {% endif %}
                         </td>
+
+                        {# Nombre de lignes budgétaires #}
                         <td class="px-6 py-4 text-center">
-                            <span class="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+                            <span class="inline-flex items-center justify-center px-2.5 py-1 rounded-xl text-xs font-bold bg-slate-100 text-slate-700">
                                 {{ season.financials|length }}
                             </span>
                         </td>
+
+                        {# Actions #}
                         <td class="px-6 py-4 text-right">
-                            <div class="flex items-center justify-end gap-2">
-                                <a href="{{ path('season_show', {'id': season.id}) }}" class="p-1.5 text-slate-400 hover:text-sky-600 transition-colors" title="Voir">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            <div class="flex items-center justify-end gap-1">
+                                <a href="{{ path('season_show', {'id': season.id}) }}" class="p-2 text-slate-400 hover:text-sky-600 hover:bg-slate-100 rounded-lg transition-all" title="Voir les détails">
+                                    <i class="fa-solid fa-eye text-sm"></i>
                                 </a>
-                                <a href="{{ path('season_edit', {'id': season.id}) }}" class="p-1.5 text-slate-400 hover:text-amber-600 transition-colors" title="Modifier">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                <a href="{{ path('season_edit', {'id': season.id}) }}" class="p-2 text-slate-400 hover:text-amber-600 hover:bg-slate-100 rounded-lg transition-all" title="Modifier">
+                                    <i class="fa-solid fa-pen-to-square text-sm"></i>
                                 </a>
                             </div>
                         </td>
@@ -80,7 +100,10 @@
                 {% else %}
                     <tr>
                         <td colspan="5" class="px-6 py-12 text-center text-slate-400">
-                            Aucune saison culturelle enregistrée pour le moment.
+                            <div class="flex flex-col items-center justify-center gap-2">
+                                <i class="fa-solid fa-calendar-xmark text-3xl text-slate-300"></i>
+                                <p class="text-sm">Aucune saison culturelle enregistrée pour le moment.</p>
+                            </div>
                         </td>
                     </tr>
                 {% endfor %}
