@@ -7,7 +7,10 @@ use App\Entity\Season;
 use App\Enum\FinancialTypeEnum;
 use App\Form\SeasonFormType;
 use App\Repository\FinancialRepository;
+use App\Repository\PerformanceRepository;
 use App\Repository\SeasonRepository;
+use App\Repository\ShowRepository;
+use App\Repository\VenueRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use App\Service\CrudManagerService;
 use App\Service\UserContextService;
@@ -85,7 +88,13 @@ class SeasonController extends AbstractController
 
     }
     #[Route('/{id}', name: 'season_show', methods:['GET'])]
-    public function show(Season $season, FinancialRepository $financialRepository): Response
+    public function show(
+        Season $season,
+        FinancialRepository $financialRepository,
+        ShowRepository $showRepository,
+        VenueRepository $venueRepository,
+        PerformanceRepository $performanceRepository,
+         ): Response
     {
          $this->denyAccessUnlessGranted('SEASON_VIEW', $season);
 
@@ -98,13 +107,24 @@ class SeasonController extends AbstractController
         $totalCreditHt = $financialRepository->getTotalHtBySeasonAndType($season, FinancialTypeEnum::CREDIT);
         $netBalance = $totalCreditHt - $totalDebitHt;
 
+        // affichage des élemnts du planning des spectacles 
+        $venues = $venueRepository->findAll();
+        $unassignedShows = $showRepository->findUnassignedForSeason($season);
+        $spentBudget = $performanceRepository->getTotalCostForSeason($season);
+        $remainingBudget = $season->getRemainingBudget($spentBudget);
+
         return $this->render('season/show.html.twig', [
             'season' => $season,
             'debits' => $debits,
             'credits' => $credits,
             'totalDebitHt' => $totalDebitHt,
             'totalCreditHt' => $totalCreditHt,
-            'netBalance' => $netBalance,]);
+            'netBalance' => $netBalance,
+            'venues' => $venues,
+            'unassignedShows' => $unassignedShows,
+            'spendBudget'=> $spentBudget,
+            'remainingBudget' => $remainingBudget,
+            ]);
 
     }
     #[Route('/delete/{id}', name: 'season_delete', methods: ['POST'])]

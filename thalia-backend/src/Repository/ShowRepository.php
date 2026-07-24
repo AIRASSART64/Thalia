@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Season;
 use App\Entity\Show;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -16,20 +17,19 @@ class ShowRepository extends ServiceEntityRepository
         parent::__construct($registry, Show::class);
     }
 
-    //    /**
-    //     * @return Show[] Returns an array of Show objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('s')
-    //            ->andWhere('s.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('s.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /**
+     * Récupère les spectacles qui n'ont pas encore été planifiés pour cette saison
+     */
+    public function findUnassignedForSeason(Season $season): array
+    {
+        return $this->createQueryBuilder('s')
+            ->leftJoin('s.performances', 'p', 'WITH', 'p.season = :season')
+            ->where('p.id IS NULL')
+            ->setParameter('season', $season)
+            ->getQuery()
+            ->getResult();
+    }
+    
 
     //    public function findOneBySomeField($value): ?Show
     //    {

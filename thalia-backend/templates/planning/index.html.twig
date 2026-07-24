@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Planning - Thalia{% endblock %}
+
+{% block body %}
+<div class="flex h-screen bg-gray-50 overflow-hidden">
+
+    <!-- Planning Principal -->
+    <div class="flex-1 flex flex-col p-6 min-w-0">
+        
+        <!-- Header de Navigation -->
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex bg-gray-200 p-1 rounded-xl text-xs font-semibold">
+                <button data-calendar-view="resourceTimeGridDay" class="px-3 py-1.5 rounded-lg bg-white shadow-sm">Jour</button>
+                <button data-calendar-view="resourceTimeGridWeek" class="px-3 py-1.5 rounded-lg">Semaine</button>
+                <button data-calendar-view="dayGridMonth" class="px-3 py-1.5 rounded-lg">Mois</button>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button id="btn-prev" class="p-2 hover:bg-gray-100 rounded-lg"><i class="fa-solid fa-chevron-left"></i></button>
+                <button id="btn-today" class="px-3 py-1 text-xs font-bold bg-gray-100 rounded-lg">Aujourd'hui</button>
+                <button id="btn-next" class="p-2 hover:bg-gray-100 rounded-lg"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+        </div>
+
+        <!-- Conteneur du Calendrier avec les URLs injectées -->
+        <div class="flex-1 bg-white rounded-2xl shadow-sm border p-4" 
+             id="calendar-holder"
+             data-season-id="{{ season.id }}"
+             data-drop-url="{{ path('api_planning_drop') }}"
+             data-events-url="{{ path('api_planning_events', {'season': season.id}) }}"
+             data-venues-url="{{ path('api_planning_venues') }}">
+        </div>
+    </div>
+
+    <!-- Sidebar Droite -->
+    <aside class="w-80 bg-white border-l p-6 flex flex-col space-y-4">
+        <h3 class="font-bold text-gray-900">À planifier (<span id="unassigned-count">{{ unassignedShows|length }}</span>)</h3>
+        
+        <div class="space-y-3 overflow-y-auto flex-1" id="external-events">
+            {% for show in unassignedShows %}
+                <div class="fc-event cursor-move p-4 rounded-xl border bg-white shadow-sm hover:shadow"
+                     data-show-id="{{ show.id }}"
+                     data-duration="02:00">
+                    <h4 class="font-bold text-sm text-gray-800">{{ show.title }}</h4>
+                    <p class="text-xs text-gray-500 mt-1">{{ show.companyName }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    </aside>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <!-- CDN FullCalendar v6 (Complet avec ressources + interactions) -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@6.1.11/index.global.min.js"></script>
+
+    <!-- Inclusion de votre script public -->
+    <script src="{{ asset('js/planning.js') }}"></script>
+{% endblock %}
