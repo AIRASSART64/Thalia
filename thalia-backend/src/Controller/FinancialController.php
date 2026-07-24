@@ -38,12 +38,14 @@ class FinancialController extends AbstractController
     public function new( Request $request, Season $season): Response
     {
          $this->denyAccessUnlessGranted('FINANCIAL_CREATE');
-         
+         $organization = $this->userContext->getOrganization();
          $financial = new Financial();
          $financial->setSeason($season);
          $financial->setOrganization($this->userContext->getOrganization());
         
-         $formFinancial = $this->createForm(FinancialFormType::class, $financial);
+         $formFinancial = $this->createForm(FinancialFormType::class, $financial , [
+            'user_organization'=>$organization,
+         ]);
          $formFinancial->handleRequest($request);
 
         if ($formFinancial->isSubmitted() && $formFinancial->isValid()) {
@@ -64,8 +66,11 @@ class FinancialController extends AbstractController
     public function edit(Financial $financial, Request $request): Response
     {
          $this->denyAccessUnlessGranted('FINANCIAL_EDIT', $financial);
+        $organization = $this->userContext->getOrganization();
         $season = $financial->getSeason();
-        $formFinancial = $this->createForm(FinancialFormType::class, $financial);
+        $formFinancial = $this->createForm(FinancialFormType::class, $financial, [
+            'user_organization'=>$organization,
+        ]);
         $formFinancial->handleRequest($request);
 
         if ($formFinancial->isSubmitted() && $formFinancial->isValid()) {

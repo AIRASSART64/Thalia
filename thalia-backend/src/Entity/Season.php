@@ -34,6 +34,9 @@ class Season
     #[ORM\ManyToOne(inversedBy: 'seasons')]
     private ?Organization $organization = null;
 
+    #[ORM\Column(type: Types::DECIMAL, precision: 12, scale: 2, nullable: true)]
+    private ?string $artistic_budget = '0.00';
+
     /**
      * @var Collection<int, Financial>
      */
@@ -43,9 +46,16 @@ class Season
     #[ORM\Column(enumType: SeasonStatusEnum::class)]
     private ?SeasonStatusEnum $season_status = null;
 
+    /**
+     * @var Collection<int, Performance>
+     */
+    #[ORM\OneToMany(targetEntity: Performance::class, mappedBy: 'season')]
+    private Collection $performances;
+
     public function __construct()
     {
         $this->financials = new ArrayCollection();
+        $this->performances = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -162,5 +172,45 @@ class Season
 
           return $this;
       }
+
+      /**
+       * @return Collection<int, Performance>
+       */
+      public function getPerformances(): Collection
+      {
+          return $this->performances;
+      }
+
+      public function addPerformance(Performance $performance): static
+      {
+          if (!$this->performances->contains($performance)) {
+              $this->performances->add($performance);
+              $performance->setSeason($this);
+          }
+
+          return $this;
+      }
+
+      public function removePerformance(Performance $performance): static
+      {
+          if ($this->performances->removeElement($performance)) {
+              // set the owning side to null (unless already changed)
+              if ($performance->getSeason() === $this) {
+                  $performance->setSeason(null);
+              }
+          }
+
+          return $this;
+      }
+    public function getArtisticBudget(): float
+    {
+        return (float) ($this->artistic_budget ?? 0);
+
+    }
+    //calcul du budget restant pour la saison
+    public function getRemainingBudget(float $spentBudget): float
+    {
+        return $this->getArtisticBudget() - $spentBudget;
+    }
      
 }

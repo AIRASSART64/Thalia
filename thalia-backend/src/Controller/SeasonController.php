@@ -89,22 +89,15 @@ class SeasonController extends AbstractController
     {
          $this->denyAccessUnlessGranted('SEASON_VIEW', $season);
 
-         // 1. Récupération des tableaux filtrés (Débits & Crédits)
+         // Récupération des tableaux filtrés (Débits & Crédits)
         $debits = $financialRepository->findBySeasonAndType($season, FinancialTypeEnum::DEBIT);
         $credits = $financialRepository->findBySeasonAndType($season, FinancialTypeEnum::CREDIT);
 
-        // 2. Calculs agrégés en BDD
+        // Calculs agrégés en BDD
         $totalDebitHt = $financialRepository->getTotalHtBySeasonAndType($season, FinancialTypeEnum::DEBIT);
         $totalCreditHt = $financialRepository->getTotalHtBySeasonAndType($season, FinancialTypeEnum::CREDIT);
         $netBalance = $totalCreditHt - $totalDebitHt;
 
-        //  $financial = new Financial();
-        //  $financial->setSeason($season);
-        //  $financialForm = $this->createForm(FinancialFormType::class, $financial, [
-        //     'action' => $this->generateUrl('financial_new', ['season' => $season->getId()]),
-        //     'method' => 'POST',
-        // ]);
-     
         return $this->render('season/show.html.twig', [
             'season' => $season,
             'debits' => $debits,

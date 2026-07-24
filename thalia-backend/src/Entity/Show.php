@@ -64,9 +64,16 @@ class Show
     #[ORM\Column]
     private ?\DateTimeImmutable $updated_at = null;
 
+    /**
+     * @var Collection<int, Performance>
+     */
+    #[ORM\OneToMany(targetEntity: Performance::class, mappedBy: 'season_show')]
+    private Collection $performances;
+
     public function __construct()
     {
         $this->contacts = new ArrayCollection();
+        $this->performances = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -256,5 +263,35 @@ class Show
     public function updateTimestamp(): void
     {
     $this->updated_at = new \DateTimeImmutable();
+    }
+
+    /**
+     * @return Collection<int, Performance>
+     */
+    public function getPerformances(): Collection
+    {
+        return $this->performances;
+    }
+
+    public function addPerformance(Performance $performance): static
+    {
+        if (!$this->performances->contains($performance)) {
+            $this->performances->add($performance);
+            $performance->setSeasonShow($this);
+        }
+
+        return $this;
+    }
+
+    public function removePerformance(Performance $performance): static
+    {
+        if ($this->performances->removeElement($performance)) {
+            // set the owning side to null (unless already changed)
+            if ($performance->getSeasonShow() === $this) {
+                $performance->setSeasonShow(null);
+            }
+        }
+
+        return $this;
     }
 }

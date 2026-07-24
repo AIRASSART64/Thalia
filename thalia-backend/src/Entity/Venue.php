@@ -64,9 +64,16 @@ class Venue
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updated_at = null;
 
+    /**
+     * @var Collection<int, Performance>
+     */
+    #[ORM\OneToMany(targetEntity: Performance::class, mappedBy: 'venue')]
+    private Collection $performances;
+
     public function __construct()
     {
         $this->equipments = new ArrayCollection();
+        $this->performances = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -283,5 +290,35 @@ class Venue
     public function updateTimestamp(): void
     {
     $this->updated_at = new \DateTimeImmutable();
+    }
+
+    /**
+     * @return Collection<int, Performance>
+     */
+    public function getPerformances(): Collection
+    {
+        return $this->performances;
+    }
+
+    public function addPerformance(Performance $performance): static
+    {
+        if (!$this->performances->contains($performance)) {
+            $this->performances->add($performance);
+            $performance->setVenue($this);
+        }
+
+        return $this;
+    }
+
+    public function removePerformance(Performance $performance): static
+    {
+        if ($this->performances->removeElement($performance)) {
+            // set the owning side to null (unless already changed)
+            if ($performance->getVenue() === $this) {
+                $performance->setVenue(null);
+            }
+        }
+
+        return $this;
     }
 }

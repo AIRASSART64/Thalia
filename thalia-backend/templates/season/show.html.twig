@@ -3,7 +3,7 @@
 {% block title %}Saison : {{ season.name }}{% endblock %}
 
 {% block body %}
-<div class="min-h-screen bg-slate-50/50 p-6 lg:p-10 font-sans">
+<div class="min-h-screen bg-slate-50/50 p-6 lg:p-10 font-sans" x-data="{ activeTab: 'budget' }">
     <div class="max-w-7xl mx-auto space-y-8">
         
         {# Fil d'Ariane & En-tête #}
@@ -17,150 +17,246 @@
                 <h1 class="text-3xl font-black text-slate-900 tracking-tight">{{ season.name }}</h1>
             </div>
 
-            <div class="flex items-center gap-3">
-                <a href="{{ path('financial_new', {'season': season.id}) }}" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-sm transition inline-flex items-center gap-2">
+            {# Bouton "Ajouter une ligne" (visible uniquement si onglet Budget + Droits) #}
+            {% if is_granted('FINANCIAL_CREATE') %}
+                <div class="flex items-center gap-3" x-show="activeTab === 'budget'">
+                    <a href="{{ path('financial_new', {'season': season.id}) }}" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-sm transition inline-flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Ajouter une ligne budgétaire
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+
+        {# Navigation par Onglets #}
+        <div class="border-b border-slate-200">
+            <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                <button 
+                    @click="activeTab = 'budget'"
+                    :class="activeTab === 'budget' ? 'border-blue-500 text-blue-600 font-bold' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 font-medium'"
+                    class="whitespace-nowrap py-4 px-1 border-b-2 text-sm transition-all flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    Ajouter une ligne budgétaire
-                </a>
-            </div>
+                    Budget & Finances
+                </button>
+
+                <button 
+                    @click="activeTab = 'planning'"
+                    :class="activeTab === 'planning' ? 'border-blue-500 text-blue-600 font-bold' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 font-medium'"
+                    class="whitespace-nowrap py-4 px-1 border-b-2 text-sm transition-all flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Planning des représentations
+                    <span class="ml-1 px-2 py-0.5 text-xs rounded-full bg-slate-100 text-slate-600 font-semibold">
+                        {{ season.shows|default([])|length }}
+                    </span>
+                </button>
+            </nav>
         </div>
 
-        {# Cartes de Synthese Financiere #}
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {# Carte Recettes #}
-            <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm relative overflow-hidden">
-                <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md">Total Recettes</span>
-                <p class="text-3xl font-black text-slate-900 mt-4">{{ totalCreditHt|number_format(2, ',', ' ') }} €</p>
-                <p class="text-xs text-slate-400 mt-1">Montant Hors Taxes</p>
-            </div>
-
-            {# Carte Dépenses #}
-            <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm relative overflow-hidden">
-                <span class="text-xs font-bold uppercase tracking-wider text-rose-600 bg-rose-50 px-2.5 py-1 rounded-md">Total Dépenses</span>
-                <p class="text-3xl font-black text-slate-900 mt-4">{{ totalDebitHt|number_format(2, ',', ' ') }} €</p>
-                <p class="text-xs text-slate-400 mt-1">Montant Hors Taxes</p>
-            </div>
-
-            {# Carte Solde Net #}
-            <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm relative overflow-hidden">
-                <span class="text-xs font-bold uppercase tracking-wider {{ netBalance >= 0 ? 'text-blue-600 bg-blue-50' : 'text-amber-600 bg-amber-50' }} px-2.5 py-1 rounded-md">Solde Net (HT)</span>
-                <p class="text-3xl font-black {{ netBalance >= 0 ? 'text-slate-900' : 'text-amber-600' }} mt-4">
-                    {{ netBalance|number_format(2, ',', ' ') }} €
-                </p>
-                <p class="text-xs text-slate-400 mt-1">Recettes - Dépenses</p>
-            </div>
-        </div>
-
-        {# Section Recettes & Dépenses #}
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {# ========================================== #}
+        {#               ONGLET BUDGET               #}
+        {# ========================================== #}
+        <div x-show="activeTab === 'budget'" class="space-y-8" x-cloak>
             
-            {# Table des Recettes #}
-            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between">
-                <div>
-                    <div class="p-6 border-b border-slate-100 flex items-center justify-between">
-                        <h2 class="font-bold text-slate-900 text-lg flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                            Recettes (Crédits)
-                        </h2>
-                        <span class="text-xs font-bold text-slate-400 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">{{ credits|length }} ligne(s)</span>
-                    </div>
+            {# Cartes de Synthèse Financière #}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm relative overflow-hidden">
+                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md">Total Recettes</span>
+                    <p class="text-3xl font-black text-slate-900 mt-4">{{ totalCreditHt|number_format(2, ',', ' ') }} €</p>
+                    <p class="text-xs text-slate-400 mt-1">Montant Hors Taxes</p>
+                </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs text-slate-600">
-                            <thead class="bg-slate-50/50 text-slate-400 uppercase font-semibold text-[10px] tracking-wider border-b border-slate-100">
-                                <tr>
-                                    <th class="px-6 py-3">Catégorie</th>
-                                    <th class="px-6 py-3">Description</th>
-                                    <th class="px-6 py-3 text-right">Montant HT</th>
-                                    <th class="px-6 py-3 text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100">
-                                {% for credit in credits %}
-                                    <tr class="hover:bg-slate-50/50 transition">
-                                        <td class="px-6 py-4 font-semibold text-slate-900">
-                                            {{ credit.category.getLabel() }}
-                                        </td>
-                                        <td class="px-6 py-4 text-slate-500 max-w-xs truncate">
-                                            {{ credit.description ?: '-' }}
-                                        </td>
-                                        <td class="px-6 py-4 text-right font-bold text-emerald-600 whitespace-nowrap">
-                                            +{{ credit.amountHt|number_format(2, ',', ' ') }} €
-                                        </td>
-                                        <td class="px-6 py-4 text-right whitespace-nowrap space-x-2">
-                                            <a href="{{ path('financial_edit', {'id': credit.id}) }}" class="text-slate-400 hover:text-slate-700 font-medium transition">Éditer</a>
-                                            <form method="post" action="{{ path('financial_delete', {'id': credit.id}) }}" class="inline-block" onsubmit="return confirm('Supprimer cette ligne ?');">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ credit.id) }}">
-                                                <button class="text-rose-500 hover:text-rose-700 font-medium transition">Supprimer</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                {% else %}
-                                    <tr>
-                                        <td colspan="4" class="px-6 py-8 text-center text-slate-400 italic">Aucune recette enregistrée pour cette saison.</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm relative overflow-hidden">
+                    <span class="text-xs font-bold uppercase tracking-wider text-rose-600 bg-rose-50 px-2.5 py-1 rounded-md">Total Dépenses</span>
+                    <p class="text-3xl font-black text-slate-900 mt-4">{{ totalDebitHt|number_format(2, ',', ' ') }} €</p>
+                    <p class="text-xs text-slate-400 mt-1">Montant Hors Taxes</p>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm relative overflow-hidden">
+                    <span class="text-xs font-bold uppercase tracking-wider {{ netBalance >= 0 ? 'text-blue-600 bg-blue-50' : 'text-amber-600 bg-amber-50' }} px-2.5 py-1 rounded-md">Solde Net (HT)</span>
+                    <p class="text-3xl font-black {{ netBalance >= 0 ? 'text-slate-900' : 'text-amber-600' }} mt-4">
+                        {{ netBalance|number_format(2, ',', ' ') }} €
+                    </p>
+                    <p class="text-xs text-slate-400 mt-1">Recettes - Dépenses</p>
                 </div>
             </div>
 
-            {# Table des Dépenses #}
-            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between">
-                <div>
-                    <div class="p-6 border-b border-slate-100 flex items-center justify-between">
-                        <h2 class="font-bold text-slate-900 text-lg flex items-center gap-2">
-                            <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-                            Dépenses (Débits)
-                        </h2>
-                        <span class="text-xs font-bold text-slate-400 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">{{ debits|length }} ligne(s)</span>
-                    </div>
+            {# Section Recettes & Dépenses #}
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
+                {# Table Recettes #}
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between">
+                    <div>
+                        <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+                            <h2 class="font-bold text-slate-900 text-lg flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                                Recettes (Crédits)
+                            </h2>
+                            <span class="text-xs font-bold text-slate-400 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">{{ credits|length }} ligne(s)</span>
+                        </div>
 
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs text-slate-600">
-                            <thead class="bg-slate-50/50 text-slate-400 uppercase font-semibold text-[10px] tracking-wider border-b border-slate-100">
-                                <tr>
-                                    <th class="px-6 py-3">Catégorie</th>
-                                    <th class="px-6 py-3">Description</th>
-                                    <th class="px-6 py-3 text-right">Montant HT</th>
-                                    <th class="px-6 py-3 text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100">
-                                {% for debit in debits %}
-                                    <tr class="hover:bg-slate-50/50 transition">
-                                        <td class="px-6 py-4 font-semibold text-slate-900">
-                                            {{ debit.category.getLabel() }}
-                                        </td>
-                                        <td class="px-6 py-4 text-slate-500 max-w-xs truncate">
-                                            {{ debit.description ?: '-' }}
-                                        </td>
-                                        <td class="px-6 py-4 text-right font-bold text-rose-600 whitespace-nowrap">
-                                            -{{ debit.amountHt|number_format(2, ',', ' ') }} €
-                                        </td>
-                                        <td class="px-6 py-4 text-right whitespace-nowrap space-x-2">
-                                            <a href="{{ path('financial_edit', {'id': debit.id}) }}" class="text-slate-400 hover:text-slate-700 font-medium transition">Éditer</a>
-                                            <form method="post" action="{{ path('financial_delete', {'id': debit.id}) }}" class="inline-block" onsubmit="return confirm('Supprimer cette ligne ?');">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ debit.id) }}">
-                                                <button class="text-rose-500 hover:text-rose-700 font-medium transition">Supprimer</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                {% else %}
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs text-slate-600">
+                                <thead class="bg-slate-50/50 text-slate-400 uppercase font-semibold text-[10px] tracking-wider border-b border-slate-100">
                                     <tr>
-                                        <td colspan="4" class="px-6 py-8 text-center text-slate-400 italic">Aucune dépense enregistrée pour cette saison.</td>
+                                        <th class="px-6 py-3">Catégorie</th>
+                                        <th class="px-6 py-3">Description</th>
+                                        <th class="px-6 py-3 text-right">Montant HT</th>
+                                        {% if is_granted('FINANCIAL_EDIT', credits|first) or is_granted('FINANCIAL_DELETE', credits|first) %}
+                                            <th class="px-6 py-3 text-right">Actions</th>
+                                        {% endif %}
                                     </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    {% for credit in credits %}
+                                        <tr class="hover:bg-slate-50/50 transition">
+                                            <td class="px-6 py-4 font-semibold text-slate-900">{{ credit.category.getLabel() }}</td>
+                                            <td class="px-6 py-4 text-slate-500 max-w-xs truncate">{{ credit.description ?: '-' }}</td>
+                                            <td class="px-6 py-4 text-right font-bold text-emerald-600 whitespace-nowrap">+{{ credit.amountHt|number_format(2, ',', ' ') }} €</td>
+                                            
+                                            {% if is_granted('FINANCIAL_EDIT', credit) or is_granted('FINANCIAL_DELETE', credit) %}
+                                                <td class="px-6 py-4 text-right whitespace-nowrap space-x-2">
+                                                    {% if is_granted('FINANCIAL_EDIT', credit) %}
+                                                        <a href="{{ path('financial_edit', {'id': credit.id}) }}" class="text-slate-400 hover:text-slate-700 font-medium transition">Éditer</a>
+                                                    {% endif %}
+                                                    {% if is_granted('FINANCIAL_DELETE', credit) %}
+                                                        <form method="post" action="{{ path('financial_delete', {'id': credit.id}) }}" class="inline-block" onsubmit="return confirm('Supprimer cette ligne ?');">
+                                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ credit.id) }}">
+                                                            <button class="text-rose-500 hover:text-rose-700 font-medium transition">Supprimer</button>
+                                                        </form>
+                                                    {% endif %}
+                                                </td>
+                                            {% endif %}
+                                        </tr>
+                                    {% else %}
+                                        <tr><td colspan="4" class="px-6 py-8 text-center text-slate-400 italic">Aucune recette enregistrée pour cette saison.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-            </div>
 
+                {# Table Dépenses #}
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between">
+                    <div>
+                        <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+                            <h2 class="font-bold text-slate-900 text-lg flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                                Dépenses (Débits)
+                            </h2>
+                            <span class="text-xs font-bold text-slate-400 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">{{ debits|length }} ligne(s)</span>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs text-slate-600">
+                                <thead class="bg-slate-50/50 text-slate-400 uppercase font-semibold text-[10px] tracking-wider border-b border-slate-100">
+                                    <tr>
+                                        <th class="px-6 py-3">Catégorie</th>
+                                        <th class="px-6 py-3">Description</th>
+                                        <th class="px-6 py-3 text-right">Montant HT</th>
+                                        {% if is_granted('FINANCIAL_EDIT', debits|first) or is_granted('FINANCIAL_DELETE', debits|first) %}
+                                            <th class="px-6 py-3 text-right">Actions</th>
+                                        {% endif %}
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    {% for debit in debits %}
+                                        <tr class="hover:bg-slate-50/50 transition">
+                                            <td class="px-6 py-4 font-semibold text-slate-900">{{ debit.category.getLabel() }}</td>
+                                            <td class="px-6 py-4 text-slate-500 max-w-xs truncate">{{ debit.description ?: '-' }}</td>
+                                            <td class="px-6 py-4 text-right font-bold text-rose-600 whitespace-nowrap">-{{ debit.amountHt|number_format(2, ',', ' ') }} €</td>
+
+                                            {% if is_granted('FINANCIAL_EDIT', debit) or is_granted('FINANCIAL_DELETE', debit) %}
+                                                <td class="px-6 py-4 text-right whitespace-nowrap space-x-2">
+                                                    {% if is_granted('FINANCIAL_EDIT', debit) %}
+                                                        <a href="{{ path('financial_edit', {'id': debit.id}) }}" class="text-slate-400 hover:text-slate-700 font-medium transition">Éditer</a>
+                                                    {% endif %}
+                                                    {% if is_granted('FINANCIAL_DELETE', debit) %}
+                                                        <form method="post" action="{{ path('financial_delete', {'id': debit.id}) }}" class="inline-block" onsubmit="return confirm('Supprimer cette ligne ?');">
+                                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ debit.id) }}">
+                                                            <button class="text-rose-500 hover:text-rose-700 font-medium transition">Supprimer</button>
+                                                        </form>
+                                                    {% endif %}
+                                                </td>
+                                            {% endif %}
+                                        </tr>
+                                    {% else %}
+                                        <tr><td colspan="4" class="px-6 py-8 text-center text-slate-400 italic">Aucune dépense enregistrée pour cette saison.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
         </div>
+
+        {# ========================================== #}
+        {#              ONGLET PLANNING               #}
+        {# ========================================== #}
+        <div x-show="activeTab === 'planning'" class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden" x-cloak>
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                    <h2 class="font-bold text-slate-900 text-lg">Planning des représentations</h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Toutes les dates de spectacle configurées pour cette saison.</p>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs text-slate-600">
+                    <thead class="bg-slate-50/50 text-slate-400 uppercase font-semibold text-[10px] tracking-wider border-b border-slate-100">
+                        <tr>
+                            <th class="px-6 py-3">Spectacle / Pièce</th>
+                            <th class="px-6 py-3">Lieu / Lieu de diffusion</th>
+                            <th class="px-6 py-3">Date & Heure</th>
+                            <th class="px-6 py-3 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {# Adaptez `shows` ou `representations` selon la relation dans votre entité Season #}
+                        {% for show in season.shows|default([]) %}
+                            <tr class="hover:bg-slate-50/50 transition">
+                                <td class="px-6 py-4 font-bold text-slate-900">
+                                    {{ show.title|default(show.name|default('Représentation')) }}
+                                </td>
+                                <td class="px-6 py-4 text-slate-500">
+                                    {{ show.location|default(show.venue|default('-')) }}
+                                </td>
+                                <td class="px-6 py-4 font-medium text-slate-700 whitespace-nowrap">
+                                    {{ show.date ? show.date|date('d/m/Y H:i') : '-' }}
+                                </td>
+                                <td class="px-6 py-4 text-right whitespace-nowrap">
+                                    {% if show.id is defined %}
+                                        <a href="{{ path('show_show', {'id': show.id}) }}" class="text-blue-600 hover:text-blue-800 font-medium transition">Consulter</a>
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="px-6 py-12 text-center text-slate-400 italic">
+                                    <div class="flex flex-col items-center justify-center gap-2">
+                                        <svg class="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                        <span>Aucune représentation programmée pour cette saison.</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
 </div>
 {% endblock %}

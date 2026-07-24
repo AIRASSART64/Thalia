@@ -127,7 +127,7 @@ class Equipment
 
         return $this;
     }
-       #[ORM\PrePersist]
+    #[ORM\PrePersist]
      public function setInitialDates(): void
     {
     $now = new \DateTimeImmutable();

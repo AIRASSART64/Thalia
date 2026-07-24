@@ -124,6 +124,12 @@ class Organization
     #[ORM\OneToMany(targetEntity: Season::class, mappedBy: 'organization')]
     private Collection $seasons;
 
+    /**
+     * @var Collection<int, Performance>
+     */
+    #[ORM\OneToMany(targetEntity: Performance::class, mappedBy: 'organization', orphanRemoval: true)]
+    private Collection $performances;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -134,6 +140,7 @@ class Organization
         $this->equipment = new ArrayCollection();
         $this->financials = new ArrayCollection();
         $this->seasons = new ArrayCollection();
+        $this->performances = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -600,6 +607,36 @@ class Organization
             // set the owning side to null (unless already changed)
             if ($season->getOrganization() === $this) {
                 $season->setOrganization(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Performance>
+     */
+    public function getPerformances(): Collection
+    {
+        return $this->performances;
+    }
+
+    public function addPerformance(Performance $performance): static
+    {
+        if (!$this->performances->contains($performance)) {
+            $this->performances->add($performance);
+            $performance->setOrganization($this);
+        }
+
+        return $this;
+    }
+
+    public function removePerformance(Performance $performance): static
+    {
+        if ($this->performances->removeElement($performance)) {
+            // set the owning side to null (unless already changed)
+            if ($performance->getOrganization() === $this) {
+                $performance->setOrganization(null);
             }
         }
 
