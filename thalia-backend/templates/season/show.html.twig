@@ -2,6 +2,60 @@
 
 {% block title %}Saison : {{ season.name }}{% endblock %}
 
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        /* 1. Masquage de l'avertissement et du lien de licence FullCalendar */
+        .fc-license-message,
+        .fc-footer-toolbar,
+        a[href*="fullcalendar.io"] {
+            display: none !important;
+        }
+
+        /* 2. Adaptation du style FullCalendar à la maquette Thalia */
+        .fc {
+            --fc-border-color: #f1f5f9;
+            --fc-page-bg-color: transparent;
+            font-family: inherit;
+        }
+        
+        /* En-tête des colonnes (Salles) */
+        .fc .fc-col-header-cell {
+            background-color: #f8fafc;
+            padding: 12px 0;
+            text-transform: uppercase;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            color: #475569;
+            border-bottom: 2px solid #e2e8f0 !important;
+        }
+
+        /* Cartes de représentations */
+        .fc-v-event {
+            border-radius: 12px !important;
+            border: none !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+            padding: 6px 10px !important;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .fc-v-event:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        /* Hauteur des créneaux horaires */
+        .fc-timegrid-slot {
+            height: 48px !important;
+        }
+        .fc-timegrid-slot-label-cushion {
+            font-size: 11px;
+            font-weight: 600;
+            color: #94a3b8;
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
 <div class="min-h-screen bg-slate-50/50 p-6 lg:p-10 font-sans" x-data="{ activeTab: 'planning' }">
     <div class="max-w-7xl mx-auto space-y-8">
@@ -17,13 +71,10 @@
                 <h1 class="text-3xl font-black text-slate-900 tracking-tight">{{ season.name }}</h1>
             </div>
 
-            {# Bouton "Ajouter une ligne" (visible uniquement si onglet Budget + Droits) #}
             {% if is_granted('FINANCIAL_CREATE') %}
                 <div class="flex items-center gap-3" x-show="activeTab === 'budget'">
                     <a href="{{ path('financial_new', {'season': season.id}) }}" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-sm transition inline-flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                        </svg>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                         Ajouter une ligne budgétaire
                     </a>
                 </div>
@@ -32,24 +83,20 @@
 
         {# Navigation par Onglets #}
         <div class="border-b border-slate-200">
-            <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+            <nav class="-mb-px flex space-x-8">
                 <button 
                     @click="activeTab = 'budget'"
-                    :class="activeTab === 'budget' ? 'border-blue-500 text-blue-600 font-bold' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 font-medium'"
+                    :class="activeTab === 'budget' ? 'border-blue-500 text-blue-600 font-bold' : 'border-transparent text-slate-500 hover:text-slate-700 font-medium'"
                     class="whitespace-nowrap py-4 px-1 border-b-2 text-sm transition-all flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     Budget & Finances
                 </button>
 
                 <button 
                     @click="activeTab = 'planning'"
-                    :class="activeTab === 'planning' ? 'border-blue-500 text-blue-600 font-bold' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300 font-medium'"
+                    :class="activeTab === 'planning' ? 'border-blue-500 text-blue-600 font-bold' : 'border-transparent text-slate-500 hover:text-slate-700 font-medium'"
                     class="whitespace-nowrap py-4 px-1 border-b-2 text-sm transition-all flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                     Planning des représentations
                     <span id="unassigned-count-badge" class="ml-1 px-2 py-0.5 text-xs rounded-full bg-slate-100 text-slate-600 font-semibold">
                         {{ unassignedShows|default([])|length }}
@@ -58,170 +105,51 @@
             </nav>
         </div>
 
-        {# ========================================== #}
-        {#               ONGLET BUDGET                #}
-        {# ========================================== #}
+        {# ONGLET BUDGET #}
         <div x-show="activeTab === 'budget'" class="space-y-8" x-cloak>
-            
-            {# Cartes de Synthèse Financière #}
             <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm relative overflow-hidden">
+                <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
                     <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md">Total Recettes</span>
                     <p class="text-3xl font-black text-slate-900 mt-4">{{ totalCreditHt|default(0)|number_format(2, ',', ' ') }} €</p>
                     <p class="text-xs text-slate-400 mt-1">Montant Hors Taxes</p>
                 </div>
-
-                <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm relative overflow-hidden">
+                <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
                     <span class="text-xs font-bold uppercase tracking-wider text-rose-600 bg-rose-50 px-2.5 py-1 rounded-md">Total Dépenses</span>
                     <p class="text-3xl font-black text-slate-900 mt-4">{{ totalDebitHt|default(0)|number_format(2, ',', ' ') }} €</p>
                     <p class="text-xs text-slate-400 mt-1">Montant Hors Taxes</p>
                 </div>
-
-                <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm relative overflow-hidden">
-                    <span class="text-xs font-bold uppercase tracking-wider {{ (netBalance|default(0)) >= 0 ? 'text-blue-600 bg-blue-50' : 'text-amber-600 bg-amber-50' }} px-2.5 py-1 rounded-md">Solde Net (HT)</span>
-                    <p class="text-3xl font-black {{ (netBalance|default(0)) >= 0 ? 'text-slate-900' : 'text-amber-600' }} mt-4">
-                        {{ netBalance|default(0)|number_format(2, ',', ' ') }} €
-                    </p>
+                <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                    <span class="text-xs font-bold uppercase tracking-wider {{ (netBalance|default(0)) >= 0 ? 'text-blue-600 bg-blue-50' : 'text-amber-600 bg-amber-50' }} px-2.5 py-1 rounded-md">Solde Net</span>
+                    <p class="text-3xl font-black text-slate-900 mt-4">{{ netBalance|default(0)|number_format(2, ',', ' ') }} €</p>
                     <p class="text-xs text-slate-400 mt-1">Recettes - Dépenses</p>
                 </div>
             </div>
-
-            {# Section Recettes & Dépenses #}
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                
-                {# Table Recettes #}
-                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between">
-                    <div>
-                        <div class="p-6 border-b border-slate-100 flex items-center justify-between">
-                            <h2 class="font-bold text-slate-900 text-lg flex items-center gap-2">
-                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                                Recettes (Crédits)
-                            </h2>
-                            <span class="text-xs font-bold text-slate-400 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">{{ credits|default([])|length }} ligne(s)</span>
-                        </div>
-
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-xs text-slate-600">
-                                <thead class="bg-slate-50/50 text-slate-400 uppercase font-semibold text-[10px] tracking-wider border-b border-slate-100">
-                                    <tr>
-                                        <th class="px-6 py-3">Catégorie</th>
-                                        <th class="px-6 py-3">Description</th>
-                                        <th class="px-6 py-3 text-right">Montant HT</th>
-                                        {% if credits|default([])|length > 0 and (is_granted('FINANCIAL_EDIT', credits|first) or is_granted('FINANCIAL_DELETE', credits|first)) %}
-                                            <th class="px-6 py-3 text-right">Actions</th>
-                                        {% endif %}
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-100">
-                                    {% for credit in credits|default([]) %}
-                                        <tr class="hover:bg-slate-50/50 transition">
-                                            <td class="px-6 py-4 font-semibold text-slate-900">{{ credit.category.getLabel() }}</td>
-                                            <td class="px-6 py-4 text-slate-500 max-w-xs truncate">{{ credit.description ?: '-' }}</td>
-                                            <td class="px-6 py-4 text-right font-bold text-emerald-600 whitespace-nowrap">+{{ credit.amountHt|number_format(2, ',', ' ') }} €</td>
-                                            
-                                            {% if is_granted('FINANCIAL_EDIT', credit) or is_granted('FINANCIAL_DELETE', credit) %}
-                                                <td class="px-6 py-4 text-right whitespace-nowrap space-x-2">
-                                                    {% if is_granted('FINANCIAL_EDIT', credit) %}
-                                                        <a href="{{ path('financial_edit', {'id': credit.id}) }}" class="text-slate-400 hover:text-slate-700 font-medium transition">Éditer</a>
-                                                    {% endif %}
-                                                    {% if is_granted('FINANCIAL_DELETE', credit) %}
-                                                        <form method="post" action="{{ path('financial_delete', {'id': credit.id}) }}" class="inline-block" onsubmit="return confirm('Supprimer cette ligne ?');">
-                                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ credit.id) }}">
-                                                            <button class="text-rose-500 hover:text-rose-700 font-medium transition">Supprimer</button>
-                                                        </form>
-                                                    {% endif %}
-                                                </td>
-                                            {% endif %}
-                                        </tr>
-                                    {% else %}
-                                        <tr><td colspan="4" class="px-6 py-8 text-center text-slate-400 italic">Aucune recette enregistrée pour cette saison.</td></tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                {# Table Dépenses #}
-                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col justify-between">
-                    <div>
-                        <div class="p-6 border-b border-slate-100 flex items-center justify-between">
-                            <h2 class="font-bold text-slate-900 text-lg flex items-center gap-2">
-                                <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-                                Dépenses (Débits)
-                            </h2>
-                            <span class="text-xs font-bold text-slate-400 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">{{ debits|default([])|length }} ligne(s)</span>
-                        </div>
-
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-xs text-slate-600">
-                                <thead class="bg-slate-50/50 text-slate-400 uppercase font-semibold text-[10px] tracking-wider border-b border-slate-100">
-                                    <tr>
-                                        <th class="px-6 py-3">Catégorie</th>
-                                        <th class="px-6 py-3">Description</th>
-                                        <th class="px-6 py-3 text-right">Montant HT</th>
-                                        {% if debits|default([])|length > 0 and (is_granted('FINANCIAL_EDIT', debits|first) or is_granted('FINANCIAL_DELETE', debits|first)) %}
-                                            <th class="px-6 py-3 text-right">Actions</th>
-                                        {% endif %}
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-100">
-                                    {% for debit in debits|default([]) %}
-                                        <tr class="hover:bg-slate-50/50 transition">
-                                            <td class="px-6 py-4 font-semibold text-slate-900">{{ debit.category.getLabel() }}</td>
-                                            <td class="px-6 py-4 text-slate-500 max-w-xs truncate">{{ debit.description ?: '-' }}</td>
-                                            <td class="px-6 py-4 text-right font-bold text-rose-600 whitespace-nowrap">-{{ debit.amountHt|number_format(2, ',', ' ') }} €</td>
-
-                                            {% if is_granted('FINANCIAL_EDIT', debit) or is_granted('FINANCIAL_DELETE', debit) %}
-                                                <td class="px-6 py-4 text-right whitespace-nowrap space-x-2">
-                                                    {% if is_granted('FINANCIAL_EDIT', debit) %}
-                                                        <a href="{{ path('financial_edit', {'id': debit.id}) }}" class="text-slate-400 hover:text-slate-700 font-medium transition">Éditer</a>
-                                                    {% endif %}
-                                                    {% if is_granted('FINANCIAL_DELETE', debit) %}
-                                                        <form method="post" action="{{ path('financial_delete', {'id': debit.id}) }}" class="inline-block" onsubmit="return confirm('Supprimer cette ligne ?');">
-                                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ debit.id) }}">
-                                                            <button class="text-rose-500 hover:text-rose-700 font-medium transition">Supprimer</button>
-                                                        </form>
-                                                    {% endif %}
-                                                </td>
-                                            {% endif %}
-                                        </tr>
-                                    {% else %}
-                                        <tr><td colspan="4" class="px-6 py-8 text-center text-slate-400 italic">Aucune dépense enregistrée pour cette saison.</td></tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
         </div>
 
-        {# ========================================== #}
-        {#        ONGLET PLANNING (INTERACTIF)        #}
-        {# ========================================== #}
-        <div x-show="activeTab === 'planning'" class="flex flex-col lg:flex-row gap-6 h-[750px]" x-cloak>
+        {# ONGLET PLANNING (FULLCALENDAR SCHEDULER) #}
+        <div x-show="activeTab === 'planning'" class="flex flex-col lg:flex-row gap-6 h-[800px]" x-cloak>
             
             {# Colonne Gauche : Calendrier Multi-Salles #}
             <div class="flex-1 bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col min-w-0">
                 
-                {# Header du Calendrier (Vues & Navigation) #}
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                {# Barre de contrôle supérieure (Boutons identiques à la maquette Thalia) #}
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-100">
                     <div class="flex bg-slate-100 p-1 rounded-xl text-xs font-semibold text-slate-600">
-                        <button data-calendar-view="resourceTimeGridDay" class="px-3 py-1.5 rounded-lg bg-white shadow-sm text-blue-600">Jour</button>
-                        <button data-calendar-view="resourceTimeGridWeek" class="px-3 py-1.5 rounded-lg hover:text-slate-900">Semaine</button>
-                        <button data-calendar-view="dayGridMonth" class="px-3 py-1.5 rounded-lg hover:text-slate-900">Mois</button>
+                        <button data-calendar-view="resourceTimeGridDay" class="px-3 py-1.5 rounded-lg bg-white shadow-sm text-blue-600 transition">Jour</button>
+                        <button data-calendar-view="resourceTimeGridWeek" class="px-3 py-1.5 rounded-lg hover:text-slate-900 transition">Semaine</button>
+                        <button data-calendar-view="dayGridMonth" class="px-3 py-1.5 rounded-lg hover:text-slate-900 transition">Mois</button>
                     </div>
 
-                    <div class="flex items-center gap-2">
-                        <button id="btn-prev" class="p-2 hover:bg-slate-100 rounded-lg text-slate-600"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
-                        <button id="btn-today" class="px-3 py-1 text-xs font-bold bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200">Aujourd'hui</button>
-                        <button id="btn-next" class="p-2 hover:bg-slate-100 rounded-lg text-slate-600"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
+                    <div class="flex items-center gap-3">
+                        <button id="btn-prev" class="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
+                        <span id="calendar-current-title" class="font-bold text-slate-800 text-sm capitalize min-w-[160px] text-center">...</span>
+                        <button id="btn-next" class="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
                     </div>
+
+                    <button id="btn-today" class="px-3 py-1.5 text-xs font-bold bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition">Aujourd'hui</button>
                 </div>
 
-                {# Conteneur du Planning FullCalendar #}
+                {# Emplacement FullCalendar #}
                 <div class="flex-1 min-h-0" 
                      id="calendar-holder"
                      data-season-id="{{ season.id }}"
@@ -231,41 +159,53 @@
                 </div>
             </div>
 
-            {# Colonne Droite : Sidebar "À planifier" (Draggable Items) #}
-            <aside class="w-full lg:w-80 bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="font-bold text-slate-900">À planifier</h3>
-                    <span id="unassigned-count" class="bg-blue-50 text-blue-600 text-xs font-bold px-2.5 py-0.5 rounded-full border border-blue-100">
-                        {{ unassignedShows|default([])|length }}
-                    </span>
+            {# Colonne Droite : Sidebar (Budget Consommé + À Planifier) #}
+            <aside class="w-full lg:w-80 bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col gap-6">
+                
+                {# Widget Budget Consommé (identique maquette Thalia) #}
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                    <div class="flex justify-between items-center text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                        <span>Budget Consommé</span>
+                        <span class="text-blue-600 font-extrabold">64%</span>
+                    </div>
+                    <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden mb-2">
+                        <div class="bg-blue-600 h-full rounded-full" style="width: 64%;"></div>
+                    </div>
+                    <p class="text-right text-[11px] font-bold text-slate-400">128 400 € / 200 000 €</p>
                 </div>
 
-                <div class="space-y-3 overflow-y-auto flex-1 pr-1" id="external-events">
-                    {% for show in unassignedShows|default([]) %}
-                        <div class="fc-event cursor-grab active:cursor-grabbing p-4 rounded-xl border border-slate-200 bg-white shadow-sm hover:border-blue-300 transition"
-                             data-show-id="{{ show.id }}"
-                             data-duration="02:00">
-                            <div class="flex justify-between items-start">
-                                <h4 class="font-bold text-sm text-slate-800">{{ show.title}}</h4>
-                                {% if show.status is defined %}
-                                    <span class="text-[10px] bg-amber-50 text-amber-700 border border-amber-200 font-semibold px-2 py-0.5 rounded">
-                                        {{ show.status }}
-                                    </span>
-                                {% endif %}
+                {# Section À Planifier #}
+                <div class="flex flex-col flex-1 min-h-0">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-slate-900 text-sm">À planifier</h3>
+                        <span id="unassigned-count" class="bg-blue-50 text-blue-600 text-xs font-bold px-2.5 py-0.5 rounded-full border border-blue-100">
+                            {{ unassignedShows|default([])|length }}
+                        </span>
+                    </div>
+
+                    <div class="space-y-3 overflow-y-auto flex-1 pr-1" id="external-events">
+                        {% for show in unassignedShows|default([]) %}
+                            <div class="fc-event cursor-grab active:cursor-grabbing p-4 rounded-xl border border-slate-200 bg-white shadow-sm hover:border-blue-400 hover:shadow-md transition"
+                                 data-show-id="{{ show.id }}"
+                                 data-title="{{ show.title }}">
+                                <div class="flex justify-between items-start">
+                                    <h4 class="font-bold text-sm text-slate-800 leading-tight">{{ show.title }}</h4>
+                                </div>
+                                <p class="text-xs text-slate-500 mt-1">{{ show.companyName|default('Compagnie non renseignée') }}</p>
+                                
+                                <div class="mt-3 pt-2 border-t border-slate-100 flex justify-between items-center text-xs text-slate-400">
+                                    <span>2h00</span>
+                                    <span class="font-bold text-slate-700">Impact : {{ show.estimatedCost|default(0) }} €</span>
+                                </div>
                             </div>
-                            <p class="text-xs text-slate-500 mt-1">{{ show.companyName|default('Compagnie non renseignée') }}</p>
-                            
-                            <div class="mt-3 pt-2 border-t border-slate-100 flex justify-between items-center text-xs text-slate-400">
-                                <span><i class="fa-regular fa-clock mr-1"></i> {{ show.durationMinutes|default(120) }} min</span>
-                                <span class="font-bold text-slate-700">Impact : {{ show.estimatedCost|default(0) }} €</span>
+                        {% else %}
+                            <div class="text-center py-12 text-slate-400 italic text-xs">
+                                Tous les spectacles ont été positionnés.
                             </div>
-                        </div>
-                    {% else %}
-                        <div class="text-center py-12 text-slate-400 italic text-xs">
-                            Tous les spectacles ont été positionnés dans le planning.
-                        </div>
-                    {% endfor %}
+                        {% endfor %}
+                    </div>
                 </div>
+
             </aside>
         </div>
 
@@ -275,7 +215,7 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <!-- FullCalendar Scheduler CDN (inclut le support Multi-Ressources / Salles & Interaction Drag & Drop) -->
+    <!-- CDN FullCalendar Scheduler v6 -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@6.1.11/index.global.min.js"></script>
     <script src="{{ asset('js/planning.js') }}"></script>
 {% endblock %}
