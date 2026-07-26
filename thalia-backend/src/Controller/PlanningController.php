@@ -1,13 +1,16 @@
 <?php
+
 namespace App\Controller;
 
 use App\Entity\Performance;
 use App\Entity\Season;
 use App\Repository\PerformanceRepository;
+use App\Repository\SeasonRepository;
 use App\Repository\ShowRepository;
 use App\Repository\VenueRepository;
 use App\Service\CrudManagerService;
 use App\Service\UserContextService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,54 +22,135 @@ class PlanningController extends AbstractController
     public function __construct(
         private UserContextService $userContext,
         private CrudManagerService $crudManager,
-        private PerformanceRepository $performanceRepo
+        private PerformanceRepository $performanceRepo,
+        private EntityManagerInterface $em
     ) {}
 
-    
-     //Reçoit le drop d'un spectacle et crée/déplace la représentation
-    
+    /**
+     * Reçoit le DROP d'un spectacle OU le DEPLACEMENT/REDIMENSIONNEMENT
+     */
     #[Route('/drop', name: 'planning_drop', methods: ['POST'])]
-    public function handleDrop(Request $request, ShowRepository $showRepo, VenueRepository $venueRepo): JsonResponse
-    {
+    public function handleDrop(
+        Request $request, 
+        ShowRepository $showRepo, 
+        VenueRepository $venueRepo,
+        SeasonRepository $seasonRepo
+    ): JsonResponse {
         $data = json_decode($request->getContent(), true);
 
-        // Données envoyées par JS lors du drop
-        $showId = $data['show_id'] ?? null;
-        $venueId = $data['venue_id'] ?? null;
-        $seasonId = $data['season_id'] ?? null;
-        $startStr = $data['start_time'] ?? null; // Ex: '2026-10-24T16:00:00'
-        $endStr = $data['end_time'] ?? null;     // Ex: '2026-10-24T19:30:00'
+        $performanceId = $data['performanceId'] ?? null;
+        $showId        = $data['showId'] ?? null;
+        $venueId       = $data['venueId'] ?? null;
+        $seasonId      = $data['seasonId'] ?? null;
+        $startStr      = $data['start'] ?? null;
+        $endStr        = $data['end'] ?? null;
 
-        if (!$showId || !$venueId || !$startStr) {
-            return new JsonResponse(['success' => false, 'message' => 'Données incomplètes.'], 400);
+        if (!$venueId || !$startStr) {
+            return new JsonResponse(['success' => false, 'message' => 'Salle ou date manquante.'], 400);
+        }
+
+        $venue = $venueRepo->find($venueId);
+        if (!$venue) {
+            return new JsonResponse(['success' => false, 'message' => 'Salle introuvable.'], 404);
+        }
+
+        $start = new \DateTime($startStr);
+        $end   = $endStr ? new \DateTime($endStr) : (clone $start)->modify('+2 hours');
+
+        // --- VERIFICATION ANTI-CHEVAUCHEMENT ---
+        if ($this->hasOverlap($venue, $start, $end, $performanceId)) {
+            return new JsonResponse([
+                'success' => false, 
+                'message' => 'Impossible : la salle est déjà occupée sur ce créneau !'
+            ], 409);
+        }
+
+        // --- CAS 1 : DEPLACEMENT / REDIMENSIONNEMENT ---
+        if ($performanceId) {
+            $performance = $this->performanceRepo->find($performanceId);
+            if (!$performance) {
+                return new JsonResponse(['success' => false, 'message' => 'Représentation introuvable.'], 404);
+            }
+
+            $performance->setVenue($venue);
+            $performance->setDateTimeStart($start);
+            $performance->setDateTimeEnd($end);
+
+            $this->em->flush();
+
+            return new JsonResponse([
+                'success' => true,
+                'performanceId' => $performance->getId(),
+                'message' => 'Mise à jour enregistrée.'
+            ]);
+        }
+
+        // --- CAS 2 : CREATION APRES DROP DEPUIS LA SIDEBAR ---
+        if (!$showId) {
+            return new JsonResponse(['success' => false, 'message' => 'Spectacle manquant.'], 400);
         }
 
         $show = $showRepo->find($showId);
-        $venue = $venueRepo->find($venueId);
-        $start = new \DateTime($startStr);
-        $end = $endStr ? new \DateTime($endStr) : (clone $start)->modify('+2 hours');
+        if (!$show) {
+            return new JsonResponse(['success' => false, 'message' => 'Spectacle introuvable.'], 404);
+        }
 
-        // Création de la nouvelle représentation
         $performance = new Performance();
         $performance->setSeasonShow($show);
         $performance->setVenue($venue);
         $performance->setDateTimeStart($start);
         $performance->setDateTimeEnd($end);
-        $performance->setOrganization($this->userContext->getOrganization());
         
-        // Temps de montage/démontage par défaut si spécifiés sur le spectacle
-        $performance->setSetupDurationMin(120); 
-        $performance->setTeardownDurationMin(60);
+        // Organisation & Saison
+        if ($this->userContext->getOrganization()) {
+            $performance->setOrganization($this->userContext->getOrganization());
+        }
+        if ($seasonId) {
+            $season = $seasonRepo->find($seasonId);
+            if ($season) $performance->setSeason($season);
+        }
 
-        $this->crudManager->create($performance);
-      
+        $this->em->persist($performance);
+        $this->em->flush(); // FORCE LA SAUVEGARDE EFFECTIVE EN BDD
+
         return new JsonResponse([
             'success' => true,
-            'performance_id' => $performance->getId(),
-            'message' => 'Représentation positionnée avec succès !'
+            'performanceId' => $performance->getId(),
+            'message' => 'Représentation créée avec succès !'
         ]);
     }
-    // récupération des venues 
+
+    /**
+     * Suppression d'une représentation (Clic sur le calendrier)
+     */
+    #[Route('/delete/{id}', name: 'planning_delete', methods: ['DELETE'])]
+    public function deletePerformance(Performance $performance): JsonResponse
+    {
+        $show = $performance->getSeasonShow();
+        $showData = null;
+
+        if ($show) {
+            $showData = [
+                'id' => $show->getId(),
+                'title' => $show->getTitle(),
+                'companyName' => method_exists($show, 'getCompanyName') ? $show->getCompanyName() : '',
+                'estimatedCost' => method_exists($show, 'getEstimatedCost') ? $show->getEstimatedCost() : 0,
+                'durationMin' => method_exists($show, 'getDurationMin') ? $show->getDurationMin() : 120
+            ];
+        }
+
+        $this->em->remove($performance);
+        $this->em->flush();
+
+        return new JsonResponse([
+            'success' => true,
+            'show' => $showData
+        ]);
+    }
+
+    /**
+     * Liste des Salles (Colonnes)
+     */
     #[Route('/venues', name: 'planning_venues', methods: ['GET'])]
     public function getVenues(VenueRepository $venueRepository): JsonResponse
     {
@@ -76,15 +160,16 @@ class PlanningController extends AbstractController
         foreach ($venues as $venue) {
             $data[] = [
                 'id' => $venue->getId(),
-                'name' => $venue->getName(),
+                'title' => $venue->getName(),
             ];
         }
 
         return $this->json($data);
     }
-    
-     //Fournit les événements au calendrier (JSON)
-     
+
+    /**
+     * Événements existants pour la saison
+     */
     #[Route('/events/{season}', name: 'planning_events', methods: ['GET'])]
     public function getEvents(Season $season): JsonResponse
     {
@@ -92,18 +177,43 @@ class PlanningController extends AbstractController
         $events = [];
 
         foreach ($performances as $perf) {
+            $show = $perf->getSeasonShow();
             $events[] = [
                 'id' => $perf->getId(),
-                'resourceId' => $perf->getVenue()?->getId(), // ID de la salle (Colonne)
-                'title' => $perf->getSeasonShow()?->getTitle(),
-                'start' => $perf->getDateTimeStart()?->format('c'),
-                'end' => $perf->getDateTimeEnd()?->format('c'),
-                'setupDuration' => $perf->getSetupDurationMin(),
-                'teardownDuration' => $perf->getTeardownDurationMin(),
-                'cost' => $perf->getTotalCost(),
+                'resourceId' => $perf->getVenue()?->getId(),
+                'title' => $show?->getTitle() ?? 'Représentation',
+                'start' => $perf->getDateTimeStart()?->format(\DateTimeInterface::ATOM),
+                'end' => $perf->getDateTimeEnd()?->format(\DateTimeInterface::ATOM),
+                'backgroundColor' => '#2563eb',
+                'borderColor' => 'transparent',
+                'extendedProps' => [
+                    'showId' => $show?->getId(),
+                    'company' => method_exists($show, 'getCompanyName') ? $show->getCompanyName() : ''
+                ]
             ];
         }
 
-        return new JsonResponse($events);
+        return $this->json($events);
+    }
+
+    /**
+     * Détection des chevauchements en base
+     */
+    private function hasOverlap($venue, \DateTime $start, \DateTime $end, ?int $excludeId = null): bool
+    {
+        $qb = $this->performanceRepo->createQueryBuilder('p')
+            ->where('p.venue = :venue')
+            ->andWhere('p.date_time_start < :end')
+            ->andWhere('p.date_time_end > :start')
+            ->setParameter('venue', $venue)
+            ->setParameter('start', $start)
+            ->setParameter('end', $end);
+
+        if ($excludeId) {
+            $qb->andWhere('p.id != :excludeId')
+               ->setParameter('excludeId', $excludeId);
+        }
+
+        return count($qb->getQuery()->getResult()) > 0;
     }
 }

@@ -4,14 +4,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (!calendarEl) return;
 
-    // 1. Activation du Drag & Drop depuis la sidebar
+    const seasonId = calendarEl.dataset.seasonId;
+
+    // 1. Déclarer la sidebar glissable
     if (containerEl) {
         new FullCalendar.Draggable(containerEl, {
             itemSelector: '.fc-event',
             eventData: function(eventEl) {
+                const durationMin = eventEl.dataset.duration || 120;
+                const hours = Math.floor(durationMin / 60).toString().padStart(2, '0');
+                const minutes = (durationMin % 60).toString().padStart(2, '0');
+
                 return {
                     title: eventEl.dataset.title,
-                    duration: '02:00', // Durée par défaut
+                    duration: `${hours}:${minutes}`,
                     extendedProps: {
                         showId: eventEl.dataset.showId
                     }
@@ -20,9 +26,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // 2. Initialisation de FullCalendar Scheduler
+    // 2. Initialisation FullCalendar Scheduler
     const calendar = new FullCalendar.Calendar(calendarEl, {
-        schedulerLicenseKey: 'CC-BY-NC-4.0', // Clé de licence
+        schedulerLicenseKey: 'CC-BY-NC-4.0',
         initialView: 'resourceTimeGridDay',
         locale: 'fr',
         firstDay: 1,
@@ -31,103 +37,161 @@ document.addEventListener('DOMContentLoaded', function() {
         allDaySlot: false,
         editable: true,
         droppable: true,
-        headerToolbar: false, // On utilise nos propres boutons personnalisés (En-tête Thalia)
+        headerToolbar: false,
 
-        // Chargement des Salles (Colonnes)
+        // BLOCAGE DES CHEVAUCHEMENTS
+        eventOverlap: false,
+        selectOverlap: false,
+
         resources: calendarEl.dataset.venuesUrl,
-
-        // Chargement des Événements
         events: calendarEl.dataset.eventsUrl,
 
-        // Réception d'un élément glissé depuis la sidebar
+        // --- ENREGISTREMENT BDD LORS DU DROP ---
         eventReceive: function(info) {
+            const resource = info.event.getResources()[0];
             const showId = info.event.extendedProps.showId;
-            const venueId = info.event.getResources()[0]?.id;
-            const start = info.event.startStr;
-            const end = info.event.endStr;
 
             fetch(calendarEl.dataset.dropUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     showId: showId,
-                    venueId: venueId,
-                    start: start,
-                    end: end
+                    venueId: resource ? resource.id : null,
+                    seasonId: seasonId,
+                    start: info.event.startStr,
+                    end: info.event.endStr
                 })
             })
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    // Supprimer la carte de la sidebar
+                    // Affecter l'ID de la BDD à l'événement FullCalendar
+                    info.event.setProp('id', data.performanceId);
+
+                    // Retirer de la sidebar "À planifier"
                     const externalItem = document.querySelector(`[data-show-id="${showId}"]`);
                     if (externalItem) externalItem.remove();
 
-                    // Décrémenter le compteur
-                    const countBadge = document.getElementById('unassigned-count');
-                    const tabBadge = document.getElementById('unassigned-count-badge');
-                    if (countBadge) countBadge.textContent = Math.max(0, parseInt(countBadge.textContent) - 1);
-                    if (tabBadge) tabBadge.textContent = Math.max(0, parseInt(tabBadge.textContent) - 1);
+                    updateCounters(-1);
                 } else {
-                    info.event.remove(); // Annuler si erreur
+                    alert(data.message || 'Créneau indisponible.');
+                    info.event.remove();
                 }
+            })
+            .catch(() => {
+                alert('Erreur réseau lors de la sauvegarde.');
+                info.event.remove();
             });
         },
 
-        // Déplacement ou redimensionnement d'un événement existant
-        eventDrop: updatePerformanceDates,
-        eventResize: updatePerformanceDates
+        // --- MISE A JOUR APRES DEPLACEMENT / REDIMENSIONNEMENT ---
+        eventDrop: syncPerformanceChange,
+        eventResize: syncPerformanceChange,
+
+        // --- SUPPRESSION D'UN SPECTACLE PROGRAMME ---
+        eventClick: function(info) {
+            if (!info.event.id) {
+                alert("Cet événement n'a pas encore été synchronisé avec la base.");
+                return;
+            }
+
+            if (confirm(`Voulez-vous retirer "${info.event.title}" du planning ?`)) {
+                fetch(`/planning/delete/${info.event.id}`, {
+                    method: 'DELETE'
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        info.event.remove();
+                        if (data.show) {
+                            addShowToSidebar(data.show);
+                            updateCounters(1);
+                        }
+                    } else {
+                        alert('Erreur lors de la suppression.');
+                    }
+                })
+                .catch(() => alert('Erreur réseau.'));
+            }
+        }
     });
 
     calendar.render();
 
-    // Fonction de mise à jour suite au déplacement
-    function updatePerformanceDates(info) {
+    // Synchronisation déplacement / redimensionnement BDD
+    function syncPerformanceChange(info) {
+        const resource = info.event.getResources()[0];
+
         fetch(calendarEl.dataset.dropUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 performanceId: info.event.id,
-                venueId: info.event.getResources()[0]?.id,
+                venueId: resource ? resource.id : null,
                 start: info.event.startStr,
                 end: info.event.endStr
             })
-        });
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data.success) {
+                alert(data.message || 'Mise à jour impossible (conflit).');
+                info.revert();
+            }
+        })
+        .catch(() => info.revert());
     }
 
-    // 3. Liaison des boutons d'en-tête Thalia
+    // Ré-insérer dans la liste de droite
+    function addShowToSidebar(show) {
+        const list = document.getElementById('external-events');
+        if (!list) return;
+
+        const card = document.createElement('div');
+        card.className = 'fc-event cursor-grab active:cursor-grabbing p-4 rounded-xl border border-slate-200 bg-white shadow-sm hover:border-blue-400 hover:shadow-md transition mb-3';
+        card.dataset.showId = show.id;
+        card.dataset.title = show.title;
+        card.dataset.duration = show.durationMin || 120;
+
+        card.innerHTML = `
+            <div class="flex justify-between items-start">
+                <h4 class="font-bold text-sm text-slate-800 leading-tight">${show.title}</h4>
+            </div>
+            <p class="text-xs text-slate-500 mt-1">${show.companyName || 'Compagnie non renseignée'}</p>
+            <div class="mt-3 pt-2 border-t border-slate-100 flex justify-between items-center text-xs text-slate-400">
+                <span>${show.durationMin || 120} min</span>
+                <span class="font-bold text-slate-700">Impact : ${show.estimatedCost || 0} €</span>
+            </div>
+        `;
+
+        list.appendChild(card);
+    }
+
+    function updateCounters(delta) {
+        const countBadge = document.getElementById('unassigned-count');
+        const tabBadge = document.getElementById('unassigned-count-badge');
+        if (countBadge) countBadge.textContent = Math.max(0, parseInt(countBadge.textContent || '0') + delta);
+        if (tabBadge) tabBadge.textContent = Math.max(0, parseInt(tabBadge.textContent || '0') + delta);
+    }
+
+    // Navigation en-tête
     document.querySelectorAll('[data-calendar-view]').forEach(btn => {
         btn.addEventListener('click', function() {
-            const view = this.dataset.calendarView;
-            calendar.changeView(view);
-            
-            // Style actif
+            calendar.changeView(this.dataset.calendarView);
             document.querySelectorAll('[data-calendar-view]').forEach(b => {
                 b.classList.remove('bg-white', 'shadow-sm', 'text-blue-600');
-                b.classList.add('hover:text-slate-900');
             });
             this.classList.add('bg-white', 'shadow-sm', 'text-blue-600');
         });
     });
 
-    document.getElementById('btn-prev')?.addEventListener('click', () => {
-        calendar.prev();
-        updateDateTitle();
-    });
-    document.getElementById('btn-next')?.addEventListener('click', () => {
-        calendar.next();
-        updateDateTitle();
-    });
-    document.getElementById('btn-today')?.addEventListener('click', () => {
-        calendar.today();
-        updateDateTitle();
-    });
+    document.getElementById('btn-prev')?.addEventListener('click', () => { calendar.prev(); updateDateTitle(); });
+    document.getElementById('btn-next')?.addEventListener('click', () => { calendar.next(); updateDateTitle(); });
+    document.getElementById('btn-today')?.addEventListener('click', () => { calendar.today(); updateDateTitle(); });
 
     function updateDateTitle() {
         const titleEl = document.getElementById('calendar-current-title');
-        if (titleEl) {
-            titleEl.textContent = calendar.currentData.viewTitle;
-        }
+        if (titleEl) titleEl.textContent = calendar.currentData.viewTitle;
     }
     updateDateTitle();
 });
