@@ -3,63 +3,100 @@
 {% block title %}Saison : {{ season.name }}{% endblock %}
 
 {% block stylesheets %}
-    {{ parent() }}
-    <style>
-        /* 1. Masquage de l'avertissement et du lien de licence FullCalendar */
-        .fc-license-message,
-        .fc-footer-toolbar,
-        a[href*="fullcalendar.io"] {
-            display: none !important;
-        }
+{{ parent() }}
+<style>
+    /* 1. Masquage de l'avertissement et du lien de licence FullCalendar */
+    .fc-license-message,
+    .fc-footer-toolbar,
+    a[href*="fullcalendar.io"] {
+        display: none !important;
+    }
 
-        /* 2. Adaptation du style FullCalendar à la maquette Thalia */
-        .fc {
-            --fc-border-color: #f1f5f9;
-            --fc-page-bg-color: transparent;
-            font-family: inherit;
-        }
-        
-        /* En-tête des colonnes (Salles) */
-        .fc .fc-col-header-cell {
-            background-color: #f8fafc;
-            padding: 12px 0;
-            text-transform: uppercase;
-            font-size: 11px;
-            font-weight: 800;
-            letter-spacing: 0.05em;
-            color: #475569;
-            border-bottom: 2px solid #e2e8f0 !important;
-        }
+    /* 2. Adaptation du style FullCalendar à la maquette Thalia */
+    .fc {
+        --fc-border-color: #f1f5f9;
+        --fc-page-bg-color: transparent;
+        font-family: inherit;
+    }
 
-        /* Cartes de représentations */
-        .fc-v-event {
-            border-radius: 12px !important;
-            border: none !important;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
-            padding: 6px 10px !important;
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
-        }
-        .fc-v-event:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1) !important;
-        }
+    /* En-tête des colonnes (Salles) */
+    .fc .fc-col-header-cell {
+        background-color: #f8fafc;
+        padding: 12px 0;
+        text-transform: uppercase;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        color: #475569;
+        border-bottom: 2px solid #e2e8f0 !important;
+    }
 
-        /* Hauteur des créneaux horaires */
-        .fc-timegrid-slot {
-            height: 48px !important;
-        }
-        .fc-timegrid-slot-label-cushion {
-            font-size: 11px;
-            font-weight: 600;
-            color: #94a3b8;
-        }
-    </style>
+    /* Cartes de représentations */
+    .fc-v-event {
+        border-radius: 12px !important;
+        border: none !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+        padding: 6px 10px !important;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .fc-v-event:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    /* Hauteur des créneaux horaires */
+    .fc-timegrid-slot {
+        height: 48px !important;
+    }
+
+    .fc-timegrid-slot-label-cushion {
+        font-size: 11px;
+        font-weight: 600;
+        color: #94a3b8;
+    }
+
+    /* 1. Séparation marquée entre les colonnes de salles */
+    .fc-resource-timeline td,
+    .fc-timegrid-col {
+        border-right: 2px solid #cbd5e1 !important;
+        /* Gris foncé Slate-300 */
+    }
+
+    /* 2. Fond alterné pour distinguer les salles une colonne sur deux */
+    .fc-timegrid-col:nth-child(even) {
+        background-color: #f8fafc;
+        /* Slate-50 */
+    }
+
+    /* 3. Style renforcé pour l'en-tête de chaque salle */
+    .fc-col-header-cell {
+        background-color: #f1f5f9 !important;
+        /* Slate-100 */
+        border-bottom: 3px solid #2563eb !important;
+        /* Ligne bleue sous le nom de salle */
+        padding: 8px 0 !important;
+    }
+
+    .fc-col-header-cell-cushion {
+        font-weight: 700 !important;
+        color: #1e293b !important;
+        font-size: 0.9rem !important;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* 4. Bordure supérieure forte entre le haut de grille et les créneaux */
+    .fc-timegrid-slots td {
+        border-bottom: 1px dashed #e2e8f0 !important;
+    }
+</style>
 {% endblock %}
 
 {% block body %}
 <div class="min-h-screen bg-slate-50/50 p-6 lg:p-10 font-sans" x-data="{ activeTab: 'planning' }">
     <div class="max-w-7xl mx-auto space-y-8">
-        
+
         {# Fil d'Ariane & En-tête #}
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
@@ -72,33 +109,41 @@
             </div>
 
             {% if is_granted('FINANCIAL_CREATE') %}
-                <div class="flex items-center gap-3" x-show="activeTab === 'budget'">
-                    <a href="{{ path('financial_new', {'season': season.id}) }}" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-sm transition inline-flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        Ajouter une ligne budgétaire
-                    </a>
-                </div>
+            <div class="flex items-center gap-3" x-show="activeTab === 'budget'">
+                <a href="{{ path('financial_new', {'season': season.id}) }}"
+                    class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-sm transition inline-flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Ajouter une ligne budgétaire
+                </a>
+            </div>
             {% endif %}
         </div>
 
         {# Navigation par Onglets #}
         <div class="border-b border-slate-200">
             <nav class="-mb-px flex space-x-8">
-                <button 
-                    @click="activeTab = 'budget'"
+                <button @click="activeTab = 'budget'"
                     :class="activeTab === 'budget' ? 'border-blue-500 text-blue-600 font-bold' : 'border-transparent text-slate-500 hover:text-slate-700 font-medium'"
                     class="whitespace-nowrap py-4 px-1 border-b-2 text-sm transition-all flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                     Budget & Finances
                 </button>
 
-                <button 
-                    @click="activeTab = 'planning'"
+                <button @click="activeTab = 'planning'"
                     :class="activeTab === 'planning' ? 'border-blue-500 text-blue-600 font-bold' : 'border-transparent text-slate-500 hover:text-slate-700 font-medium'"
                     class="whitespace-nowrap py-4 px-1 border-b-2 text-sm transition-all flex items-center gap-2">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
                     Planning des représentations
-                    <span id="unassigned-count-badge" class="ml-1 px-2 py-0.5 text-xs rounded-full bg-slate-100 text-slate-600 font-semibold">
+                    <span id="unassigned-count-badge"
+                        class="ml-1 px-2 py-0.5 text-xs rounded-full bg-slate-100 text-slate-600 font-semibold">
                         {{ unassignedShows|default([])|length }}
                     </span>
                 </button>
@@ -109,18 +154,27 @@
         <div x-show="activeTab === 'budget'" class="space-y-8" x-cloak>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
-                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md">Total Recettes</span>
-                    <p class="text-3xl font-black text-slate-900 mt-4">{{ totalCreditHt|default(0)|number_format(2, ',', ' ') }} €</p>
+                    <span
+                        class="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md">Total
+                        Recettes</span>
+                    <p class="text-3xl font-black text-slate-900 mt-4">{{ totalCreditHt|default(0)|number_format(2, ',',
+                        ' ') }} €</p>
                     <p class="text-xs text-slate-400 mt-1">Montant Hors Taxes</p>
                 </div>
                 <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
-                    <span class="text-xs font-bold uppercase tracking-wider text-rose-600 bg-rose-50 px-2.5 py-1 rounded-md">Total Dépenses</span>
-                    <p class="text-3xl font-black text-slate-900 mt-4">{{ totalDebitHt|default(0)|number_format(2, ',', ' ') }} €</p>
+                    <span
+                        class="text-xs font-bold uppercase tracking-wider text-rose-600 bg-rose-50 px-2.5 py-1 rounded-md">Total
+                        Dépenses</span>
+                    <p class="text-3xl font-black text-slate-900 mt-4">{{ totalDebitHt|default(0)|number_format(2, ',',
+                        ' ') }} €</p>
                     <p class="text-xs text-slate-400 mt-1">Montant Hors Taxes</p>
                 </div>
                 <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
-                    <span class="text-xs font-bold uppercase tracking-wider {{ (netBalance|default(0)) >= 0 ? 'text-blue-600 bg-blue-50' : 'text-amber-600 bg-amber-50' }} px-2.5 py-1 rounded-md">Solde Net</span>
-                    <p class="text-3xl font-black text-slate-900 mt-4">{{ netBalance|default(0)|number_format(2, ',', ' ') }} €</p>
+                    <span
+                        class="text-xs font-bold uppercase tracking-wider {{ (netBalance|default(0)) >= 0 ? 'text-blue-600 bg-blue-50' : 'text-amber-600 bg-amber-50' }} px-2.5 py-1 rounded-md">Solde
+                        Net</span>
+                    <p class="text-3xl font-black text-slate-900 mt-4">{{ netBalance|default(0)|number_format(2, ',', '
+                        ') }} €</p>
                     <p class="text-xs text-slate-400 mt-1">Recettes - Dépenses</p>
                 </div>
             </div>
@@ -128,43 +182,57 @@
 
         {# ONGLET PLANNING (FULLCALENDAR SCHEDULER) #}
         <div x-show="activeTab === 'planning'" class="flex flex-col lg:flex-row gap-6 h-[800px]" x-cloak>
-            
+
             {# Colonne Gauche : Calendrier Multi-Salles #}
             <div class="flex-1 bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col min-w-0">
-                
+
                 {# Barre de contrôle supérieure (Boutons identiques à la maquette Thalia) #}
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-100">
+                <div
+                    class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-100">
                     <div class="flex bg-slate-100 p-1 rounded-xl text-xs font-semibold text-slate-600">
-                        <button data-calendar-view="resourceTimeGridDay" class="px-3 py-1.5 rounded-lg bg-white shadow-sm text-blue-600 transition">Jour</button>
-                        <button data-calendar-view="resourceTimeGridWeek" class="px-3 py-1.5 rounded-lg hover:text-slate-900 transition">Semaine</button>
-                        <button data-calendar-view="dayGridMonth" class="px-3 py-1.5 rounded-lg hover:text-slate-900 transition">Mois</button>
+                        <button data-calendar-view="resourceTimeGridDay"
+                            class="px-3 py-1.5 rounded-lg bg-white shadow-sm text-blue-600 transition">Jour</button>
+                        <button data-calendar-view="resourceTimeGridWeek"
+                            class="px-3 py-1.5 rounded-lg hover:text-slate-900 transition">Semaine</button>
+                        <button data-calendar-view="dayGridMonth"
+                            class="px-3 py-1.5 rounded-lg hover:text-slate-900 transition">Mois</button>
                     </div>
 
                     <div class="flex items-center gap-3">
-                        <button id="btn-prev" class="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
-                        <span id="calendar-current-title" class="font-bold text-slate-800 text-sm capitalize min-w-[160px] text-center">...</span>
-                        <button id="btn-next" class="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
+                        <button id="btn-prev" class="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition"><svg
+                                class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 19l-7-7 7-7" />
+                            </svg></button>
+                        <span id="calendar-current-title"
+                            class="font-bold text-slate-800 text-sm capitalize min-w-[160px] text-center">...</span>
+                        <button id="btn-next" class="p-2 hover:bg-slate-100 rounded-lg text-slate-600 transition"><svg
+                                class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5l7 7-7 7" />
+                            </svg></button>
                     </div>
 
-                    <button id="btn-today" class="px-3 py-1.5 text-xs font-bold bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition">Aujourd'hui</button>
+                    <button id="btn-today"
+                        class="px-3 py-1.5 text-xs font-bold bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition">Aujourd'hui</button>
                 </div>
 
                 {# Emplacement FullCalendar #}
-                <div class="flex-1 min-h-0" 
-                     id="calendar-holder"
-                     data-season-id="{{ season.id }}"
-                     data-drop-url="{{ path('planning_drop') }}"
-                     data-events-url="{{ path('planning_events', {'season': season.id}) }}"
-                     data-venues-url="{{ path('planning_venues') }}">
+                <div class="flex-1 min-h-0" id="calendar-holder" data-season-id="{{ season.id }}"
+                    data-drop-url="{{ path('planning_drop') }}"
+                    data-events-url="{{ path('planning_events', {'season': season.id}) }}"
+                    data-venues-url="{{ path('planning_venues') }}">
                 </div>
             </div>
 
             {# Colonne Droite : Sidebar (Budget Consommé + À Planifier) #}
-            <aside class="w-full lg:w-80 bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col gap-6">
-                
+            <aside
+                class="w-full lg:w-80 bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col gap-6">
+
                 {# Widget Budget Consommé (identique maquette Thalia) #}
                 <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
-                    <div class="flex justify-between items-center text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                    <div
+                        class="flex justify-between items-center text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
                         <span>Budget Consommé</span>
                         <span class="text-blue-600 font-extrabold">64%</span>
                     </div>
@@ -178,30 +246,33 @@
                 <div class="flex flex-col flex-1 min-h-0">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-bold text-slate-900 text-sm">À planifier</h3>
-                        <span id="unassigned-count" class="bg-blue-50 text-blue-600 text-xs font-bold px-2.5 py-0.5 rounded-full border border-blue-100">
+                        <span id="unassigned-count"
+                            class="bg-blue-50 text-blue-600 text-xs font-bold px-2.5 py-0.5 rounded-full border border-blue-100">
                             {{ unassignedShows|default([])|length }}
                         </span>
                     </div>
 
                     <div class="space-y-3 overflow-y-auto flex-1 pr-1" id="external-events">
-    {% for show in unassignedShows|default([]) %}
-        <div class="fc-event cursor-grab active:cursor-grabbing p-4 rounded-xl border border-slate-200 bg-white shadow-sm hover:border-blue-400 hover:shadow-md transition"
-             data-show-id="{{ show.id }}"
-             data-title="{{ show.title }}"
-             data-duration="{{ show.durationMin|default(120) }}"
-             data-cost="{{ show.estimatedCost|default(0) }}">
-            <div class="flex justify-between items-start">
-                <h4 class="font-bold text-sm text-slate-800 leading-tight">{{ show.title }}</h4>
-            </div>
-            <p class="text-xs text-slate-500 mt-1">{{ show.companyName|default('Compagnie non renseignée') }}</p>
-            
-            <div class="mt-3 pt-2 border-t border-slate-100 flex justify-between items-center text-xs text-slate-400">
-                <span>{{ show.durationMin|default(120) }} min</span>
-                <span class="font-bold text-slate-700">Impact : {{ show.estimatedCost|default(0) }} €</span>
-            </div>
-        </div>
-    {% endfor %}
-</div>
+                        {% for show in unassignedShows|default([]) %}
+                        <div class="fc-event cursor-grab active:cursor-grabbing p-4 rounded-xl border border-slate-200 bg-white shadow-sm hover:border-blue-400 hover:shadow-md transition"
+                            data-show-id="{{ show.id }}" data-title="{{ show.title }}"
+                            data-duration="{{ show.durationMin|default(120) }}"
+                            data-cost="{{ show.estimatedCost|default(0) }}">
+                            <div class="flex justify-between items-start">
+                                <h4 class="font-bold text-sm text-slate-800 leading-tight">{{ show.title }}</h4>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-1">{{ show.companyName|default('Compagnie non
+                                renseignée') }}</p>
+
+                            <div
+                                class="mt-3 pt-2 border-t border-slate-100 flex justify-between items-center text-xs text-slate-400">
+                                <span>{{ show.durationMin|default(120) }} min</span>
+                                <span class="font-bold text-slate-700">Impact : {{ show.estimatedCost|default(0) }}
+                                    €</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
 
             </aside>
@@ -212,8 +283,8 @@
 {% endblock %}
 
 {% block javascripts %}
-    {{ parent() }}
-    <!-- CDN FullCalendar Scheduler v6 -->
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@6.1.11/index.global.min.js"></script>
-    <script src="{{ asset('js/planning.js') }}"></script>
+{{ parent() }}
+<!-- CDN FullCalendar Scheduler v6 -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar-scheduler@6.1.11/index.global.min.js"></script>
+<script src="{{ asset('js/planning.js') }}"></script>
 {% endblock %}

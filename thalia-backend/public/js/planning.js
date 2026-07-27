@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const calendarEl = document.getElementById('calendar-holder');
     const containerEl = document.getElementById('external-events');
 
@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (containerEl) {
         new FullCalendar.Draggable(containerEl, {
             itemSelector: '.fc-event',
-            eventData: function(eventEl) {
+            eventData: function (eventEl) {
                 const durationMin = eventEl.dataset.duration || 120;
                 const hours = Math.floor(durationMin / 60).toString().padStart(2, '0');
                 const minutes = (durationMin % 60).toString().padStart(2, '0');
@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
         events: calendarEl.dataset.eventsUrl,
 
         // --- ENREGISTREMENT BDD LORS DU DROP ---
-        eventReceive: function(info) {
+        eventReceive: function (info) {
             const resource = info.event.getResources()[0];
             const showId = info.event.extendedProps.showId;
 
@@ -62,26 +62,26 @@ document.addEventListener('DOMContentLoaded', function() {
                     end: info.event.endStr
                 })
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    // Affecter l'ID de la BDD à l'événement FullCalendar
-                    info.event.setProp('id', data.performanceId);
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        // Affecter l'ID de la BDD à l'événement FullCalendar
+                        info.event.setProp('id', data.performanceId);
 
-                    // Retirer de la sidebar "À planifier"
-                    const externalItem = document.querySelector(`[data-show-id="${showId}"]`);
-                    if (externalItem) externalItem.remove();
+                        // Retirer de la sidebar "À planifier"
+                        const externalItem = document.querySelector(`[data-show-id="${showId}"]`);
+                        if (externalItem) externalItem.remove();
 
-                    updateCounters(-1);
-                } else {
-                    alert(data.message || 'Créneau indisponible.');
+                        updateCounters(-1);
+                    } else {
+                        alert(data.message || 'Créneau indisponible.');
+                        info.event.remove();
+                    }
+                })
+                .catch(() => {
+                    alert('Erreur réseau lors de la sauvegarde.');
                     info.event.remove();
-                }
-            })
-            .catch(() => {
-                alert('Erreur réseau lors de la sauvegarde.');
-                info.event.remove();
-            });
+                });
         },
 
         // --- MISE A JOUR APRES DEPLACEMENT / REDIMENSIONNEMENT ---
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
         eventResize: syncPerformanceChange,
 
         // --- SUPPRESSION D'UN SPECTACLE PROGRAMME ---
-        eventClick: function(info) {
+        eventClick: function (info) {
             if (!info.event.id) {
                 alert("Cet événement n'a pas encore été synchronisé avec la base.");
                 return;
@@ -99,19 +99,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 fetch(`/planning/delete/${info.event.id}`, {
                     method: 'DELETE'
                 })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        info.event.remove();
-                        if (data.show) {
-                            addShowToSidebar(data.show);
-                            updateCounters(1);
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            info.event.remove();
+                            if (data.show) {
+                                addShowToSidebar(data.show);
+                                updateCounters(1);
+                            }
+                        } else {
+                            alert('Erreur lors de la suppression.');
                         }
-                    } else {
-                        alert('Erreur lors de la suppression.');
-                    }
-                })
-                .catch(() => alert('Erreur réseau.'));
+                    })
+                    .catch(() => alert('Erreur réseau.'));
             }
         }
     });
@@ -132,14 +132,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 end: info.event.endStr
             })
         })
-        .then(res => res.json())
-        .then(data => {
-            if (!data.success) {
-                alert(data.message || 'Mise à jour impossible (conflit).');
-                info.revert();
-            }
-        })
-        .catch(() => info.revert());
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) {
+                    alert(data.message || 'Mise à jour impossible (conflit).');
+                    info.revert();
+                }
+            })
+            .catch(() => info.revert());
     }
 
     // Ré-insérer dans la liste de droite
@@ -173,10 +173,39 @@ document.addEventListener('DOMContentLoaded', function() {
         if (countBadge) countBadge.textContent = Math.max(0, parseInt(countBadge.textContent || '0') + delta);
         if (tabBadge) tabBadge.textContent = Math.max(0, parseInt(tabBadge.textContent || '0') + delta);
     }
+    // Fonction de mise à jour de l'affichage du budget
+    function updateBudgetUI(budgetData) {
+        if (!budgetData) return;
+
+        const spentEl = document.getElementById('season-spent-budget');
+        const progressBar = document.getElementById('season-budget-bar');
+        const percentEl = document.getElementById('season-budget-percent');
+
+        if (spentEl) {
+            spentEl.textContent = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(budgetData.totalSpent);
+        }
+
+        if (progressBar) {
+            progressBar.style.width = `${Math.min(budgetData.percentage, 100)}%`;
+
+            // Alerte visuelle si dépassement
+            if (budgetData.percentage > 100) {
+                progressBar.classList.remove('bg-blue-600', 'bg-amber-500');
+                progressBar.classList.add('bg-red-600');
+            } else if (budgetData.percentage > 85) {
+                progressBar.classList.remove('bg-blue-600', 'bg-red-600');
+                progressBar.classList.add('bg-amber-500');
+            }
+        }
+
+        if (percentEl) {
+            percentEl.textContent = `${budgetData.percentage}%`;
+        }
+    }
 
     // Navigation en-tête
     document.querySelectorAll('[data-calendar-view]').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             calendar.changeView(this.dataset.calendarView);
             document.querySelectorAll('[data-calendar-view]').forEach(b => {
                 b.classList.remove('bg-white', 'shadow-sm', 'text-blue-600');

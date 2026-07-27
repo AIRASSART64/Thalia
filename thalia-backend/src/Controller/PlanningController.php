@@ -10,7 +10,6 @@ use App\Repository\ShowRepository;
 use App\Repository\VenueRepository;
 use App\Service\CrudManagerService;
 use App\Service\UserContextService;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,8 +21,7 @@ class PlanningController extends AbstractController
     public function __construct(
         private UserContextService $userContext,
         private CrudManagerService $crudManager,
-        private PerformanceRepository $performanceRepo,
-        private EntityManagerInterface $em
+        private PerformanceRepository $performanceRepository,
     ) {}
 
     /**
@@ -31,12 +29,13 @@ class PlanningController extends AbstractController
      */
     #[Route('/drop', name: 'planning_drop', methods: ['POST'])]
     public function handleDrop(
-        Request $request, 
-        ShowRepository $showRepo, 
-        VenueRepository $venueRepo,
-        SeasonRepository $seasonRepo
+        Request $request,
+        ShowRepository $showRepository,
+        VenueRepository $venueRepository,
+        SeasonRepository $seasonRepository,
     ): JsonResponse {
         $data = json_decode($request->getContent(), true);
+
 
         $performanceId = $data['performanceId'] ?? null;
         $showId        = $data['showId'] ?? null;
@@ -45,11 +44,12 @@ class PlanningController extends AbstractController
         $startStr      = $data['start'] ?? null;
         $endStr        = $data['end'] ?? null;
 
+
         if (!$venueId || !$startStr) {
             return new JsonResponse(['success' => false, 'message' => 'Salle ou date manquante.'], 400);
         }
 
-        $venue = $venueRepo->find($venueId);
+        $venue = $venueRepository->find($venueId);
         if (!$venue) {
             return new JsonResponse(['success' => false, 'message' => 'Salle introuvable.'], 404);
         }
@@ -60,14 +60,14 @@ class PlanningController extends AbstractController
         // --- VERIFICATION ANTI-CHEVAUCHEMENT ---
         if ($this->hasOverlap($venue, $start, $end, $performanceId)) {
             return new JsonResponse([
-                'success' => false, 
+                'success' => false,
                 'message' => 'Impossible : la salle est déjà occupée sur ce créneau !'
             ], 409);
         }
 
         // --- CAS 1 : DEPLACEMENT / REDIMENSIONNEMENT ---
         if ($performanceId) {
-            $performance = $this->performanceRepo->find($performanceId);
+            $performance = $this->performanceRepository->find($performanceId);
             if (!$performance) {
                 return new JsonResponse(['success' => false, 'message' => 'Représentation introuvable.'], 404);
             }
@@ -76,11 +76,19 @@ class PlanningController extends AbstractController
             $performance->setDateTimeStart($start);
             $performance->setDateTimeEnd($end);
 
-            $this->em->flush();
+            $this->crudManager->update($performance);
+            $season = $performance->getSeason();
+            if (!$season && $seasonId) {
+                $season = $seasonRepository->find($seasonId);
+            }
+            $totalSpent = $this->performanceRepository->getTotalCostForSeason($season);
 
             return new JsonResponse([
                 'success' => true,
                 'performanceId' => $performance->getId(),
+                'budgetData' => [
+                    'totalSpent' => $totalSpent,
+                ],
                 'message' => 'Mise à jour enregistrée.'
             ]);
         }
@@ -90,7 +98,7 @@ class PlanningController extends AbstractController
             return new JsonResponse(['success' => false, 'message' => 'Spectacle manquant.'], 400);
         }
 
-        $show = $showRepo->find($showId);
+        $show = $showRepository->find($showId);
         if (!$show) {
             return new JsonResponse(['success' => false, 'message' => 'Spectacle introuvable.'], 404);
         }
@@ -100,18 +108,17 @@ class PlanningController extends AbstractController
         $performance->setVenue($venue);
         $performance->setDateTimeStart($start);
         $performance->setDateTimeEnd($end);
-        
+
         // Organisation & Saison
         if ($this->userContext->getOrganization()) {
             $performance->setOrganization($this->userContext->getOrganization());
         }
         if ($seasonId) {
-            $season = $seasonRepo->find($seasonId);
+            $season = $seasonRepository->find($seasonId);
             if ($season) $performance->setSeason($season);
         }
 
-        $this->em->persist($performance);
-        $this->em->flush(); // FORCE LA SAUVEGARDE EFFECTIVE EN BDD
+        $this->crudManager->create($performance);
 
         return new JsonResponse([
             'success' => true,
@@ -127,7 +134,9 @@ class PlanningController extends AbstractController
     public function deletePerformance(Performance $performance): JsonResponse
     {
         $show = $performance->getSeasonShow();
+        $season = $performance->getSeason();
         $showData = null;
+        $totalSpent = $this->performanceRepository->getTotalCostForSeason($season);
 
         if ($show) {
             $showData = [
@@ -139,12 +148,12 @@ class PlanningController extends AbstractController
             ];
         }
 
-        $this->em->remove($performance);
-        $this->em->flush();
+        $this->crudManager->delete($performance);
 
         return new JsonResponse([
             'success' => true,
-            'show' => $showData
+            'show' => $showData,
+            'totalSpent' => $totalSpent,
         ]);
     }
 
@@ -173,7 +182,7 @@ class PlanningController extends AbstractController
     #[Route('/events/{season}', name: 'planning_events', methods: ['GET'])]
     public function getEvents(Season $season): JsonResponse
     {
-        $performances = $this->performanceRepo->findBy(['season' => $season]);
+        $performances = $this->performanceRepository->findBy(['season' => $season]);
         $events = [];
 
         foreach ($performances as $perf) {
@@ -201,7 +210,7 @@ class PlanningController extends AbstractController
      */
     private function hasOverlap($venue, \DateTime $start, \DateTime $end, ?int $excludeId = null): bool
     {
-        $qb = $this->performanceRepo->createQueryBuilder('p')
+        $qb = $this->performanceRepository->createQueryBuilder('p')
             ->where('p.venue = :venue')
             ->andWhere('p.date_time_start < :end')
             ->andWhere('p.date_time_end > :start')
@@ -211,7 +220,7 @@ class PlanningController extends AbstractController
 
         if ($excludeId) {
             $qb->andWhere('p.id != :excludeId')
-               ->setParameter('excludeId', $excludeId);
+                ->setParameter('excludeId', $excludeId);
         }
 
         return count($qb->getQuery()->getResult()) > 0;

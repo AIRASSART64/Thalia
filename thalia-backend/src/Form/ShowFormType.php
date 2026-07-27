@@ -21,7 +21,7 @@ class ShowFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $organization = $options['current_organization'];
+        $organization = $options['user_organization'];
         $builder
             ->add('title' , TextType::class, [
                 'label'=>"Titre du spectacle",
