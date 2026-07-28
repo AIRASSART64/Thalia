@@ -18,7 +18,7 @@ class FileController extends AbstractController
         private ParameterBagInterface $params
     ) {}
 
-    #[Route('/secure-uploads/shows/{id}', name: 'secure_show_image', methods: ['GET'])]
+    #[Route('/secure-uploads/shows/images/{id}', name: 'secure_show_image', methods: ['GET'])]
     #[IsGranted('SHOW_VIEW', subject: 'show')] 
     public function getShowImage(Show $show): Response
     {
@@ -30,7 +30,7 @@ class FileController extends AbstractController
         }
 
         // Récupération du fichier dans son dossier de stockage
-        $filePath = $this->params->get('shows_directory') . '/' . $filename;
+        $filePath = $this->params->get('shows_images_directory') . '/' . $filename;
 
         // Gestion du fichier introuvable
         if (!file_exists($filePath)) {
@@ -43,6 +43,33 @@ class FileController extends AbstractController
 
         return $response;
     }
+        
+    #[Route('/secure-uploads/shows/documents/{id}', name: 'secure_show_artistic_file', methods: ['GET'])]
+    #[IsGranted('SHOW_VIEW', subject: 'show')] 
+    public function getShowArtisticFile(Show $show): Response
+    {
+        $filename = $show->getArtisticFile();
+
+        // Gestion du cas où aucun ficher n'est enregistré
+        if (!$filename) {
+            throw $this->createNotFoundException("Ce spectacle n'a pas de document enregistré.");
+        }
+
+        // Récupération du fichier dans son dossier de stockage
+        $filePath = $this->params->get('shows_documents_directory') . '/' . $filename;
+
+        // Gestion du fichier introuvable
+        if (!file_exists($filePath)) {
+            throw $this->createNotFoundException("Le document n'existe plus sur le serveur.");
+        }
+
+        // Le fichier est envoyé directement au navigateur
+        $response = new BinaryFileResponse($filePath);
+        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_INLINE);
+
+        return $response;
+    }
+
     #[Route('/secure-uploads/venues/image/{id}', name: 'secure_venue_image', methods: ['GET'])]
     #[IsGranted('VENUE_VIEW', subject: 'venue')] 
     public function getVenueImage(Venue $venue): Response

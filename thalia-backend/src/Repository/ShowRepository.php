@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Organization;
 use App\Entity\Season;
 use App\Entity\Show;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -29,7 +30,18 @@ class ShowRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
-    
+
+    //chargement des thémes associés à un spectacle qui dépend d'une organization
+    public function findByOrganizationWithThemes(Organization $organization): array
+    {
+        return $this->createQueryBuilder('s')
+            ->leftJoin('s.themes', 't')
+            ->addSelect('t')
+            ->where('s.organization = :org')
+            ->setParameter('org', $organization)
+            ->getQuery()
+            ->getResult();
+    }
 
     //    public function findOneBySomeField($value): ?Show
     //    {

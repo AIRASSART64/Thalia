@@ -33,7 +33,7 @@ class ShowController extends AbstractController
     {
         $this->denyAccessUnlessGranted('SHOW_VIEW');
 
-        $shows = $showRepository->findBy(['organization'=> $this->userContext->getOrganization()]);
+        $shows = $showRepository->findByOrganizationWithThemes($this->userContext->getOrganization());
 
         return $this->render('show/index.html.twig', [ 'shows' => $shows]);
             
@@ -57,9 +57,18 @@ class ShowController extends AbstractController
             $imageFile = $formShow->get('artworkUrl')->getData();
 
             if ($imageFile) {
-                $newFilename = $this->fileUpLoader->upload($imageFile, $this->params->get('shows_directory'));
+                $newFilename = $this->fileUpLoader->upload($imageFile, $this->params->get('shows_images_directory'));
                 if ($newFilename) {
                     $show->setArtworkUrl($newFilename);
+                }
+            }
+            /** @var UploadedFile|null $artisticFile */
+            $artisticFile = $formShow->get('artistic_file')->getData();
+
+            if ($artisticFile) {
+                $newFilename = $this->fileUpLoader->upload($artisticFile, $this->params->get('shows_documents_directory'));
+                if ($newFilename) {
+                    $show->setArtisticFile($newFilename);
                 }
             }
 
@@ -75,6 +84,7 @@ class ShowController extends AbstractController
     {
         $this->denyAccessUnlessGranted('SHOW_EDIT', $show);
         $oldArtwork = $show->getArtworkUrl();
+        $oldArtisticFile = $show->getArtisticFile();
        
         $formShow = $this->createForm(ShowFormType::class, $show, [
             'user_organization' => $this->userContext->getOrganization(),
@@ -86,12 +96,12 @@ class ShowController extends AbstractController
             /** @var UploadedFile|null $imageFile */
             $imageFile = $formShow->get('artworkUrl')->getData();
             if ($imageFile) {
-                $newFilename = $this->fileUpLoader->upload($imageFile, $this->params->get('shows_directory'));
+                $newFilename = $this->fileUpLoader->upload($imageFile, $this->params->get('shows_images_directory'));
                 
                 if ($newFilename) {
                     //  Suppression de l'ancienne affiche physique
                     if ($oldArtwork) {
-                        $oldFilePath = $this->params->get('shows_directory') . '/' . $oldArtwork;
+                        $oldFilePath = $this->params->get('shows_images_directory') . '/' . $oldArtwork;
                         if (file_exists($oldFilePath)) {
                             unlink($oldFilePath);
                         }
@@ -101,6 +111,26 @@ class ShowController extends AbstractController
             } else {
                 // Si aucune image n'est soumise, on réinjecte l'ancienne 
                 $show->setArtworkUrl($oldArtwork);
+            }
+            // supression de l'ancien document
+             /** @var UploadedFile|null $artisticFile */
+            $artisticFile = $formShow->get('artistic_file')->getData();
+            if ($artisticFile) {
+                $newFilename = $this->fileUpLoader->upload($artisticFile, $this->params->get('shows_documents_directory'));
+                
+                if ($newFilename) {
+                    //  Suppression de l'ancien document
+                    if ($oldArtisticFile) {
+                        $oldFilePath = $this->params->get('shows_documents_directory') . '/' . $oldArtisticFile;
+                        if (file_exists($oldFilePath)) {
+                            unlink($oldFilePath);
+                        }
+                    }
+                    $show->setArtisticFile($newFilename);
+                }
+            } else {
+                // Si aucun document n'est soumis, on réinjecte l'ancien 
+                $show->setArtisticFile($oldArtisticFile);
             }
 
 
@@ -140,7 +170,14 @@ class ShowController extends AbstractController
         if($this->isCsrfTokenValid('delete' . $show->getId() , $request->request->get('_token'))) {
             // suppression de l'image associée au spectacle
             if($show->getArtworkUrl()){
-                $filePath = $this->params->get('shows_directory') . '/' . $show->getArtworkUrl();
+                $filePath = $this->params->get('shows_images_directory') . '/' . $show->getArtworkUrl();
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            }
+            // suppression du document associé au spectacle
+               if($show->getArtisticFile()){
+                $filePath = $this->params->get('shows_documents_directory') . '/' . $show->getArtisticFile();
                 if (file_exists($filePath)) {
                     unlink($filePath);
                 }

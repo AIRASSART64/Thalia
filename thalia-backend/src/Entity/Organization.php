@@ -130,6 +130,12 @@ class Organization
     #[ORM\OneToMany(targetEntity: Performance::class, mappedBy: 'organization', orphanRemoval: true)]
     private Collection $performances;
 
+    /**
+     * @var Collection<int, Theme>
+     */
+    #[ORM\OneToMany(targetEntity: Theme::class, mappedBy: 'organization')]
+    private Collection $themes;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -141,6 +147,7 @@ class Organization
         $this->financials = new ArrayCollection();
         $this->seasons = new ArrayCollection();
         $this->performances = new ArrayCollection();
+        $this->themes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -637,6 +644,36 @@ class Organization
             // set the owning side to null (unless already changed)
             if ($performance->getOrganization() === $this) {
                 $performance->setOrganization(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Theme>
+     */
+    public function getThemes(): Collection
+    {
+        return $this->themes;
+    }
+
+    public function addTheme(Theme $theme): static
+    {
+        if (!$this->themes->contains($theme)) {
+            $this->themes->add($theme);
+            $theme->setOrganization($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTheme(Theme $theme): static
+    {
+        if ($this->themes->removeElement($theme)) {
+            // set the owning side to null (unless already changed)
+            if ($theme->getOrganization() === $this) {
+                $theme->setOrganization(null);
             }
         }
 

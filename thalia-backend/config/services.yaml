@@ -5,7 +5,8 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     uploads_directory: '%kernel.project_dir%/var/uploads'
-    shows_directory: '%uploads_directory%/shows'
+    shows_images_directory: '%uploads_directory%/shows/images'
+    shows_documents_directory: '%uploads_directory%/shows/documents'
     profiles_directory: '%uploads_directory%/profiles'
     venues_images_directory: '%uploads_directory%/venues/images'
     venues_plans_directory: '%uploads_directory%/venues/plans'

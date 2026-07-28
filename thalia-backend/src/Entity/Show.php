@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\AudienceClassificationEnum;
 use App\Enum\DisciplineEnum;
 use App\Enum\PipelineStatusEnum;
 use App\Repository\ShowRepository;
@@ -13,7 +14,6 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: ShowRepository::class)]
 #[ORM\Table(name: '`show`')]
 #[ORM\HasLifecycleCallbacks]
-
 class Show
 {
     #[ORM\Id]
@@ -24,7 +24,7 @@ class Show
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $title = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 255, nullable: true, enumType: DisciplineEnum::class)]
     private ?DisciplineEnum $discipline = null;
 
     #[ORM\Column(nullable: true)]
@@ -42,7 +42,7 @@ class Show
     #[ORM\Column(nullable: true)]
     private ?float $min_stage_height = null;
 
-    #[ORM\Column(length: 100, nullable: true)]
+    #[ORM\Column(length: 100, nullable: true, enumType: PipelineStatusEnum::class)]
     private ?PipelineStatusEnum $pipeline_status = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -55,7 +55,7 @@ class Show
     /**
      * @var Collection<int, Contact>
      */
-    #[ORM\ManyToMany(targetEntity: Contact::class, inversedBy: 'shows', cascade:['persist'])]
+    #[ORM\ManyToMany(targetEntity: Contact::class, inversedBy: 'shows', cascade: ['persist'])]
     private Collection $contacts;
 
     #[ORM\Column]
@@ -70,10 +70,32 @@ class Show
     #[ORM\OneToMany(targetEntity: Performance::class, mappedBy: 'season_show')]
     private Collection $performances;
 
+    #[ORM\Column(enumType: AudienceClassificationEnum::class, nullable: true)]
+    private ?AudienceClassificationEnum $audience = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $artistic_file = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $artistic_information = null;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $technical_information = null;
+
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
+    private ?string $global_unit_cost = null;
+
+    /**
+     * @var Collection<int, Theme>
+     */
+    #[ORM\ManyToMany(targetEntity: Theme::class, inversedBy: 'shows', cascade: ['persist'])]
+    private Collection $themes;
+
     public function __construct()
     {
         $this->contacts = new ArrayCollection();
         $this->performances = new ArrayCollection();
+        $this->themes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -89,7 +111,6 @@ class Show
     public function setTitle(?string $title): static
     {
         $this->title = $title;
-
         return $this;
     }
 
@@ -101,7 +122,6 @@ class Show
     public function setDiscipline(?DisciplineEnum $discipline): static
     {
         $this->discipline = $discipline;
-
         return $this;
     }
 
@@ -113,7 +133,6 @@ class Show
     public function setDurationMin(?int $duration_min): static
     {
         $this->duration_min = $duration_min;
-
         return $this;
     }
 
@@ -125,7 +144,6 @@ class Show
     public function setSynopsis(?string $synopsis): static
     {
         $this->synopsis = $synopsis;
-
         return $this;
     }
 
@@ -137,7 +155,6 @@ class Show
     public function setMinStageWidth(?float $min_stage_width): static
     {
         $this->min_stage_width = $min_stage_width;
-
         return $this;
     }
 
@@ -149,7 +166,6 @@ class Show
     public function setMinStageDepth(?float $min_stage_depth): static
     {
         $this->min_stage_depth = $min_stage_depth;
-
         return $this;
     }
 
@@ -161,7 +177,6 @@ class Show
     public function setMinStageHeight(?float $min_stage_height): static
     {
         $this->min_stage_height = $min_stage_height;
-
         return $this;
     }
 
@@ -173,7 +188,6 @@ class Show
     public function setPipelineStatus(?PipelineStatusEnum $pipeline_status): static
     {
         $this->pipeline_status = $pipeline_status;
-
         return $this;
     }
 
@@ -185,7 +199,6 @@ class Show
     public function setArtworkUrl(?string $artwork_url): static
     {
         $this->artwork_url = $artwork_url;
-
         return $this;
     }
 
@@ -197,7 +210,6 @@ class Show
     public function setOrganization(?Organization $organization): static
     {
         $this->organization = $organization;
-
         return $this;
     }
 
@@ -211,20 +223,18 @@ class Show
 
     public function addContact(Contact $contact): static
     {
-       if (!$this->contacts->contains($contact)) {
-        $this->contacts->add($contact);
-      
-        $contact->addShow($this);
-    
+        if (!$this->contacts->contains($contact)) {
+            $this->contacts->add($contact);
+            $contact->addShow($this);
         }
-
         return $this;
     }
 
     public function removeContact(Contact $contact): static
     {
-        $this->contacts->removeElement($contact);
-
+        if ($this->contacts->removeElement($contact)) {
+            $contact->removeShow($this);
+        }
         return $this;
     }
 
@@ -236,7 +246,6 @@ class Show
     public function setCreatedAt(\DateTimeImmutable $created_at): static
     {
         $this->created_at = $created_at;
-
         return $this;
     }
 
@@ -248,21 +257,21 @@ class Show
     public function setUpdatedAt(\DateTimeImmutable $updated_at): static
     {
         $this->updated_at = $updated_at;
-
         return $this;
     }
+
     #[ORM\PrePersist]
-     public function setInitialDates(): void
+    public function setInitialDates(): void
     {
-    $now = new \DateTimeImmutable();
-    $this->created_at = $now;
-    $this->updated_at = $now;
+        $now = new \DateTimeImmutable();
+        $this->created_at = $now;
+        $this->updated_at = $now;
     }
 
     #[ORM\PreUpdate]
     public function updateTimestamp(): void
     {
-    $this->updated_at = new \DateTimeImmutable();
+        $this->updated_at = new \DateTimeImmutable();
     }
 
     /**
@@ -279,19 +288,93 @@ class Show
             $this->performances->add($performance);
             $performance->setSeasonShow($this);
         }
-
         return $this;
     }
 
     public function removePerformance(Performance $performance): static
     {
         if ($this->performances->removeElement($performance)) {
-            // set the owning side to null (unless already changed)
             if ($performance->getSeasonShow() === $this) {
                 $performance->setSeasonShow(null);
             }
         }
+        return $this;
+    }
 
+    public function getAudience(): ?AudienceClassificationEnum
+    {
+        return $this->audience;
+    }
+
+    public function setAudience(?AudienceClassificationEnum $audience): static
+    {
+        $this->audience = $audience;
+        return $this;
+    }
+
+    public function getArtisticFile(): ?string
+    {
+        return $this->artistic_file;
+    }
+
+    public function setArtisticFile(?string $artistic_file): static
+    {
+        $this->artistic_file = $artistic_file;
+        return $this;
+    }
+
+    public function getArtisticInformation(): ?string
+    {
+        return $this->artistic_information;
+    }
+
+    public function setArtisticInformation(?string $artistic_information): static
+    {
+        $this->artistic_information = $artistic_information;
+        return $this;
+    }
+
+    public function getTechnicalInformation(): ?string
+    {
+        return $this->technical_information;
+    }
+
+    public function setTechnicalInformation(?string $technical_information): static
+    {
+        $this->technical_information = $technical_information;
+        return $this;
+    }
+
+    public function getGlobalUnitCost(): ?string
+    {
+        return $this->global_unit_cost;
+    }
+
+    public function setGlobalUnitCost(?string $global_unit_cost): static
+    {
+        $this->global_unit_cost = $global_unit_cost;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Theme>
+     */
+    public function getThemes(): Collection
+    {
+        return $this->themes;
+    }
+
+    public function addTheme(Theme $theme): static
+    {
+        if (!$this->themes->contains($theme)) {
+            $this->themes->add($theme);
+        }
+        return $this;
+    }
+
+    public function removeTheme(Theme $theme): static
+    {
+        $this->themes->removeElement($theme);
         return $this;
     }
 }
