@@ -35,6 +35,11 @@
                 {{ form_widget(form.audience, {'attr': {'class': 'w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition outline-none text-gray-800'}}) }}
                 {{ form_errors(form.audience) }}
             </div>
+             <div>
+                {{ form_label(form.global_unit_cost, null, {'label_attr': {'class': 'block text-xs font-bold text-gray-500 uppercase mb-2'}}) }}
+                {{ form_widget(form.global_unit_cost, {'attr': {'class': 'w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition outline-none text-gray-800'}}) }}
+                {{ form_errors(form.global_unit_cost) }}
+            </div>
         </div>
     </div>
 
@@ -52,7 +57,7 @@
 
         <div>
             {{ form_label(form.themes, null, {'label_attr': {'class': 'block text-xs font-bold text-gray-500 uppercase mb-2'}}) }}
-            {{ form_widget(form.themes, {'attr': {'class': 'w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition outline-none text-gray-800'}}) }}
+            {{ form_widget(form.themes, {'attr': {'class': 'tom-select'}}) }}
             <p class="text-[11px] text-gray-400 mt-1">Maintenez Ctrl (ou Cmd sur Mac) appuyé pour sélectionner plusieurs thèmes.</p>
             {{ form_errors(form.themes) }}
         </div>
