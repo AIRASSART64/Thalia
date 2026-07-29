@@ -3,20 +3,28 @@
 {% block title %}Thalia - Nouveau spectacle{% endblock %}
 
 {% block body %}
-<div class="flex min-h-screen bg-gray-50">
+<div class="modal-backdrop">
+    <div class="modal-card modal-card-lg">
+        
+        {# Bouton de fermeture pour retourner à la liste #}
+        <a href="{{ path('show_index') }}" class="modal-close-btn" title="Fermer">
+            <i class="fa-solid fa-xmark text-lg"></i>
+        </a>
 
+        {# En-tête de la modale #}
+        <div class="text-center mb-6">
+            <nav class="text-xs text-gray-400 font-medium mb-1 flex items-center justify-center gap-2">
+                <span>Spectacles</span>
+                <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                <span class="text-indigo-500 font-semibold">Nouveau</span>
+            </nav>
+            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Ajouter un spectacle</h1>
+            <p class="text-xs text-slate-500 mt-1">Renseignez les détails pour intégrer une nouvelle création au catalogue.</p>
+        </div>
 
-    <main class="flex-grow p-6 lg:p-8 max-w-4xl mx-auto">
-        <nav class="text-xs text-gray-400 font-medium mb-2 flex items-center gap-2">
-            <a href="{{ path('show_index') }}" class="hover:text-gray-600 transition">Spectacles</a>
-            <i class="fa-solid fa-chevron-right text-[9px]"></i>
-            <span class="text-gray-600">Ajouter un spectacle</span>
-        </nav>
-
-        <h1 class="text-2xl font-black text-gray-900 tracking-tight mb-6">Ajouter un spectacle</h1>
-
+        {# Formulaire #}
         {{ include('show/_form.html.twig', {'button_label': 'Passer à la suite'}) }}
-
-    </main>
+        
+    </div>
 </div>
 {% endblock %}

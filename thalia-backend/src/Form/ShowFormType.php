@@ -99,7 +99,7 @@ class ShowFormType extends AbstractType
             ->add('technical_information', TextareaType::class, ['label' => 'Informations techniques', 'required' => false])
             ->add('global_unit_cost', MoneyType::class, [
                 'label' => 'Coût global unitaire', 
-                // 'currency'=>'EUR',
+                'currency'=> false,
                 'required' => false,
                 'attr' => ['placeholder' => '0.00 €']
                 ]);

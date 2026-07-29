@@ -258,3 +258,56 @@ h1 {
     border-radius: 1rem;
     box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
 }
+/* ─── MODALE OVERLAY & COMPOSANTS ─── */
+
+/* Arrière-plan sombre avec effet de flou */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background-color: rgba(15, 23, 42, 0.6); /* bg-slate-900/60 */
+    backdrop-filter: blur(4px);
+    
+    /* ⚠️ ALIGNEMENT CORRIGÉ POUR LES LONGS FORMULAIRES */
+    display: flex;
+    align-items: flex-start; /* Aligne le haut au lieu de centrer verticalement */
+    justify-content: center;
+    padding: 1.5rem 1rem;
+    overflow-y: auto; /* Active le défilement si le formulaire est long */
+    font-family: ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Boîte blanche de la modale */
+.modal-card {
+    background-color: #ffffff;
+    width: 100%;
+    max-width: 36rem;
+    border-radius: 1rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgb(241, 245, 249);
+    padding: 2rem;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+/* Variante plus large pour les formulaires denses (ex: Spectacles) */
+.modal-card-lg {
+    max-width: 56rem; /* max-w-4xl */
+}
+
+/* Bouton de fermeture (Croix en haut à droite) */
+.modal-close-btn {
+    position: absolute;
+    top: 1.25rem;
+    right: 1.25rem;
+    color: rgb(148, 163, 184); /* slate-400 */
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    transition: all 150ms ease-in-out;
+}
+
+.modal-close-btn:hover {
+    color: rgb(51, 65, 85); /* slate-700 */
+    background-color: rgb(241, 245, 249);
+}
