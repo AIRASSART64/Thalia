@@ -3,220 +3,349 @@
 {% block title %}{{ show.title }} - Thalia{% endblock %}
 
 {% block body %}
-<div class="min-h-screen bg-[#f8fafc] text-slate-800">
+<div class="min-h-screen bg-[#f8fafc] text-slate-800 pb-16">
 
     {# ─── 1. BANDEAU DE COUVERTURE ─── #}
-    <div class="relative w-full h-[320px] md:h-[380px]  overflow-hidden shadow-md bg-slate-900 mb-8">
+    <div class="relative w-full h-[280px] md:h-[340px] overflow-hidden shadow-md bg-slate-900 mb-8">
         {# Image de fond #}
-        {% if show.artworkUrl is defined and show.artworkUrl %}
-        <img src="{{ path('secure_show_image', {'id': show.id}) }}"
-            class="absolute inset-0 w-full h-full object-cover opacity-45" alt="{{ show.title }}">
+        {% if show.artworkUrl %}
+            <img src="{{ path('secure_show_image', {'id': show.id}) }}" class="absolute inset-0 w-full h-full object-cover opacity-40" alt="{{ show.title }}">
         {% else %}
-        <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 opacity-80"></div>
+            <div class="absolute inset-0 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 opacity-80"></div>
         {% endif %}
 
         {# Overlay sombre progressif #}
-        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/50 to-transparent"></div>
 
         {# Contenu du bandeau #}
-        <div
-            class="absolute inset-x-0 bottom-0 p-6 md:p-8 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-            <div class="space-y-3 max-w-2xl">
-                {# Badge Discipline #}
-                {% if show.discipline is defined and show.discipline is not null %}
-                <span
-                    class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-sky-500 text-white shadow-sm">
-                    <i class="fa-solid fa-masks-theater text-[10px]"></i>
-                    {% if show.discipline.value is defined %}
-                    {{ show.discipline.value|capitalize }}
-                    {% else %}
-                    {{ show.discipline|capitalize }}
-                    {% endif %}
-                </span>
-                {% endif %}
-
-                <p class="text-slate-300 text-sm font-medium tracking-wide">Compagnie de l'Instant Présent</p>
-
-                {# Titre du spectacle #}
-                <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">
-                    {{ show.title }}
-                </h1>
-
-                {# Méta-infos (Durée, Âge) #}
-                <div class="flex flex-wrap items-center gap-4 text-slate-300 text-xs font-semibold pt-1">
-                    {% if show.durationMin is defined and show.durationMin %}
-                    <span class="flex items-center gap-1.5">
-                        <i class="fa-regular fa-clock text-sky-400"></i>
-                        Durée : {{ show.durationMin }} min
-                    </span>
-                    {% endif %}
-                    {% if show.audience is defined and show.audience %}
-                    <span class="flex items-center gap-1.5">
-                        <i class="fa-regular fa-clock text-sky-400"></i>
-                        Public : {{ show.audience.value }}
-                    </span>
+        <div class="max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col justify-end pb-6">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+                <div class="space-y-3 max-w-3xl">
+                    {# Badge Discipline #}
+                    {% if show.discipline %}
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-sky-500 text-white shadow-sm">
+                            <i class="fa-solid fa-masks-theater text-[10px]"></i>
+                            {{ show.discipline.value|capitalize }}
+                        </span>
                     {% endif %}
 
+                    {% if show.organization %}
+                        <p class="text-slate-300 text-sm font-medium tracking-wide">{{ show.organization.name }}</p>
+                    {% endif %}
+
+                    {# Titre du spectacle #}
+                    <h1 class="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
+                        {{ show.title }}
+                    </h1>
                 </div>
-            </div>
 
-            {# Actions rapides #}
-            <div class="flex items-center gap-3 shrink-0">
-                {% if is_granted('SHOW_EDIT', show) %}
-                <a href="{{ path('show_edit', {'id': show.id}) }}"
-                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-semibold text-xs shadow-sm transition">
-                    <i class="fa-regular fa-pen-to-square text-indigo-600 text-sm"></i>
-                    Modifier le spectacle
-                </a>
-                {% endif %}
-                <button
-                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-800 border border-slate-700 text-slate-200 hover:text-white font-semibold text-xs shadow-sm transition">
-                    <i class="fa-solid fa-file-pdf text-rose-500 text-sm"></i>
-                    Exporter PDF
-                </button>
+                {# Actions rapides #}
+                <div class="flex items-center gap-3 shrink-0">
+                    {% if is_granted('SHOW_EDIT', show) %}
+                        <a href="{{ path('show_edit', {'id': show.id}) }}" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-semibold text-xs shadow-sm transition">
+                            <i class="fa-regular fa-pen-to-square text-indigo-600 text-sm"></i>
+                            Modifier le spectacle
+                        </a>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
 
-    {# ─── 2. NAVIGATION PAR ONGLETS (TABS) ─── #}
-    <div class="border-b border-slate-200 mb-8 overflow-x-auto">
-        <nav class="flex space-x-8 text-sm font-bold min-w-max pb-1">
-            <button class="border-b-2 border-sky-500 text-sky-600 pb-4 px-1 flex items-center gap-2">
-                Détails du spectacle
-            </button>
-            <button class="border-b-2 border-transparent text-slate-400 hover:text-slate-600 pb-4 px-1 transition">
-                Calendrier des tournées
-            </button>
-            <button class="border-b-2 border-transparent text-slate-400 hover:text-slate-600 pb-4 px-1 transition">
-                Documents contractuels
-            </button>
-            <button class="border-b-2 border-transparent text-slate-400 hover:text-slate-600 pb-4 px-1 transition">
-                Archives média
-            </button>
-        </nav>
-    </div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-    {# ─── 3. GRILLE DE CONTENU PRINCIPALE ─── #}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        {# ─── 2. NAVIGATION PAR ONGLETS (TABS) ─── #}
+        <div class="border-b border-slate-200 mb-8 overflow-x-auto">
+            <nav class="flex space-x-8 text-sm font-bold min-w-max pb-1" id="show-tabs">
+                <button type="button" data-tab="spectacle" class="tab-btn border-b-2 border-sky-500 text-sky-600 pb-4 px-1 flex items-center gap-2 transition">
+                    <i class="fa-solid fa-masks-theater"></i>
+                    Le spectacle
+                </button>
+                <button type="button" data-tab="details" class="tab-btn border-b-2 border-transparent text-slate-400 hover:text-slate-600 pb-4 px-1 transition flex items-center gap-2">
+                    <i class="fa-solid fa-sliders"></i>
+                    Détails du spectacle
+                </button>
+                <button type="button" data-tab="contacts" class="tab-btn border-b-2 border-transparent text-slate-400 hover:text-slate-600 pb-4 px-1 transition flex items-center gap-2">
+                    <i class="fa-solid fa-address-book"></i>
+                    Les contacts ({{ show.contacts|length }})
+                </button>
+                <button type="button" data-tab="medias" class="tab-btn border-b-2 border-transparent text-slate-400 hover:text-slate-600 pb-4 px-1 transition flex items-center gap-2">
+                    <i class="fa-solid fa-folder-open"></i>
+                    Les médias
+                </button>
+            </nav>
+        </div>
 
-        {# COLONNE GAUCHE #}
-        <div class="lg:col-span-2 space-y-6">
-            {% if show.themes is not empty %}
-            <div class="show-themes">
-                {% for theme in show.themes %}
-                <span class="badge bg-primary">{{ theme.name }}</span>
-                {% endfor %}
-            </div>
-            {% else %}
-            <p class="text-muted">Aucun thème associé</p>
-            {% endif %}
-            {# Bloc Synopsis #}
-            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
-                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider">Synopsis</h3>
-                <p class="text-slate-600 text-sm leading-relaxed">
-                    {% if show.description is defined and show.description %}
-                    {{ show.description|nl2br }}
-                    {% else %}
-                    Dans un monde où le bruit est devenu une monnaie d'échange, "{{ show.title }}" explore la quête
-                    d'une fratrie pour retrouver le dernier sanctuaire de quiétude. Une œuvre visuelle puissante mêlant
-                    danse-théâtre et projection immersive, interrogeant notre rapport à l'immobilité et à l'écoute dans
-                    une société hyper-connectée.
-                    {% endif %}
-                </p>
-            </div>
+        {# ─── 3. CONTENU DES ONGLETS ─── #}
 
-            {# Bloc Distribution & Équipe #}
-            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider">Distribution & Équipe</h3>
-                    <button class="text-xs font-bold text-sky-500 hover:text-sky-600 transition">Voir tout
-                        l'annuaire</button>
+        {# ONGLET 1 : LE SPECTACLE #}
+        <div id="tab-spectacle" class="tab-content space-y-6">
+            {# Métadonnées résumé #}
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3">
+                    <div class="p-3 bg-sky-50 text-sky-600 rounded-lg">
+                        <i class="fa-solid fa-masks-theater text-lg"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs font-semibold text-slate-400 uppercase block">Discipline</span>
+                        <span class="text-sm font-bold text-slate-800">{{ show.discipline ? show.discipline.value|capitalize : 'Non renseigné' }}</span>
+                    </div>
                 </div>
 
-                <div class="divide-y divide-slate-100">
-                    <div class="flex items-center justify-between py-3.5 first:pt-0 last:pb-0">
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3">
+                    <div class="p-3 bg-indigo-50 text-indigo-600 rounded-lg">
+                        <i class="fa-regular fa-clock text-lg"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs font-semibold text-slate-400 uppercase block">Durée</span>
+                        <span class="text-sm font-bold text-slate-800">{{ show.durationMin ? show.durationMin ~ ' minutes' : 'Non renseignée' }}</span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3">
+                    <div class="p-3 bg-emerald-50 text-emerald-600 rounded-lg">
+                        <i class="fa-solid fa-users text-lg"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs font-semibold text-slate-400 uppercase block">Public</span>
+                        <span class="text-sm font-bold text-slate-800">{{ show.audience ? show.audience.value : 'Tous publics' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            {# Synopsis #}
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-3">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Synopsis</h3>
+                {% if show.synopsis %}
+                    <p class="text-slate-700 text-sm leading-relaxed whitespace-pre-line">{{ show.synopsis }}</p>
+                {% else %}
+                    <p class="text-slate-400 text-sm italic">Aucun synopsis n'a été renseigné pour ce spectacle.</p>
+                {% endif %}
+            </div>
+
+            {# Thèmes #}
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-3">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Thèmes associés</h3>
+                {% if show.themes is not empty %}
+                    <div class="flex flex-wrap gap-2 pt-1">
+                        {% for theme in show.themes %}
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                                <i class="fa-solid fa-tag text-[10px] text-slate-400 mr-1.5"></i>
+                                {{ theme.name }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-slate-400 text-sm italic">Aucun thème associé à ce spectacle.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        {# ONGLET 2 : DÉTAILS DU SPECTACLE #}
+        <div id="tab-details" class="tab-content hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {# Coût unitaire global #}
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-2">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Coût unitaire global</h3>
+                    <p class="text-3xl font-black text-slate-800">
+                        {% if show.globalUnitCost %}
+                            {{ show.globalUnitCost|number_format(2, ',', ' ') }} €
+                        {% else %}
+                            <span class="text-lg text-slate-400 font-normal italic">Non renseigné</span>
+                        {% endif %}
+                    </p>
+                </div>
+
+                {# Dimensions scène #}
+                <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-3">
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Dimensions minimales de la scène</h3>
+                    <div class="grid grid-cols-3 gap-2 text-center pt-1">
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <span class="block text-[11px] text-slate-400 font-semibold">Largeur</span>
+                            <span class="text-base font-bold text-slate-800">{{ show.minStageWidth ? show.minStageWidth ~ ' m' : '-' }}</span>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <span class="block text-[11px] text-slate-400 font-semibold">Profondeur</span>
+                            <span class="text-base font-bold text-slate-800">{{ show.minStageDepth ? show.minStageDepth ~ ' m' : '-' }}</span>
+                        </div>
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <span class="block text-[11px] text-slate-400 font-semibold">Hauteur</span>
+                            <span class="text-base font-bold text-slate-800">{{ show.minStageHeight ? show.minStageHeight ~ ' m' : '-' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# Informations Artistiques #}
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-3">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Informations artistiques</h3>
+                {% if show.artisticInformation %}
+                    <p class="text-slate-700 text-sm leading-relaxed whitespace-pre-line">{{ show.artisticInformation }}</p>
+                {% else %}
+                    <p class="text-slate-400 text-sm italic">Aucune information artistique renseignée.</p>
+                {% endif %}
+            </div>
+
+            {# Informations Techniques #}
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-3">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Informations techniques</h3>
+                {% if show.technicalInformation %}
+                    <p class="text-slate-700 text-sm leading-relaxed whitespace-pre-line">{{ show.technicalInformation }}</p>
+                {% else %}
+                    <p class="text-slate-400 text-sm italic">Aucune fiche ou information technique renseignée.</p>
+                {% endif %}
+            </div>
+
+            {# Dates de suivi #}
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                <div class="flex flex-wrap items-center justify-between gap-4 text-xs text-slate-500">
+                    <div>
+                        <span class="font-semibold text-slate-700">Créé le :</span> 
+                        {{ show.createdAt ? show.createdAt|date('d/m/Y à H:i') : '-' }}
+                    </div>
+                    <div>
+                        <span class="font-semibold text-slate-700">Dernière modification :</span> 
+                        {{ show.updatedAt ? show.updatedAt|date('d/m/Y à H:i') : '-' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# ONGLET 3 : LES CONTACTS #}
+        <div id="tab-contacts" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Contacts rattachés</h3>
+
+                {% if show.contacts is not empty %}
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {% for contact in show.contacts %}
+                            <div class="p-4 rounded-xl border border-slate-100 bg-slate-50/50 space-y-2">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-sm shrink-0">
+                                        <i class="fa-regular fa-user"></i>
+                                    </div>
+                                    <div class="truncate">
+                                        <h4 class="text-sm font-bold text-slate-800 truncate">
+                                            {% if contact.firstName is defined or contact.lastName is defined %}
+                                                {{ contact.firstName }} {{ contact.lastName }}
+                                            {% else %}
+                                                {{ contact.name|default(contact) }}
+                                            {% endif %}
+                                        </h4>
+                                        {% if contact.role is defined and contact.role %}
+                                            <p class="text-xs text-slate-400 truncate">{{ contact.role }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="pt-2 border-t border-slate-200/60 space-y-1 text-xs text-slate-600">
+                                    {% if contact.email is defined and contact.email %}
+                                        <a href="mailto:{{ contact.email }}" class="flex items-center gap-2 hover:text-sky-600 transition truncate">
+                                            <i class="fa-regular fa-envelope text-slate-400 w-4"></i>
+                                            {{ contact.email }}
+                                        </a>
+                                    {% endif %}
+                                    {% if contact.phone is defined and contact.phone %}
+                                        <a href="tel:{{ contact.phone }}" class="flex items-center gap-2 hover:text-sky-600 transition">
+                                            <i class="fa-solid fa-phone text-slate-400 w-4"></i>
+                                            {{ contact.phone }}
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-slate-400 text-sm italic">Aucun contact associé à ce spectacle.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        {# ONGLET 4 : LES MÉDIAS #}
+        <div id="tab-medias" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Documents et médias du spectacle</h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {# Visual / Image du spectacle #}
+                    <div class="p-4 rounded-xl border border-slate-200 flex items-center justify-between gap-4">
                         <div class="flex items-center gap-3">
-                            <div
-                                class="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-slate-600 text-xs overflow-hidden">
-                                <i class="fa-regular fa-user text-sm"></i>
+                            <div class="p-3 bg-indigo-50 text-indigo-600 rounded-lg">
+                                <i class="fa-regular fa-image text-xl"></i>
                             </div>
                             <div>
-                                <h4 class="text-sm font-bold text-slate-800">Alice Moreau</h4>
-                                <p class="text-xs text-slate-400">Co-fondatrice</p>
+                                <h4 class="text-sm font-bold text-slate-800">Affiche / Visuel</h4>
+                                <p class="text-xs text-slate-400">Image principale du spectacle</p>
                             </div>
                         </div>
-                        <div class="text-right">
-                            <span class="text-xs font-semibold text-slate-600 block">Rôle principal (Éléonore)</span>
-                            <span
-                                class="inline-flex items-center px-2 py-0.5 mt-1 rounded text-[10px] font-bold bg-green-50 text-green-700 border border-green-100 uppercase">sous
-                                contrat</span>
+                        {% if show.artworkUrl %}
+                            <a href="{{ path('secure_show_image', {'id': show.id}) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">
+                                <i class="fa-solid fa-download"></i>
+                                Voir / Télécharger
+                            </a>
+                        {% else %}
+                            <span class="text-xs text-slate-400 italic">Aucune image</span>
+                        {% endif %}
+                    </div>
+
+                    {# Dossier artistique (PDF) #}
+                    <div class="p-4 rounded-xl border border-slate-200 flex items-center justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <div class="p-3 bg-rose-50 text-rose-600 rounded-lg">
+                                <i class="fa-solid fa-file-pdf text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-bold text-slate-800">Dossier artistique</h4>
+                                <p class="text-xs text-slate-400">Document PDF complémentaire</p>
+                            </div>
                         </div>
+                        {% if show.artisticFile %}
+                            {# Ajustez le nom de la route selon votre contrôleur pour les fichiers PDF #}
+                            <a href="{{ asset('uploads/shows/artistic_files/' ~ show.artisticFile) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">
+                                <i class="fa-solid fa-download"></i>
+                                Télécharger
+                            </a>
+                        {% else %}
+                            <span class="text-xs text-slate-400 italic">Aucun fichier PDF</span>
+                        {% endif %}
                     </div>
                 </div>
             </div>
-
-        </div>
-
-        {# COLONNE DROITE #}
-        <div class="space-y-6">
-
-            {# Bloc Finances #}
-            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider">Finances de Production</h3>
-                    <i class="fa-solid fa-chart-line text-sky-500"></i>
-                </div>
-
-                <div>
-                    <p class="text-xs font-medium text-slate-400">Budget Engagé</p>
-                    <p class="text-2xl font-black text-slate-800 mt-1">42,500 €</p>
-                </div>
-
-                <div class="pt-2">
-                    <div class="flex justify-between items-center text-xs font-semibold mb-1">
-                        <span class="text-slate-400">Rentabilité</span>
-                        <span class="text-sky-500">72% atteint</span>
-                    </div>
-                    <div class="w-full bg-slate-100 rounded-full h-2">
-                        <div class="bg-sky-500 h-2 rounded-full" style="width: 72%"></div>
-                    </div>
-                </div>
-            </div>
-
-            {# Bloc Besoins Techniques #}
-            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
-                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider">Besoins Techniques</h3>
-
-                <div class="space-y-3">
-                    <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
-                        <div class="p-2 rounded-lg bg-sky-50 text-sky-500">
-                            <i class="fa-regular fa-lightbulb text-sm"></i>
-                        </div>
-                        <div>
-                            <h4 class="text-xs font-bold text-slate-800">Éclairage</h4>
-                            <p class="text-[11px] text-slate-500 mt-0.5">Plan de feu complexe. 12 PAR LED RGBW.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <button
-                    class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border border-slate-200 hover:border-sky-500 text-slate-600 hover:text-sky-600 font-bold text-xs transition">
-                    <i class="fa-solid fa-download"></i>
-                    Télécharger la fiche technique
-                </button>
-            </div>
-
         </div>
 
     </div>
-
-    {# Bouton d'action flottant #}
-    <div class="fixed bottom-6 right-6">
-        <button
-            class="w-14 h-14 rounded-full bg-sky-500 hover:bg-sky-600 text-white flex items-center justify-center shadow-lg transition duration-200 transform hover:scale-105">
-            <i class="fa-solid fa-plus text-xl"></i>
-        </button>
-    </div>
-
 </div>
+
+{# SCRIPT D'ACTIVATION DES ONGLETS #}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetTab = button.getAttribute('data-tab');
+
+                // Réinitialiser les boutons
+                tabButtons.forEach(btn => {
+                    btn.classList.remove('border-sky-500', 'text-sky-600');
+                    btn.classList.add('border-transparent', 'text-slate-400');
+                });
+
+                // Activer le bouton cliqué
+                button.classList.remove('border-transparent', 'text-slate-400');
+                button.classList.add('border-sky-500', 'text-sky-600');
+
+                // Masquer tous les contenus et afficher le bon
+                tabContents.forEach(content => {
+                    if (content.id === `tab-${targetTab}`) {
+                        content.classList.remove('hidden');
+                    } else {
+                        content.classList.add('hidden');
+                    }
+                });
+            });
+        });
+    });
+</script>
 {% endblock %}

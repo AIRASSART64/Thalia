@@ -77,7 +77,7 @@ class ShowFormType extends AbstractType
                 'required' => false,
                 'constraints' => [
                     new File([
-                        'maxSize' => '1024k',
+                        'maxSize' => '20M',
                         'mimeTypes' => ['image/jpeg', 'image/png', 'image/webp'],
                         'mimeTypesMessage' => 'Veuillez uploader une image valide.',
                     ])
@@ -89,7 +89,7 @@ class ShowFormType extends AbstractType
                 'required' => false,
                 'constraints' => [
                     new File([
-                        'maxSize' => '4000k',
+                        'maxSize' => '40M',
                         'mimeTypes' => ['application/pdf', 'application/x-pdf'],
                         'mimeTypesMessage' => 'Seuls les documents au format PDF sont acceptés.',
                     ])

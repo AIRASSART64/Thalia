@@ -24,8 +24,8 @@ class ThemeTransformerService implements DataTransformerInterface
     }
 
     /**
-     * Transforme la Collection d'objets Theme en CHAÎNE séparée par des virgules
-     * (Évite le PHP Warning "Array to string conversion" dans Twig)
+     * Transforme la Collection d'objets Theme en CHAÎNE de NOMS séparés par des virgules
+     * pour l'affichage initial dans le formulaire.
      */
     public function transform(mixed $value): string
     {
@@ -35,14 +35,16 @@ class ThemeTransformerService implements DataTransformerInterface
 
         // Si c'est une collection Doctrine (depuis l'entité Show)
         if ($value instanceof Collection) {
-            $ids = array_map(fn(Theme $theme) => $theme->getId(), $value->toArray());
-            return implode(',', $ids);
+            // ⚠️ CORRECTION : On extrait getName() et non getId()
+            $names = array_map(fn(Theme $theme) => $theme->getName(), $value->toArray());
+            return implode(',', $names);
         }
 
         // Si c'est déjà un tableau
         if (is_array($value)) {
-            $ids = array_map(fn($item) => $item instanceof Theme ? $item->getId() : $item, $value);
-            return implode(',', $ids);
+            // ⚠️ CORRECTION : On extrait getName() si c'est un objet Theme
+            $names = array_map(fn($item) => $item instanceof Theme ? $item->getName() : $item, $value);
+            return implode(',', $names);
         }
 
         return (string) $value;
@@ -58,7 +60,7 @@ class ThemeTransformerService implements DataTransformerInterface
             return new ArrayCollection();
         }
 
-        // Convertit la chaîne "1,4,Nouveau" en tableau ["1", "4", "Nouveau"]
+        // Convertit la chaîne "Théâtre, Mime, Nouveau" en tableau ["Théâtre", "Mime", "Nouveau"]
         if (is_string($value)) {
             $value = array_filter(array_map('trim', explode(',', $value)));
         }
@@ -78,18 +80,16 @@ class ThemeTransformerService implements DataTransformerInterface
 
             $themeFound = null;
 
-            // 1. Recherche par ID si c'est un entier/numérique
-            if (is_numeric($cleanValue)) {
-                $themeFound = $repo->find((int) $cleanValue);
+            // 1. Recherche directe par Nom
+            $criteria = ['name' => $cleanValue];
+            if ($this->organization) {
+                $criteria['organization'] = $this->organization;
             }
+            $themeFound = $repo->findOneBy($criteria);
 
-            // 2. Recherche par Nom si introuvable par ID
-            if (!$themeFound) {
-                $criteria = ['name' => $cleanValue];
-                if ($this->organization) {
-                    $criteria['organization'] = $this->organization;
-                }
-                $themeFound = $repo->findOneBy($criteria);
+            // 2. Recherche par ID (au cas où TomSelect enverrait un ID numérique)
+            if (!$themeFound && is_numeric($cleanValue)) {
+                $themeFound = $repo->find((int) $cleanValue);
             }
 
             // 3. Création à la volée du nouveau thème s'il n'existe pas encore
