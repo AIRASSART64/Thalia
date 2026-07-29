@@ -301,7 +301,7 @@
                         </div>
                         {% if show.artisticFile %}
                             {# Ajustez le nom de la route selon votre contrôleur pour les fichiers PDF #}
-                            <a href="{{ asset('uploads/shows/artistic_files/' ~ show.artisticFile) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">
+                            <a href="{{ path('secure_show_pdf' , {'id': show.id}) }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">
                                 <i class="fa-solid fa-download"></i>
                                 Télécharger
                             </a>

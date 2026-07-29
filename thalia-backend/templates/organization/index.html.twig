@@ -3,297 +3,288 @@
 {% block title %}Gestion Administrative - Thalia{% endblock %}
 
 {% block body %}
-<div class="min-h-screen bg-slate-50/50 p-6 lg:p-10 font-sans">
-    
-    <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-            <nav class="flex text-[11px] font-semibold text-slate-400 uppercase tracking-wider gap-2 mb-2">
-                <a href="#" class="hover:text-slate-600">Admin</a>
-                <span>&gt;</span>
-                <a href="#" class="hover:text-slate-600">Profil</a>
-                <span>&gt;</span>
-                <span class="text-blue-500">Établissement</span>
-            </nav>
-            <h1 class="text-2xl font-black text-slate-900 tracking-tight">
-                Gestion Administrative de l'Établissement
-            </h1>
-        </div>
+<div class="flex min-h-screen bg-slate-50/50 font-sans">
 
-        <div class="flex items-center gap-3">
-            <a href="#" class="inline-flex items-center gap-2 bg-white border border-slate-200 text-slate-700 font-semibold px-4 py-2 rounded-xl text-xs shadow-sm hover:bg-slate-50 transition">
-                <i class="fa-solid fa-download text-slate-400"></i> Exporter KBIS
-            </a>
-            <a href="#" class="inline-flex items-center gap-2 bg-indigo-600 text-white font-semibold px-4 py-2 rounded-xl text-xs shadow-sm hover:bg-indigo-700 transition">
-                <i class="fa-solid fa-pen text-indigo-200"></i> Modifier les infos
-            </a>
-        </div>
-    </div>
+    {# Inclusion de la barre latérale réutilisable #}
+    {% include 'components/_sidebar.html.twig' %}
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 lg:col-span-2 flex flex-col justify-between">
+    {# Contenu principal responsive #}
+    <main class="grow p-4 sm:p-6 lg:p-10 max-w-7xl mx-auto w-full space-y-8">
+        
+        {# Header de page & Fil d'Ariane #}
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-8 h-8 bg-blue-50 text-blue-500 rounded-lg flex items-center justify-center text-sm">
-                        <i class="fa-solid fa-gavel"></i>
-                    </div>
-                    <h2 class="text-sm font-bold text-slate-800 tracking-tight">Informations Légales</h2>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
-                    <div>
-                        <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Raison Sociale</span>
-                        <p class="text-sm font-extrabold text-slate-900 leading-snug">{{ organization.name|default('Non renseignée') }}</p>
-                    </div>
-                    <div>
-                        <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Statut Juridique</span>
-                        <p class="text-sm font-medium text-slate-700">{{ organization.legalStatus|default('Non renseigné') }}</p>
-                    </div>
-                  <div class="md:mt-4">
-    <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Numéro SIRET</span>
-    <p class="text-sm font-mono text-slate-800 tracking-spaced">
-        {% if organization.siret and organization.siret|length == 14 %}
-            {{ organization.siret|slice(0, 3) }} {{ organization.siret|slice(3, 3) }} {{ organization.siret|slice(6, 3) }} {{ organization.siret|slice(9, 5) }}
-        {% else %}
-            {{ organization.siret|default('Non renseigné') }}
-        {% endif %}
-    </p>
-</div>
-                    <div class="md:mt-4">
-                        <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Numéro de TVA Intracommunautaire</span>
-                        <p class="text-sm font-mono text-slate-800">{{ organization.vatNumber|default('Non renseigné') }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-  
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 lg:col-span-1">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="w-8 h-8 bg-blue-50 text-blue-500 rounded-lg flex items-center justify-center text-sm">
-                    <i class="fa-solid fa-shield-halved"></i>
-                </div>
-                <h2 class="text-sm font-bold text-slate-800 tracking-tight">Licences & Réglementation</h2>
+                <nav class="flex items-center text-[11px] font-semibold text-slate-400 uppercase tracking-wider gap-2 mb-2">
+                    <a href="#" class="hover:text-slate-600 transition">Admin</a>
+                    <span>&gt;</span>
+                    <a href="#" class="hover:text-slate-600 transition">Profil</a>
+                    <span>&gt;</span>
+                    <span class="text-indigo-600 font-bold">Établissement</span>
+                </nav>
+                <h1 class="text-2xl font-black text-slate-900 tracking-tight">
+                    Gestion Administrative de l'Établissement
+                </h1>
             </div>
 
-            <div class="space-y-4 text-xs">
-                <div class="flex items-center justify-between py-2 border-b border-slate-50">
-                    <span class="text-slate-500 font-medium">Licences d'entrepreneur</span>
-                    <span class="px-2.5 py-1 bg-amber-50 text-amber-600 rounded-full text-[11px] font-bold tracking-wider border border-amber-100/50">
-                        {{ organization.licenceNumber|default('En attente') }}
-                    </span>
-                </div>
-                <div class="flex items-center justify-between py-2 border-b border-slate-50">
-                    <span class="text-slate-500 font-medium">Catégorie ERP</span>
-                    <span class="font-bold text-slate-900">{{ organization.erpCategory ? organization.erpCategory.value : 'Non définie' }}</span>
-                </div>
-                <div class="flex items-center justify-between py-2 border-b border-slate-50">
-                    <span class="text-slate-500 font-medium">Type ERP</span>
-                    <span class="font-bold text-slate-900">{{ organization.erpType ? organization.erpType.name|replace({'TYPE_': 'Type '}) : 'Non défini' }}</span>
-                </div>
-                {# <div class="flex items-center justify-between py-2">
-                    <div class="text-right">
-                        <span class="font-extrabold text-slate-900 block text-sm">{{ organization.safetyCapacity ? organization.safetyCapacity|number_format(0, ',', ' ') ~ ' personnes' : 'Non définie' }}</span>
-                        <span class="text-[9px] text-slate-400 font-medium block">Vérifié récemment</span>
-                    </div>
-                </div> #}
-            </div>
-        </div>
-
-       
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 flex flex-col justify-between">
-            <div>
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-8 h-8 bg-blue-50 text-blue-500 rounded-lg flex items-center justify-center text-sm">
-                        <i class="fa-solid fa-location-dot"></i>
-                    </div>
-                    <h2 class="text-sm font-bold text-slate-800 tracking-tight">Coordonnées & Siège</h2>
-                </div>
-
-                <div class="space-y-4 text-xs text-slate-600">
-                    <div class="flex items-start gap-3">
-                        <i class="fa-solid fa-map-marked-alt text-slate-400 mt-0.5 text-sm"></i>
-                        <p class="font-medium whitespace-pre-line leading-relaxed">{{ organization.adress|default('Pas d\'adresse renseignée') }}</p>
-                    </div>
-                    {# <div class="flex items-center gap-3">
-                        <i class="fa-solid fa-envelope text-slate-400 text-sm"></i>
-                        <a href="mailto:#" class="text-blue-500 font-semibold hover:underline">{{ organization.email|default('contact@thalia.app') }}</a>
-                    </div> #}
-                    <div class="flex items-center gap-3">
-                        <i class="fa-solid fa-phone text-slate-400 text-sm"></i>
-                        <span class="font-medium text-slate-800">{{ organization.phone|default('Non renseigné') }}</span>
-                    </div>
-                </div>
-            </div>
-
-     
-            <div class="mt-6 h-28 bg-slate-100 rounded-xl overflow-hidden relative border border-slate-200/50">
-                <div class="absolute inset-0 opacity-40 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:12px_12px] bg-slate-50"></div>
-                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-                    <div class="w-7 h-7 bg-blue-500 text-white rounded-full flex items-center justify-center shadow-md animate-bounce">
-                        <i class="fa-solid fa-location-dot text-xs"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-      
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 flex flex-col justify-between">
-            <div>
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-8 h-8 bg-blue-50 text-blue-500 rounded-lg flex items-center justify-center text-sm">
-                        <i class="fa-solid fa-users"></i>
-                    </div>
-                    <h2 class="text-sm font-bold text-slate-800 tracking-tight">Responsables</h2>
-                </div>
-
-                <div class="space-y-3">
-                
-                    {% for user in organization.users|slice(0, 2) %}
-                        <div class="flex items-center gap-3 p-3 bg-slate-50/50 rounded-xl border border-slate-100">
-                            <div class="w-10 h-10 bg-slate-200 rounded-xl font-bold text-xs text-slate-600 flex items-center justify-center uppercase border border-slate-300/40">
-                                {{ user.firstName|slice(0,1) }}{{ user.lastName|slice(0,1) }}
-                            </div>
-                            <div>
-                                <h4 class="text-xs font-bold text-slate-900">{{ user.firstName }} {{ user.lastName }}</h4>
-                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Collaborateur</p>
-                            </div>
-                        </div>
-                    {% else %}
-                        <p class="text-xs text-slate-400">Aucun responsable enregistré.</p>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <div class="text-center pt-4 border-t border-slate-50 mt-4">
-                <a href="#" class="text-xs text-blue-500 font-bold hover:underline">Gérer l'organigramme</a>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8 flex flex-col justify-between">
-            <div>
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="w-8 h-8 bg-blue-50 text-blue-500 rounded-lg flex items-center justify-center text-sm">
-                        <i class="fa-solid fa-percent"></i>
-                    </div>
-                    <h2 class="text-sm font-bold text-slate-800 tracking-tight">Configuration Fiscale</h2>
-                </div>
-
-                <p class="text-[11px] text-slate-400 leading-relaxed mb-4">
-                    Définissez les taux de taxation par défaut appliqués à vos ventes de billetterie et prestations annexes.
-                </p>
-
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between p-3.5 bg-slate-50/50 rounded-xl border border-slate-100">
-                        <div>
-                            <h4 class="text-xs font-bold text-slate-900">TVA Spectacle</h4>
-                            <p class="text-[9px] text-slate-400 font-medium mt-0.5">Billetterie de spectacle vivant</p>
-                        </div>
-                        <span class="bg-blue-50 text-blue-600 text-xs font-extrabold px-2.5 py-1 rounded-lg border border-blue-100">
-                            {{ organization.vatSpectacleRate|default('5.5') }}%
-                        </span>
-                    </div>
-
-                    <div class="flex items-center justify-between p-3.5 bg-slate-50/50 rounded-xl border border-slate-100">
-                        <div>
-                            <h4 class="text-xs font-bold text-slate-900">TVA Standard</h4>
-                            <p class="text-[9px] text-slate-400 font-medium mt-0.5">Produits dérivés et bar</p>
-                        </div>
-                        <span class="bg-slate-100 text-slate-600 text-xs font-extrabold px-2.5 py-1 rounded-lg border border-slate-200/60">
-                            {{ organization.vatStandardRate|default('20.0') }}%
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <p class="text-[9px] text-slate-400 font-medium mt-4 leading-relaxed">
-                Toute modification fiscale impactera les facturations futures uniquement.
-            </p>
-        </div>
-
-    </div>
-</div>
-{# SALLES & ESPACES SCÉNIQUES #}
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
-        <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-blue-50 text-blue-500 rounded-lg flex items-center justify-center text-sm">
-                    <i class="fa-solid fa-theater-masks"></i>
-                </div>
+            
+                <a href="#" class="inline-flex items-center gap-2 bg-indigo-600 text-white font-semibold px-4 py-2 rounded-xl text-xs shadow-sm hover:bg-indigo-700 transition">
+                    <i class="fa-solid fa-pen text-indigo-200"></i> Modifier les infos
+                </a>
+            </div>
+        </div>
+
+        {# Grille d'informations administratives #}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            {# Card : Informations Légales #}
+            <div class="card-thalia p-6 lg:p-8 md:col-span-2 flex flex-col justify-between">
                 <div>
-                    <h2 class="text-sm font-bold text-slate-800 tracking-tight">Salles & Espaces Scéniques</h2>
-                    <p class="text-[11px] text-slate-400 mt-0.5">Salles rattachées à cet établissement</p>
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-gavel"></i>
+                        </div>
+                        <h2 class="text-sm font-bold text-slate-800 tracking-tight">Informations Légales</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-y-6 gap-x-8">
+                        <div>
+                            <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Raison Sociale</span>
+                            <p class="text-sm font-extrabold text-slate-900 leading-snug">{{ organization.name|default('Non renseignée') }}</p>
+                        </div>
+                        <div>
+                            <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Statut Juridique</span>
+                            <p class="text-sm font-medium text-slate-700">{{ organization.legalStatus|default('Non renseigné') }}</p>
+                        </div>
+                        <div>
+                            <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Numéro SIRET</span>
+                            <p class="text-sm font-mono text-slate-800 tracking-spaced">
+                                {% if organization.siret and organization.siret|length == 14 %}
+                                    {{ organization.siret|slice(0, 3) }} {{ organization.siret|slice(3, 3) }} {{ organization.siret|slice(6, 3) }} {{ organization.siret|slice(9, 5) }}
+                                {% else %}
+                                    {{ organization.siret|default('Non renseigné') }}
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div>
+                            <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">TVA Intracommunautaire</span>
+                            <p class="text-sm font-mono text-slate-800">{{ organization.vatNumber|default('Non renseigné') }}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-            
-            
-            <a href="{{ path('venue_new') }}" class="inline-flex items-center gap-1.5 bg-blue-50 text-blue-600 font-bold px-3 py-1.5 rounded-xl text-[11px] shadow-sm hover:bg-blue-100 transition">
-                <i class="fa-solid fa-plus text-xs"></i> Créer une salle
-            </a>
-        </div>
 
-   
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {% for venue in organization.venues %}
-                <a href="{{ path('venue_show', {'id': venue.id}) }}" class="group block bg-slate-50/40 border border-slate-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:border-blue-200 hover:bg-white transition-all duration-200">
-                    
-                    
-                    <div class="h-40 bg-slate-900 relative overflow-hidden">
-                       {% if venue.venueImage %}
-                         <img src="{{ path('secure_venue_image', {'id': venue.id}) }}" alt="{{ venue.name }}" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-300">
-                        {% else %}
-                         <div class="w-full h-full bg-gradient-to-br from-slate-800 to-indigo-950 flex items-center justify-center">
-                         <i class="fa-solid fa-mountain-sun text-slate-600 text-2xl group-hover:scale-110 transition-transform duration-300"></i>
-                         </div>
-                            {% endif %}
-                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent"></div>
-                        
-                  
-                        <span class="absolute bottom-3 left-3 bg-blue-500 text-white text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded shadow-sm">
-                            Espace Actif
+            {# Card : Licences & Réglementation #}
+            <div class="card-thalia p-6 lg:p-8">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h2 class="text-sm font-bold text-slate-800 tracking-tight">Licences & Réglementation</h2>
+                </div>
+
+                <div class="space-y-4 text-xs">
+                    <div class="flex items-center justify-between py-2 border-b border-slate-100">
+                        <span class="text-slate-500 font-medium">Licences d'entrepreneur</span>
+                        <span class="px-2.5 py-1 bg-amber-50 text-amber-700 rounded-full text-[11px] font-bold border border-amber-200/50">
+                            {{ organization.licenceNumber|default('En attente') }}
                         </span>
                     </div>
-
-                    <div class="p-5">
-                        <div class="flex items-start justify-between gap-2 mb-1">
-                            <h3 class="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors truncate">
-                                {{ venue.name }}
-                            </h3>
-                            <i class="fa-solid fa-arrow-right-long text-slate-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all text-xs mt-1"></i>
-                        </div>
-                        
-                        <p class="text-[11px] text-slate-400 flex items-center gap-1.5 mb-4">
-                            <i class="fa-solid fa-location-dot text-slate-300 text-[10px]"></i> Paris, Siège principal
-                        </p>
-
-                     
-                        <div class="grid grid-cols-2 gap-2 pt-3 border-t border-slate-100 text-center">
-                            <div class="bg-white/60 rounded-xl p-2 border border-slate-100">
-                                <span class="block text-[8px] font-bold text-slate-400 uppercase tracking-wider">Capacité</span>
-                                <span class="text-xs font-black text-slate-800">{{ venue.maxCapacity|default('0')|number_format(0, ',', ' ') }} pl.</span>
-                            </div>
-                            <div class="bg-white/60 rounded-xl p-2 border border-slate-100">
-                                <span class="block text-[8px] font-bold text-slate-400 uppercase tracking-wider">Scène (L)</span>
-                                <span class="text-xs font-black text-slate-800">{{ venue.stageWidth|default('0') }} m</span>
-                            </div>
-                        </div>
+                    <div class="flex items-center justify-between py-2 border-b border-slate-100">
+                        <span class="text-slate-500 font-medium">Catégorie ERP</span>
+                        <span class="font-bold text-slate-900">{{ organization.erpCategory ? organization.erpCategory.value : 'Non définie' }}</span>
                     </div>
-                </a>
-            {% else %}
-                {# État vide si aucune salle n'existe #}
-                <div class="col-span-1 md:col-span-2 lg:col-span-3 text-center py-12 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
-                    <div class="w-12 h-12 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <i class="fa-solid fa-store-slash text-base"></i>
+                    <div class="flex items-center justify-between py-2 border-b border-slate-100">
+                        <span class="text-slate-500 font-medium">Type ERP</span>
+                        <span class="font-bold text-slate-900">{{ organization.erpType ? organization.erpType.name|replace({'TYPE_': 'Type '}) : 'Non défini' }}</span>
                     </div>
-                    <h3 class="text-xs font-bold text-slate-700">Aucune salle configurée</h3>
-                    <p class="text-[11px] text-slate-400 mt-1 mb-4 max-w-xs mx-auto">Commencez par ajouter le premier espace scénique rattaché à cet établissement.</p>
-                    <a href="{{ path('venue_new') }}" class="inline-flex items-center gap-1.5 bg-blue-600 text-white font-bold px-3 py-1.5 rounded-xl text-[11px] shadow-sm hover:bg-blue-700 transition">
-                        Ajouter un espace
-                    </a>
                 </div>
-            {% endfor %}
+            </div>
+
+            {# Card : Coordonnées & Siège #}
+            <div class="card-thalia p-6 lg:p-8 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </div>
+                        <h2 class="text-sm font-bold text-slate-800 tracking-tight">Coordonnées & Siège</h2>
+                    </div>
+
+                    <div class="space-y-4 text-xs text-slate-600">
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-map-marked-alt text-slate-400 mt-0.5 text-sm"></i>
+                            <p class="font-medium whitespace-pre-line leading-relaxed">{{ organization.adress|default('Pas d\'adresse renseignée') }}</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-phone text-slate-400 text-sm"></i>
+                            <span class="font-medium text-slate-800">{{ organization.phone|default('Non renseigné') }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-6 h-28 bg-slate-100 rounded-xl overflow-hidden relative border border-slate-200/50">
+                    <div class="absolute inset-0 opacity-40 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [bg-size:12px_12px] bg-slate-50"></div>
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
+                        <div class="w-7 h-7 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-md animate-bounce">
+                            <i class="fa-solid fa-location-dot text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# Card : Responsables #}
+            <div class="card-thalia p-6 lg:p-8 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <h2 class="text-sm font-bold text-slate-800 tracking-tight">Responsables</h2>
+                    </div>
+
+                    <div class="space-y-3">
+                        {% for user in organization.users|slice(0, 2) %}
+                            <div class="flex items-center gap-3 p-3 bg-slate-50/70 rounded-xl border border-slate-100">
+                                <div class="w-10 h-10 bg-slate-200 rounded-xl font-bold text-xs text-slate-600 flex items-center justify-center uppercase border border-slate-300/40 shrink-0">
+                                    {{ user.firstName|slice(0,1) }}{{ user.lastName|slice(0,1) }}
+                                </div>
+                                <div class="truncate">
+                                    <h4 class="text-xs font-bold text-slate-900 truncate">{{ user.firstName }} {{ user.lastName }}</h4>
+                                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">Collaborateur</p>
+                                </div>
+                            </div>
+                        {% else %}
+                            <p class="text-xs text-slate-400">Aucun responsable enregistré.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="text-center pt-4 border-t border-slate-100 mt-4">
+                    <a href="#" class="text-xs text-indigo-600 font-bold hover:underline">Gérer l'organigramme</a>
+                </div>
+            </div>
+
+            {# Card : Configuration Fiscale #}
+            <div class="card-thalia p-6 lg:p-8 flex flex-col justify-between">
+                <div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center text-sm">
+                            <i class="fa-solid fa-percent"></i>
+                        </div>
+                        <h2 class="text-sm font-bold text-slate-800 tracking-tight">Configuration Fiscale</h2>
+                    </div>
+
+                    <p class="text-[11px] text-slate-400 leading-relaxed mb-4">
+                        Définissez les taux de taxation par défaut appliqués à vos ventes de billetterie et prestations annexes.
+                    </p>
+
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3.5 bg-slate-50/70 rounded-xl border border-slate-100">
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-900">TVA Spectacle</h4>
+                                <p class="text-[9px] text-slate-400 font-medium mt-0.5">Billetterie de spectacle vivant</p>
+                            </div>
+                            <span class="bg-indigo-50 text-indigo-700 text-xs font-extrabold px-2.5 py-1 rounded-lg border border-indigo-100">
+                                {{ organization.vatSpectacleRate|default('5.5') }}%
+                            </span>
+                        </div>
+
+                        <div class="flex items-center justify-between p-3.5 bg-slate-50/70 rounded-xl border border-slate-100">
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-900">TVA Standard</h4>
+                                <p class="text-[9px] text-slate-400 font-medium mt-0.5">Produits dérivés et bar</p>
+                            </div>
+                            <span class="bg-slate-100 text-slate-600 text-xs font-extrabold px-2.5 py-1 rounded-lg border border-slate-200">
+                                {{ organization.vatStandardRate|default('20.0') }}%
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="text-[9px] text-slate-400 font-medium mt-4 leading-relaxed">
+                    Toute modification fiscale impactera les facturations futures uniquement.
+                </p>
+            </div>
+
         </div>
-    </div>
+
+        {# Section : Salles & Espaces Scéniques #}
+        <div class="card-thalia p-6 lg:p-8 space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-indigo-50 text-indigo-600 rounded-lg flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-masks-theater"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-sm font-bold text-slate-800 tracking-tight">Salles & Espaces Scéniques</h2>
+                        <p class="text-[11px] text-slate-400 mt-0.5">Salles rattachées à cet établissement</p>
+                    </div>
+                </div>
+                
+                <a href="{{ path('venue_new') }}" class="inline-flex items-center justify-center gap-1.5 bg-indigo-50 text-indigo-700 font-bold px-3.5 py-2 rounded-xl text-xs hover:bg-indigo-100 transition shrink-0">
+                    <i class="fa-solid fa-plus text-xs"></i> Créer une salle
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for venue in organization.venues %}
+                    <a href="{{ path('venue_show', {'id': venue.id}) }}" class="group block bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:border-indigo-200 transition-all duration-200">
+                        <div class="h-40 bg-slate-900 relative overflow-hidden">
+                            {% if venue.venueImage %}
+                                <img src="{{ path('secure_venue_image', {'id': venue.id}) }}" alt="{{ venue.name }}" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-300">
+                            {% else %}
+                                <div class="w-full h-full bg-linear-to-br from-slate-800 to-indigo-950 flex items-center justify-center">
+                                    <i class="fa-solid fa-mountain-sun text-slate-600 text-2xl group-hover:scale-110 transition-transform duration-300"></i>
+                                </div>
+                            {% endif %}
+                            <div class="absolute inset-0 bg-linear-to-t from-slate-950/60 via-transparent to-transparent"></div>
+                            
+                            <span class="absolute bottom-3 left-3 bg-indigo-600 text-white text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded shadow-sm">
+                                Espace Actif
+                            </span>
+                        </div>
+
+                        <div class="p-5 space-y-3">
+                            <div class="flex items-start justify-between gap-2">
+                                <h3 class="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors truncate">
+                                    {{ venue.name }}
+                                </h3>
+                                <i class="fa-solid fa-arrow-right-long text-slate-300 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all text-xs mt-1"></i>
+                            </div>
+                            
+                            <p class="text-[11px] text-slate-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-location-dot text-slate-300 text-[10px]"></i> Siège principal
+                            </p>
+
+                            <div class="grid grid-cols-2 gap-2 pt-3 border-t border-slate-100 text-center">
+                                <div class="bg-slate-50/80 rounded-xl p-2 border border-slate-100">
+                                    <span class="block text-[8px] font-bold text-slate-400 uppercase tracking-wider">Capacité</span>
+                                    <span class="text-xs font-black text-slate-800">{{ venue.maxCapacity|default('0')|number_format(0, ',', ' ') }} pl.</span>
+                                </div>
+                                <div class="bg-slate-50/80 rounded-xl p-2 border border-slate-100">
+                                    <span class="block text-[8px] font-bold text-slate-400 uppercase tracking-wider">Scène (L)</span>
+                                    <span class="text-xs font-black text-slate-800">{{ venue.stageWidth|default('0') }} m</span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                {% else %}
+                    <div class="col-span-full text-center py-12 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+                        <div class="w-12 h-12 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fa-solid fa-store-slash text-base"></i>
+                        </div>
+                        <h3 class="text-xs font-bold text-slate-700">Aucune salle configurée</h3>
+                        <p class="text-[11px] text-slate-400 mt-1 mb-4 max-w-xs mx-auto">Commencez par ajouter le premier espace scénique rattaché à cet établissement.</p>
+                        <a href="{{ path('venue_new') }}" class="inline-flex items-center gap-1.5 bg-indigo-600 text-white font-bold px-3.5 py-2 rounded-xl text-xs shadow-sm hover:bg-indigo-700 transition">
+                            Ajouter un espace
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </main>
 
 </div>
 {% endblock %}

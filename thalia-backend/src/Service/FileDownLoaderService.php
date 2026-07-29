@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
-class FileDownloaderService
+class FileDownLoaderService
 {
     private string $projectDir;
 
@@ -29,7 +29,7 @@ class FileDownloaderService
         $cleanSubFolder = trim($subFolder, '/');
         $cleanFilename = basename($filename);
 
-        $filePath = sprintf('%s/uploads/%s/%s', $this->projectDir, $cleanSubFolder, $cleanFilename);
+        $filePath = sprintf('%s/var/uploads/%s/%s', $this->projectDir, $cleanSubFolder, $cleanFilename);
 
         if (!file_exists($filePath)) {
             throw new NotFoundHttpException('Le fichier demandé est introuvable.');

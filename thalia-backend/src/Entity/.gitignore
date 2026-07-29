@@ -1,0 +1,2 @@
+/var/uploads/*
+!/var/uploads/.gitkeep

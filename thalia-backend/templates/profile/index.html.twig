@@ -5,168 +5,121 @@
 {% block body %}
 <div class="flex min-h-[calc(100vh-4rem)] bg-slate-50/50 font-sans">
 
-    <aside class="w-64 bg-white border-r border-slate-100 hidden md:flex flex-col p-4 space-y-1 shrink-0">
-        <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-500 hover:bg-slate-50 transition">
-            <i class="fa-solid fa-table-columns text-slate-400 w-5"></i> Tableau de bord
-        </a>
-        <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-500 hover:bg-slate-50 transition">
-            <i class="fa-solid fa-masks-theater text-slate-400 w-5"></i> Productions
-        </a>
-        <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-500 hover:bg-slate-50 transition">
-            <i class="fa-regular fa-calendar-days text-slate-400 w-5"></i> Calendrier
-        </a>
-        <a href="{{ path('profile_index') }}" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-bold text-blue-600 bg-blue-50/60 transition">
-            <i class="fa-regular fa-user text-blue-500 w-5"></i> Profil
-        </a>
-        <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-500 hover:bg-slate-50 transition">
-            <i class="fa-solid fa-map-pin text-slate-400 w-5"></i> Salles
-        </a>
-        <a href="#" class="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium text-slate-500 hover:bg-slate-50 transition">
-            <i class="fa-solid fa-wallet text-slate-400 w-5"></i> Finance
-        </a>
-    </aside>
+    {% include "components/_sidebar.html.twig" %}
 
-    <div class="flex-grow p-4 sm:p-8 max-w-5xl mx-auto w-full">
+    {# Contenu principal #}
+    <div class="grow p-4 sm:p-8 max-w-6xl mx-auto w-full">
         
+        {# En-tête de la page #}
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <div>
-                <h1 class="text-2xl font-bold text-slate-900">Profil & Paramètres</h1>
-                <p class="text-sm text-slate-400 mt-0.5">Gérez vos informations personnelles et préférences de compte.</p>
-            </div>
-            <div class="flex items-center gap-3">
-                <button type="button" class="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition">
-                    Annuler
-                </button>
-                <button type="submit" class="px-4 py-2 text-sm font-bold text-white bg-blue-500 rounded-xl hover:bg-blue-600 transition shadow-sm shadow-blue-100">
-                    Enregistrer
-                </button>
+                <h1 class="text-3xl font-bold text-slate-900">MON ESPACE</h1>
+                <p class="text-sm text-slate-400 mt-0.5">Gérez votre profil, vos identifiants et vos préférences de compte.</p>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="space-y-6">
             
-            <div class="space-y-6 lg:col-span-1">
+            {# CARD 1 : Profil & Avatar #}
+            <div class="card-thalia overflow-hidden relative">
+                <div class="h-20 bg-linear-to-r from-indigo-100 via-indigo-50/50 to-slate-50"></div>
                 
-                <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-3 flex flex-col space-y-0.5">
-                    <a href="#" class="flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-bold text-blue-600 bg-blue-50/40 transition">
-                        <i class="fa-regular fa-address-card text-blue-500"></i> Infos personnelles
-                    </a>
-                    <a href="#" class="flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition">
-                        <i class="fa-solid fa-shield-halved text-slate-400"></i> Sécurité
-                    </a>
-                    <a href="#" class="flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition">
-                        <i class="fa-regular fa-bell text-slate-400"></i> Notifications
-                    </a>
-                    <a href="#" class="flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition">
-                        <i class="fa-solid fa-sliders text-slate-400"></i> Préférences
-                    </a>
-                </div>
-
-                <div class="bg-gradient-to-b from-blue-50/50 to-white border border-slate-100 shadow-sm rounded-2xl p-5">
-                    <span class="text-[10px] font-bold text-blue-500 uppercase tracking-wider block mb-2">Statut du compte</span>
-                    <div class="flex items-center gap-1.5 text-emerald-600 text-sm font-bold mb-4">
-                        <i class="fa-solid fa-circle-check"></i> Vérifié & Actif
-                    </div>
+                <div class="p-6 pt-0 flex flex-col sm:flex-row items-start sm:items-center gap-5 relative">
                     
-                    <div class="space-y-1">
-                        <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                            <div class="bg-blue-500 h-1.5 rounded-full" style="width: 85%"></div>
+                    {# Formulaire d'upload photo d'identité / Avatar #}
+                    <form action="#" method="POST" enctype="multipart/form-data" id="avatar-form" class="relative group shrink-0 -mt-10">
+                        <div class="w-24 h-24 rounded-2xl bg-slate-100 border-4 border-white shadow-md flex items-center justify-center text-slate-400 font-bold text-2xl overflow-hidden relative">
+                            {% if app.user and app.user.avatarUrl is defined and app.user.avatarUrl %}
+                                <img id="avatar-preview" src="{{ app.user.avatarUrl }}" alt="Avatar" class="w-full h-full object-cover">
+                            {% else %}
+                                <i id="avatar-icon" class="fa-regular fa-user text-3xl"></i>
+                                <img id="avatar-preview" src="" alt="Avatar" class="w-full h-full object-cover hidden">
+                            {% endif %}
+                            
+                            {# Overlay d'upload au survol #}
+                            <label for="avatar-input" class="absolute inset-0 bg-indigo-900/60 text-white flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition cursor-pointer">
+                                <i class="fa-solid fa-camera text-sm"></i>
+                                <span class="text-[10px] font-semibold">Changer</span>
+                            </label>
                         </div>
-                        <span class="text-[10px] text-slate-400 block text-right font-medium">Profil complété à 85%</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="lg:col-span-2 space-y-6">
-                
-                <div class="bg-white border border-slate-100 shadow-sm rounded-2xl overflow-hidden relative">
-                    <div class="h-16 bg-gradient-to-r from-blue-50 via-indigo-50/30 to-transparent"></div>
+                        <input type="file" id="avatar-input" name="avatar" class="hidden" accept="image/*"">
+                    </form>
                     
-                    <div class="p-6 pt-0 flex flex-col sm:flex-row items-start sm:items-center gap-4 relative">
-                        <div class="w-20 h-20 rounded-2xl bg-slate-100 border-4 border-white shadow-md flex items-center justify-center text-slate-300 font-bold text-2xl overflow-hidden -mt-8 shrink-0">
-                            <i class="fa-regular fa-user text-slate-400"></i>
-                        </div>
-                        
-                        <div class="flex-grow sm:pt-2">
-                            <h2 class="text-xl font-bold text-slate-900">{{ app.user.firstName ?? 'Jean-Baptiste' }} {{ app.user.lastName ?? 'Poquelin' }}</h2>
-                            <p class="text-xs text-slate-400 mt-0.5">{{app.user.email ?? 'Thalia_Admin' }}</p>
-                        </div>
-                        
-                        {# <button class="text-xs font-semibold text-blue-500 hover:text-blue-600 flex items-center gap-1.5 mt-2 sm:mt-0">
-                            <i class="fa-solid fa-share-nodes"></i> Partager le profil
-                        </button> #}
-                    </div>
-                </div>
+                    {# Informations utilisateur & Rôle #}
+                    <div class="grow sm:pt-4">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <h2 class="text-xl font-bold text-slate-900">
+                                {{ app.user.firstName ?? 'Jean-Baptiste' }} {{ app.user.lastName ?? 'Poquelin' }}
+                            </h2>
 
-                <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 space-y-5">
-                    <div class="flex items-center gap-2 text-slate-900 font-bold border-b border-slate-50 pb-3">
-                        <i class="fa-regular fa-id-card text-blue-500"></i>
-                        <h3>Informations de base</h3>
-                    </div>
-
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Nom de famille</label>
-                            <input type="text" value="{{ app.user.lastName ?? 'Dubois' }}" class="w-full bg-slate-50/50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 focus:outline-none focus:border-blue-500 focus:bg-white transition">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Prénom</label>
-                            <input type="text" value="{{ app.user.firstName ?? 'Alexandre' }}" class="w-full bg-slate-50/50 border border-slate-100 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-800 focus:outline-none focus:border-blue-500 focus:bg-white transition">
-                        </div>
-                        <div class="sm:col-span-2">
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Email Professionnel</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-300">
-                                    <i class="fa-regular fa-envelope text-xs"></i>
+                            {# Badges de Rôles #}
+                            {% if app.user %}
+                                {% if 'ROLE_SUPER_ADMIN' in app.user.roles %}
+                                    <span class="inline-flex items-center gap-1 text-[10px] bg-red-50 text-red-700 border border-red-100 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                                        <i class="fa-solid fa-shield-halved text-[9px]"></i> Super Admin
+                                    </span>
+                                {% elseif 'ROLE_ADMIN' in app.user.roles %}
+                                    <span class="inline-flex items-center gap-1 text-[10px] bg-indigo-50 text-indigo-700 border border-indigo-100 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                                        <i class="fa-solid fa-user-gear text-[9px]"></i> Admin SaaS
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center gap-1 text-[10px] bg-slate-100 text-slate-600 border border-slate-200 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                                        <i class="fa-regular fa-user text-[9px]"></i> Membre
+                                    </span>
+                                {% endif %}
+                            {% else %}
+                                <span class="inline-flex items-center gap-1 text-[10px] bg-indigo-50 text-indigo-700 border border-indigo-100 px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                                    Admin SaaS
                                 </span>
-                                <input type="email" value="{{ app.user.email ?? 'a.dubois@thaliapro.com' }}" class="w-full bg-slate-50/50 border border-slate-100 rounded-xl pl-10 pr-4 py-2.5 text-sm font-medium text-slate-800 focus:outline-none focus:border-blue-500 focus:bg-white transition">
-                            </div>
+                            {% endif %}
                         </div>
+                        <p class="text-xs text-slate-400 mt-1">{{ app.user.email ?? 'thalia.admin@example.com' }}</p>
                     </div>
+
                 </div>
-
-                <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 space-y-4">
-                    <div class="flex items-center gap-2 text-slate-900 font-bold border-b border-slate-50 pb-3">
-                        <i class="fa-solid fa-sliders text-blue-500"></i>
-                        <h3>Préférences système</h3>
-                    </div>
-
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-3 bg-slate-50/40 rounded-xl border border-slate-50">
-                        {# <div>
-                            <h4 class="text-sm font-bold text-slate-800">Langue de l'interface</h4>
-                            <p class="text-xs text-slate-400 mt-0.5">Français (France)</p>
-                        </div> #}
-                        <button type="button" class="text-xs font-bold text-blue-500 hover:underline">Changer</button>
-                    </div>
-
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-3 bg-slate-50/40 rounded-xl border border-slate-50">
-                        <div>
-                            <h4 class="text-sm font-bold text-slate-800">Thème visuel</h4>
-                            <p class="text-xs text-slate-400 mt-0.5">Mode Clair</p>
-                        </div>
-                        <div class="flex bg-slate-100 rounded-lg p-1 text-slate-400 text-xs font-medium">
-                            <span class="bg-white text-slate-800 px-3 py-1 rounded-md shadow-sm inline-flex items-center gap-1"><i class="fa-regular fa-sun text-[10px]"></i> Clair</span>
-                            <span class="px-3 py-1 inline-flex items-center gap-1 cursor-pointer hover:text-slate-600"><i class="fa-regular fa-moon text-[10px]"></i> Sombre</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white border border-slate-100 shadow-sm rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div class="flex items-start gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center text-sm mt-0.5 shrink-0">
-                            <i class="fa-solid fa-rotate"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-sm font-bold text-slate-800">Sécurité du compte</h3>
-                            <p class="text-xs text-slate-400 mt-0.5">Dernière modification : il y a 3 mois</p>
-                        </div>
-                    </div>
-                    <a href="{{ path('profile_password_edit') }}" class="text-xs font-bold text-blue-500 bg-blue-50 ">
-                        Changer le mot de passe</a>
-                </div>
-
             </div>
+
+            {# CARD 2 : Sécurité du compte #}
+            <div class="card-thalia p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-start gap-4">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm shrink-0">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-800">Sécurité & Identifiants</h3>
+                        <p class="text-xs text-slate-400 mt-0.5">Mettez à jour votre mot de passe et sécurisez votre accès.</p>
+                    </div>
+                </div>
+                <a href="{{ path('profile_password_edit') }}" class="btn-indigo text-xs">
+                    <i class="fa-solid fa-key mr-1"></i> Changer le mot de passe
+                </a>
+            </div>
+
+            {# CARD 3 : Préférences système #}
+            <div class="card-thalia p-6 space-y-4">
+                <div class="flex items-center gap-2 text-slate-900 font-bold border-b border-slate-100 pb-3">
+                    <i class="fa-solid fa-sliders text-indigo-600"></i>
+                    <h3>Préférences système</h3>
+                </div>
+
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-3 bg-slate-50/50 rounded-xl border border-slate-100">
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-800">Thème visuel</h4>
+                        <p class="text-xs text-slate-400 mt-0.5">Personnalisez l'affichage de votre interface</p>
+                    </div>
+                    <div class="flex bg-slate-200/60 p-1 rounded-lg text-slate-500 text-xs font-medium">
+                        <button type="button" class="bg-white text-slate-900 px-3 py-1 rounded-md shadow-sm inline-flex items-center gap-1.5 font-semibold">
+                            <i class="fa-regular fa-sun text-amber-500 text-[11px]"></i> Clair
+                        </button>
+                        <button type="button" class="px-3 py-1 inline-flex items-center gap-1.5 hover:text-slate-800 transition">
+                            <i class="fa-regular fa-moon text-[11px]"></i> Sombre
+                        </button>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
+
 {% endblock %}

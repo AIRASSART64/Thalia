@@ -3,92 +3,34 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> {# Essentiel pour le responsive mobile #}
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Thalia SaaS{% endblock %}</title>
+    
     <link rel="icon"
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
 
-    {# CDN FontAwesome pour les petites icônes du site #}
+    {# CDN Bibliothèques tierces #}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    {# CDN CSS de Tom Select #}
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 
-    {# Personnalisation esthétique de Tom Select pour l'intégrer au design Tailwind de Thalia SaaS #}
-    <style>
-        /* Bordures, arrondis (rounded-xl) et couleur de fond par défaut (bg-gray-50) */
-        .ts-control {
-            border-radius: 0.75rem !important;
-            /* rounded-xl */
-            background-color: rgb(249, 250, 251) !important;
-            border: 1px solid rgb(229, 231, 235) !important;
-            padding: 0.625rem 0.75rem !important;
-            box-shadow: none !important;
-            transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* État focus (simule ring-2 ring-indigo-100 et border-indigo-500 sur fond blanc) */
-        .ts-wrapper.focus .ts-control {
-            background-color: #ffffff !important;
-            border-color: rgb(99, 102, 241) !important;
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
-        }
-
-        /* Style des petits badges de sélection */
-        .ts-control .item {
-            background-color: rgb(238, 242, 255) !important;
-            border: 1px solid rgb(224, 231, 255) !important;
-            color: rgb(67, 56, 202) !important;
-            border-radius: 0.5rem !important;
-            padding: 2px 8px !important;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-        }
-
-        /* Petit bouton de suppression 'x' à l'intérieur du badge */
-        .ts-control .item .remove {
-            border-left: 1px solid rgb(199, 210, 254) !important;
-            margin-left: 6px !important;
-            padding-left: 4px !important;
-            color: rgb(99, 102, 241) !important;
-        }
-
-        .ts-control .item .remove:hover {
-            background: rgba(99, 102, 241, 0.1) !important;
-            color: rgb(67, 56, 202) !important;
-        }
-
-        /* Liste déroulante des options */
-        .ts-dropdown {
-            border-radius: 0.75rem !important;
-            border: 1px solid rgb(243, 244, 246) !important;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
-            margin-top: 4px !important;
-            z-index: 50 !important;
-        }
-
-        .ts-dropdown .active {
-            background-color: rgb(79, 70, 229) !important;
-            color: #ffffff !important;
-        }
-    </style>
-
-    {% block stylesheets %}
-    {% endblock %}
-
+    {# Tailwind CDN #}
     <script src="https://cdn.tailwindcss.com"></script>
 
+    {% block stylesheets %}{% endblock %}
+
+    {# Importation centralisée JS & CSS via AssetMapper #}
     {% block javascripts %}
-    {% block importmap %}{{ importmap('app') }}{% endblock %}
+        {% block importmap %}{{ importmap('app') }}{% endblock %}
     {% endblock %}
+
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     {% set frankenphpHotReload = app.request.server.get('FRANKENPHP_HOT_RELOAD') %}
     {% if frankenphpHotReload %}
-    <meta name="frankenphp-hot-reload:url" content="{{ frankenphpHotReload }}">
-    <script defer src="https://cdn.jsdelivr.net/npm/idiomorph"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/frankenphp-hot-reload/+esm" type="module"></script>
+        <meta name="frankenphp-hot-reload:url" content="{{ frankenphpHotReload }}">
+        <script defer src="https://cdn.jsdelivr.net/npm/idiomorph"></script>
+        <script defer src="https://cdn.jsdelivr.net/npm/frankenphp-hot-reload/+esm" type="module"></script>
     {% endif %}
 </head>
 
@@ -102,44 +44,38 @@
                     <a href="{{ path('home') }}"
                         class="text-2xl font-black tracking-wider text-indigo-600 hover:opacity-90 transition">THALIA</a>
                     {% if app.user %}
-                    {% if 'ROLE_SUPER_ADMIN' in app.user.roles %}
-                    <span
-                        class="text-[10px] bg-red-50 text-red-700 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">SuperAdmin</span>
-                    {% else %}
-                    <span
-                        class="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">SaaS
-                        Tenant</span>
-                    {% endif %}
+                        {% if 'ROLE_SUPER_ADMIN' in app.user.roles %}
+                            <span class="text-[10px] bg-red-50 text-red-700 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">SuperAdmin</span>
+                        {% else %}
+                            <span class="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">SaaS Tenant</span>
+                        {% endif %}
                     {% endif %}
                 </div>
 
                 <div class="hidden sm:flex items-center gap-4">
                     {% if app.user %}
-                    <div class="flex items-center gap-2 text-sm text-gray-600 mr-2">
-                        <i class="fa-regular fa-circle-user text-gray-400 text-base"></i>
-                        <span class="font-medium">{{ app.user.firstName }} {{ app.user.lastName }}</span>
-                    </div>
+                        <div class="flex items-center gap-2 text-sm text-gray-600 mr-2">
+                            <i class="fa-regular fa-circle-user text-gray-400 text-base"></i>
+                            <span class="font-medium">{{ app.user.firstName }} {{ app.user.lastName }}</span>
+                        </div>
 
-                    {# Redirection conditionnelle vers le bon dashboard de l'utilisateur #}
-                    {% if 'ROLE_SUPER_ADMIN' in app.user.roles %}
-                    <a href="{{ path('superadmin_dashboard') }}"
-                        class="text-xs font-semibold text-indigo-600 bg-indigo-50 px-3 py-2 rounded-lg hover:bg-indigo-100 transition">Console
-                        Admin</a>
-                    {% else %}
-                    <a href="{{ path('profile_index') }}"
-                        class="text-xs font-semibold text-indigo-600 bg-indigo-50 px-3 py-2 rounded-lg hover:bg-indigo-100 transition">Mon
-                        Espace</a>
-                    {% endif %}
+                        {% if 'ROLE_SUPER_ADMIN' in app.user.roles %}
+                            <a href="{{ path('superadmin_dashboard') }}"
+                                class="text-xs font-semibold text-indigo-600 bg-indigo-50 px-3 py-2 rounded-lg hover:bg-indigo-100 transition">Console Admin</a>
+                        {% else %}
+                            <a href="{{ path('profile_index') }}"
+                                class="text-xs font-semibold text-indigo-600 bg-indigo-50 px-3 py-2 rounded-lg hover:bg-indigo-100 transition">Mon Espace</a>
+                        {% endif %}
 
-                    <a href="{{ path('app_logout') }}"
-                        class="text-xs bg-gray-100 text-gray-600 px-3 py-2 rounded-lg hover:bg-gray-200 transition">
-                        <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> Déconnexion
-                    </a>
+                        <a href="{{ path('app_logout') }}"
+                            class="text-xs bg-gray-100 text-gray-600 px-3 py-2 rounded-lg hover:bg-gray-200 transition">
+                            <i class="fa-solid fa-arrow-right-from-bracket mr-1"></i> Déconnexion
+                        </a>
                     {% else %}
-                    <a href="{{ path('register') }}"
-                        class="text-xs bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition shadow-sm shadow-indigo-100">
-                        Créer un compte
-                    </a>
+                        <a href="{{ path('register') }}"
+                            class="text-xs bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition shadow-sm shadow-indigo-100">
+                            Créer un compte
+                        </a>
                     {% endif %}
                 </div>
 
@@ -155,38 +91,37 @@
         <div id="mobile-menu"
             class="hidden sm:hidden border-t border-gray-100 bg-white px-4 pt-2 pb-4 space-y-2 shadow-inner">
             {% if app.user %}
-            <div class="px-2 py-1 text-xs font-bold text-gray-400 uppercase tracking-wider">
-                {{ app.user.firstName }} {{ app.user.lastName }} ({{ app.user.email }})
-            </div>
-            {% if 'ROLE_SUPER_ADMIN' in app.user.roles %}
-            <a href="{{ path('superadmin_dashboard') }}"
-                class="block text-sm font-medium text-indigo-600 bg-indigo-50/50 px-3 py-2 rounded-lg">Console Admin</a>
+                <div class="px-2 py-1 text-xs font-bold text-gray-400 uppercase tracking-wider">
+                    {{ app.user.firstName }} {{ app.user.lastName }} ({{ app.user.email }})
+                </div>
+                {% if 'ROLE_SUPER_ADMIN' in app.user.roles %}
+                    <a href="{{ path('superadmin_dashboard') }}"
+                        class="block text-sm font-medium text-indigo-600 bg-indigo-50/50 px-3 py-2 rounded-lg">Console Admin</a>
+                {% else %}
+                    <a href="{{ path('profile_index') }}"
+                        class="block text-sm font-medium text-indigo-600 bg-indigo-50/50 px-3 py-2 rounded-lg">Mon Espace</a>
+                {% endif %}
+                <a href="{{ path('app_logout') }}"
+                    class="block text-sm font-medium text-gray-600 bg-gray-50 px-3 py-2 rounded-lg">Déconnexion</a>
             {% else %}
-            <a href="{{ path('profile_index') }}"
-                class="block text-sm font-medium text-indigo-600 bg-indigo-50/50 px-3 py-2 rounded-lg">Mon Espace</a>
-            {% endif %}
-            <a href="{{ path('app_logout') }}"
-                class="block text-sm font-medium text-gray-600 bg-gray-50 px-3 py-2 rounded-lg">Déconnexion</a>
-            {% else %}
-            <a href="{{ path('register') }}"
-                class="block text-center text-sm font-semibold bg-indigo-600 text-white py-2.5 rounded-lg shadow-sm">Créer
-                un compte</a>
+                <a href="{{ path('register') }}"
+                    class="block text-center text-sm font-semibold bg-indigo-600 text-white py-2.5 rounded-lg shadow-sm">Créer un compte</a>
             {% endif %}
         </div>
     </header>
 
-    <main class="flex-grow w-full">
+    <main class="grow w-full">
         {% block body %}{% endblock %}
     </main>
 
     <footer class="bg-white border-t border-gray-100 py-6">
-        <div
-            class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-400">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-400">
             <div class="flex flex-wrap justify-center sm:justify-start gap-x-4 gap-y-1">
                 <span>&copy; 2026 Thalia SaaS. Tous droits réservés.</span>
                 <span class="hidden sm:inline text-gray-200">|</span>
-                <span class="inline-flex items-center gap-1.5"><span
-                        class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Espace Multi-Tenant</span>
+                <span class="inline-flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Espace Multi-Tenant
+                </span>
             </div>
             <div class="flex gap-4">
                 <a href="#" class="hover:text-gray-600 transition">Mentions légales</a>
@@ -196,30 +131,5 @@
         </div>
     </footer>
 
-    {# CDN JS de Tom Select #}
-    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
-
-    <script>
-        function initTomSelect() {
-            document.querySelectorAll('.tom-select').forEach((el) => {
-                // On évite de ré-initialiser Tom Select s'il est déjà actif sur cet élément
-                if (el.classList.contains('tomselected')) return;
-
-                new TomSelect('.tom-select', {
-                    create: true,                 // Permet la création à la volée
-                    delimiter: ',',               // Délimiteur utilisé par le DataTransformer
-                    persist: false,
-                    plugins: ['remove_button'],
-                });
-            });
-        }
-
-        // Initialisation classique au chargement initial de la page DOM
-        document.addEventListener("DOMContentLoaded", initTomSelect);
-
-        // Ré-initialise proprement le script lors des rechargements asynchrones de page
-        document.addEventListener("turbo:load", initTomSelect);
-    </script>
 </body>
-
 </html>

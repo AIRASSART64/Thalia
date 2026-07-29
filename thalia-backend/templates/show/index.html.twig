@@ -5,53 +5,10 @@
 {% block body %}
 <div class="flex min-h-screen bg-gray-50">
     
-    {# ─── SIDEBAR GAUCHE ─── #}
-    <aside class="w-64 bg-white border-r border-gray-100 hidden md:flex flex-col justify-between p-4 shrink-0">
-        <div class="space-y-6">
-            <div>
-                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3 px-2">Spectacles & CRM</p>
-                <nav class="space-y-1">
-                    <a href="{{ path('show_index') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-semibold rounded-lg bg-indigo-50 text-indigo-600">
-                        <i class="fa-solid fa-list-ul w-4"></i> Liste des spectacles
-                    </a>
-                    <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition">
-                        <i class="fa-solid fa-circle-info w-4"></i> Détails
-                    </a>
-                    <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition">
-                        <i class="fa-solid fa-wand-magic-sparkles w-4"></i> Création / Smart import
-                    </a>
-                    <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition">
-                        <i class="fa-solid fa-users w-4"></i> Suivi des contacts
-                    </a>
-                </nav>
-            </div>
-            <div>
-                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3 px-2">Saison Culturelle</p>
-                <nav class="space-y-1">
-                    <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 rounded-lg hover:bg-gray-50 transition">
-                        <i class="fa-solid fa-calendar-days w-4"></i> Calendrier
-                    </a>
-                </nav>
-            </div>
-            <div>
-                <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3 px-2">Finances</p>
-                <nav class="space-y-1">
-                    <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 rounded-lg hover:bg-gray-50 transition">
-                        <i class="fa-solid fa-chart-line w-4"></i> Simulation budgétaire
-                    </a>
-                </nav>
-            </div>
-        </div>
-        
-        <div class="border-t border-gray-100 pt-4 space-y-1">
-            <a href="#" class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 rounded-lg hover:bg-gray-50 transition">
-                <i class="fa-solid fa-gear w-4"></i> Paramètres
-            </a>
-        </div>
-    </aside>
+  {% include "components/_sidebar.html.twig" %}
 
     {# ─── CONTENU PRINCIPAL ─── #}
-    <main class="flex-grow p-6 lg:p-8 max-w-7xl mx-auto">
+    <main class="grow p-6 lg:p-8 max-w-7xl mx-auto">
         
         {# En-tête de page #}
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">

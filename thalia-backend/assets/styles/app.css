@@ -1,3 +1,141 @@
-body {
-    background-color: skyblue;
+/* ─── 0. ÉLÉMENTS DE BASE (GLOBAL) ─── */
+h1 {
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+/* ─── 1. PERSONNALISATION TOM SELECT ─── */
+.ts-control {
+    border-radius: 0.75rem !important;
+    background-color: rgb(249, 250, 251) !important;
+    border: 1px solid rgb(229, 231, 235) !important;
+    padding: 0.625rem 0.75rem !important;
+    box-shadow: none !important;
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ts-wrapper.focus .ts-control {
+    background-color: #ffffff !important;
+    border-color: rgb(99, 102, 241) !important;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
+}
+
+.ts-control .item {
+    background-color: rgb(238, 242, 255) !important;
+    border: 1px solid rgb(224, 231, 255) !important;
+    color: rgb(67, 56, 202) !important;
+    border-radius: 0.5rem !important;
+    padding: 2px 8px !important;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+}
+
+.ts-control .item .remove {
+    border-left: 1px solid rgb(199, 210, 254) !important;
+    margin-left: 6px !important;
+    padding-left: 4px !important;
+    color: rgb(99, 102, 241) !important;
+}
+
+.ts-control .item .remove:hover {
+    background: rgba(99, 102, 241, 0.1) !important;
+    color: rgb(67, 56, 202) !important;
+}
+
+.ts-dropdown {
+    border-radius: 0.75rem !important;
+    border: 1px solid rgb(243, 244, 246) !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+    margin-top: 4px !important;
+    z-index: 50 !important;
+}
+
+.ts-dropdown .active {
+    background-color: rgb(79, 70, 229) !important;
+    color: #ffffff !important;
+}
+
+/* ─── 2. HARMONISATION FORMULAIRES & BOUTONS THALIA ─── */
+.form-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: rgb(55, 65, 81);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+}
+
+.form-input {
+    width: 100%;
+    border-radius: 0.75rem;
+    border-color: rgb(229, 231, 235);
+    background-color: rgb(249, 250, 251);
+    color: rgb(31, 41, 55);
+    font-size: 0.875rem;
+    padding: 0.75rem;
+    transition: all 150ms ease-in-out;
+}
+
+.form-input:focus {
+    border-color: rgb(99, 102, 241);
+    background-color: #ffffff;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+}
+
+.btn-indigo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    border-radius: 0.5rem;
+    background-color: rgb(79, 70, 229);
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.75rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transition: background-color 150ms ease-in-out;
+    cursor: pointer;
+}
+
+.btn-indigo:hover {
+    background-color: rgb(67, 56, 202);
+}
+
+/* ─── 3. NAVIGATION LATÉRALE ET COMPOSANTS PROFIL ─── */
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 1rem;
+    border-radius: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgb(100, 116, 139);
+    transition: all 150ms ease-in-out;
+}
+
+.sidebar-link:hover {
+    background-color: rgb(248, 250, 252);
+    color: rgb(51, 65, 85);
+}
+
+.sidebar-link.active {
+    background-color: rgb(238, 242, 255);
+    color: rgb(79, 70, 229);
+    font-weight: 700;
+}
+
+.sidebar-link.active i {
+    color: rgb(99, 102, 241);
+}
+
+.card-thalia {
+    background-color: #ffffff;
+    border: 1px solid rgb(241, 245, 249);
+    border-radius: 1rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
 }

@@ -6,10 +6,12 @@ use App\Entity\Show;
 use App\Form\ShowFormType;
 use App\Repository\ShowRepository;
 use App\Service\CrudManagerService;
+use App\Service\FileDownLoaderService;
 use App\Service\FileUpLoader;
 use App\Service\UserContextService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -160,6 +162,15 @@ class ShowController extends AbstractController
         ]);
 
 
+    }
+
+    #[Route('/{id}/pdf', name:'secure_show_pdf', methods:['GET'])] 
+    public function downLoadPdf(Show $show, FileDownLoaderService $fileDownloader) :BinaryFileResponse
+    {
+        if (!$show->getArtisticFile()) {
+            throw $this->createNotFoundException('Aucun dossier artistique associé.');
+        }
+         return $fileDownloader->downloadFromUploads('shows/documents', $show->getArtisticFile());
     }
 
     #[ Route('/delete/{id}', name:'show_delete', methods:['POST'])]

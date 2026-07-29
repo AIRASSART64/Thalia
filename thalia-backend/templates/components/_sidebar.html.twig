@@ -1,0 +1,32 @@
+{# templates/components/_sidebar.html.twig #}
+<aside class="w-64 bg-white border-r border-slate-100 hidden md:flex flex-col p-4 space-y-1 shrink-0">
+    
+    {# Organisation #}
+    <a href="#" 
+       class="sidebar-link {{ app.current_route starts with 'organization' ? 'active' : '' }}">
+        <i class="fa-solid fa-sitemap w-5 {{ app.current_route starts with 'organization' ? 'text-indigo-600' : 'text-slate-400' }}"></i> 
+        Organisation
+    </a>
+
+    {# Spectacles #}
+    <a href="#" 
+       class="sidebar-link {{ app.current_route starts with 'show' ? 'active' : '' }}">
+        <i class="fa-solid fa-masks-theater w-5 {{ app.current_route starts with 'show' ? 'text-indigo-600' : 'text-slate-400' }}"></i> 
+        Spectacles
+    </a>
+
+    {# Contacts #}
+    <a href="#" 
+       class="sidebar-link {{ app.current_route starts with 'contact' ? 'active' : '' }}">
+        <i class="fa-solid fa-address-book w-5 {{ app.current_route starts with 'contact' ? 'text-indigo-600' : 'text-slate-400' }}"></i> 
+        Contacts
+    </a>
+
+    {# Mon espace (Profil) #}
+    <a href="{{ path('profile_index') }}" 
+       class="sidebar-link {{ app.current_route starts with 'profile' ? 'active' : '' }}">
+        <i class="fa-regular fa-user w-5 {{ app.current_route starts with 'profile' ? 'text-indigo-600' : 'text-slate-400' }}"></i> 
+        Mon espace
+    </a>
+
+</aside>
