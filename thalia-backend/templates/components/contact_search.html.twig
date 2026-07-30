@@ -1,0 +1,171 @@
+<div {{ attributes }}>
+
+    {# ─── BARRE DE FILTRES ET RECHERCHE ─── #}
+    <div class="filter-bar mb-6">
+        <div class="flex flex-col sm:flex-row items-center gap-3 w-full">
+            
+            {# 1. Select Compagnies #}
+            <div class="w-full sm:w-64">
+                <select data-model="companyName" class="form-input-sm w-full py-2 px-3 font-medium bg-white focus:outline-none rounded-lg border border-slate-200 text-sm">
+                    <option value="Tous">Toutes les structures</option>
+                    {% for company in this.companies %}
+                        <option value="{{ company }}" {{ this.companyName == company ? 'selected' : '' }}>
+                            {{ company }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            {# 2. Select Rôles #}
+            <div class="w-full sm:w-64">
+                <select data-model="role" class="form-input-sm w-full py-2 px-3 font-medium bg-white focus:outline-none rounded-lg border border-slate-200 text-sm">
+                    <option value="Tous">Tous les rôles</option>
+                    {% for r in this.roles %}
+                        <option value="{{ r }}" {{ this.role == r ? 'selected' : '' }}>
+                            {{ r }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            {# 3. Recherche textuelle #}
+            <div class="filter-search-group grow w-full">
+                {% include 'components/_search_bar.html.twig' with {
+                    placeholder: 'Nom, prénom ou notes...'
+                } %}
+            </div>
+
+        </div>
+    </div>
+
+    {# Loader discret pendant la mise à jour #}
+    {% include 'components/_search_loader.html.twig' with {
+        label: 'Recherche des contacts...'
+    } %}
+
+    {# ─── TABLEAU DES CONTACTS ─── #}
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-black text-slate-400 uppercase tracking-wider select-none">
+                        
+                        {# Colonne TRI NOM / PRÉNOM #}
+                        <th class="py-3.5 px-6 cursor-pointer hover:text-indigo-600 transition"
+                            data-action="live#update"
+                            data-model="sortDirection"
+                            data-value="{{ this.sortDirection == 'ASC' ? 'DESC' : 'ASC' }}">
+                            <div class="flex items-center gap-1.5">
+                                <span>Contact / Nom</span>
+                                {% if this.sortDirection == 'ASC' %}
+                                    <i class="fa-solid fa-arrow-up-a-z text-indigo-600"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-arrow-down-z-a text-indigo-600"></i>
+                                {% endif %}
+                            </div>
+                        </th>
+
+                        <th class="py-3.5 px-6">Organisation</th>
+                        <th class="py-3.5 px-6">Rôle</th>
+                        <th class="py-3.5 px-6">Coordonnées</th>
+                        <th class="py-3.5 px-6 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for contact in this.contacts %}
+                        <tr class="hover:bg-slate-50/80 transition duration-150 group">
+                            
+                            {# Nom & Prénom + Avatar #}
+                            <td class="py-4 px-6">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-xs font-bold text-indigo-600 shrink-0 uppercase">
+                                        {{ contact.firstName|default('')|first }}{{ contact.lastName|default('')|first }}
+                                    </div>
+                                    <div>
+                                        <a href="{{ path('contact_show', {'id': contact.id}) }}" class="font-bold text-slate-900 hover:text-indigo-600 transition block">
+                                            {{ contact.firstName }} {{ contact.lastName }}
+                                        </a>
+                                        {% if contact.notes %}
+                                            <span class="text-[11px] text-slate-400 italic line-clamp-1" title="{{ contact.notes }}">
+                                                "{{ contact.notes }}"
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+
+                            {# Organisation #}
+                            <td class="py-4 px-6 font-medium text-slate-600">
+                                {% if contact.companyName %}
+                                    <span class="inline-flex items-center gap-1.5">
+                                        <i class="fa-regular fa-building text-slate-400 text-xs"></i>
+                                        {{ contact.companyName }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-slate-300">—</span>
+                                {% endif %}
+                            </td>
+
+                            {# Rôle #}
+                            <td class="py-4 px-6">
+                                {% if contact.role %}
+                                    <span class="text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-md bg-slate-100 text-slate-600 inline-block">
+                                        {{ contact.role }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-slate-300">—</span>
+                                {% endif %}
+                            </td>
+
+                            {# Coordonnées (Email & Téléphone) #}
+                            <td class="py-4 px-6 text-slate-500 font-medium text-xs">
+                                <div class="space-y-0.5">
+                                    {% if contact.email %}
+                                        <div>
+                                            <a href="mailto:{{ contact.email }}" class="hover:text-indigo-600 transition">
+                                                <i class="fa-regular fa-envelope text-slate-400 mr-1"></i>{{ contact.email }}
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                    {% if contact.phone %}
+                                        <div class="text-[11px] text-slate-400">
+                                            <a href="tel:{{ contact.phone }}" class="hover:text-indigo-600 transition">
+                                                <i class="fa-solid fa-phone text-slate-400 mr-1"></i>{{ contact.phone }}
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                    {% if not contact.email and not contact.phone %}
+                                        <span class="text-slate-300">—</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                            {# Actions #}
+                            <td class="py-4 px-6 text-right">
+                                <div class="flex items-center justify-end gap-1">
+                                    <a href="{{ path('contact_show', {'id': contact.id}) }}" class="text-slate-400 hover:text-indigo-600 p-2 rounded-lg hover:bg-slate-100 transition" title="Consulter">
+                                        <i class="fa-solid fa-eye text-sm"></i>
+                                    </a>
+                                    {% if is_granted('CONTACT_EDIT', contact) %}
+                                        <a href="{{ path('contact_edit', {'id': contact.id}) }}" class="text-slate-400 hover:text-amber-600 p-2 rounded-lg hover:bg-amber-50 transition" title="Modifier">
+                                            <i class="fa-regular fa-pen-to-square text-sm"></i>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="py-12 text-center text-slate-400 font-medium bg-slate-50/50">
+                                <i class="fa-solid fa-address-book text-3xl mb-2 block text-slate-300"></i>
+                                Aucun contact ne correspond à vos critères.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>

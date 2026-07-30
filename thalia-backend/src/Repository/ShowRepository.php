@@ -58,7 +58,11 @@ class ShowRepository extends ServiceEntityRepository
 
     // 1. Recherche textuelle
     if (!empty(trim($query))) {
-        $qb->andWhere('LOWER(s.title) LIKE LOWER(:q)')
+        $qb->andWhere('(
+        LOWER(s.title) LIKE LOWER(:q)
+        OR LOWER(s.synopsis) LIKE LOWER(:q)
+        )')
+
            ->setParameter('q', '%' . trim($query) . '%');
     }
 
