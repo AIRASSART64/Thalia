@@ -1,0 +1,103 @@
+<div {{ attributes }}>
+
+    {# ─── BARRE DE FILTRES ET RECHERCHE ─── #}
+    <div class="filter-bar">
+        
+        {# Outils : Sélection de la Discipline + Recherche #}
+        <div class="flex flex-col sm:flex-row items-center gap-3 w-full">
+            
+            {# Liste déroulante des Disciplines (Enum) #}
+            <div class="w-full sm:w-64">
+                <select data-model="discipline" class="form-input-sm py-2 px-3 font-medium bg-white focus:outline-none">
+                    <option value="Tous">Toutes les disciplines</option>
+                    {% for d in this.disciplines %}
+                        <option value="{{ d.value }}" {{ this.discipline == d.value ? 'selected' : '' }}>
+                            {{ d.name|replace({'_': ' '})|capitalize }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+                {# Liste déroulante type de public (Enum) #}
+            <div class="w-full sm:w-64">
+                <select data-model="audience" class="form-input-sm py-2 px-3 font-medium bg-white focus:outline-none">
+                    <option value="Tous">Type de public</option>
+                    {% for a in this.audiences %}
+                        <option value="{{ a.value }}" {{ this.audience == a.value ? 'selected' : '' }}>
+                            {{ a.name|replace({'_': ' '})|capitalize }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            {# 3. Select Thème (BDD) #}
+            <div>
+                <select data-model="theme" class="form-input-sm w-full py-2 px-3 font-medium bg-white focus:outline-none">
+                    <option value="Tous">Tous les thèmes</option>
+                    {% for t in this.themes %}
+                        <option value="{{ t.id }}" {{ this.theme == t.id ? 'selected' : '' }}>
+                            {{ t.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            {# Partial Champ de Recherche #}
+            <div class="filter-search-group grow">
+                {% include 'components/_search_bar.html.twig' with {
+                    placeholder: 'Titre du spectacle...'
+                } %}
+            </div>
+
+        </div>
+    </div>
+
+    {# Loader discret pendant la mise à jour #}
+    {% include 'components/_search_loader.html.twig' with {
+        label: 'Mise à jour des résultats...'
+    } %}
+
+    {# ─── GRILLE DES SPECTACLES ─── #}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for show in this.shows %}
+            <div class="search-card flex flex-col justify-between group p-0 overflow-hidden">
+                <div class="h-44 bg-slate-100 relative overflow-hidden shrink-0">
+                    <span class="absolute top-3 left-3 z-10 bg-indigo-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md shadow-sm">
+                        {{ show.discipline.value|default(show.discipline) }}
+                    </span>
+
+                    {% if show.id and show.artworkUrl %}
+                        <img src="{{ path('secure_show_image', {'id': show.id}) }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" alt="{{ show.title }}">
+                    {% else %}
+                        <div class="w-full h-full bg-slate-800 flex items-center justify-center text-slate-500">
+                            <i class="fa-solid fa-masks-theater text-4xl opacity-40"></i>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="p-5 flex-grow flex flex-col justify-between gap-4">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base leading-snug group-hover:text-indigo-600 transition">
+                            <a href="{{ path('show_show', {'id': show.id}) }}" class="focus:outline-none">
+                                {{ show.title }}
+                            </a>
+                        </h3>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-3 border-t border-slate-100 text-xs text-slate-400">
+                        <span><i class="fa-regular fa-clock mr-1"></i> {{ show.durationMin|default(60) }} min</span>
+                        {% if is_granted('SHOW_EDIT', show) %}
+                            <a href="{{ path('show_edit', {'id': show.id}) }}" class="p-1 px-2 text-amber-600 hover:bg-amber-50 rounded-md transition" title="Modifier">
+                                <i class="fa-regular fa-pen-to-square"></i>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="empty-results">
+                <i class="fa-solid fa-folder-open text-3xl mb-2 block text-slate-300"></i>
+                Aucun spectacle ne correspond à vos critères.
+            </div>
+        {% endfor %}
+    </div>
+
+</div>

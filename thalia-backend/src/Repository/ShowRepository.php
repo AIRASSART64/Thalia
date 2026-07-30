@@ -46,37 +46,45 @@ class ShowRepository extends ServiceEntityRepository
      //Recherche filtrée et sécurisée par Organisation pour les Spectacles
      
     public function searchShowsForOrganization(
-        Organization $organization,
-        string $query = '',
-        string $discipline = 'Tous',
-        string $audience = 'Tout_public'
-    ): array {
-        $qb = $this->createQueryBuilder('s')
-            ->andWhere('s.organization = :org') 
-            ->setParameter('org', $organization);
+    Organization $organization,
+    string $query = '',
+    string $discipline = 'Tous',
+    string $audience = 'Tous',
+    string $theme = 'Tous' // 👈 Le 5ème paramètre doit être présent ici !
+): array {
+    $qb = $this->createQueryBuilder('s')
+        ->andWhere('s.organization = :org')
+        ->setParameter('org', $organization);
 
-        // Filtre Recherche textuelle (Titre du spectacle)
-        if (!empty($query)) {
-            $qb->andWhere('s.title LIKE :q')
-               ->setParameter('q', '%' . $query . '%');
-        }
-
-        // Filtre par Discipline
-        if ($discipline !== 'Tous' && !empty($discipline)) {
-            $qb->andWhere('s.discipline = :discipline')
-               ->setParameter('discipline', $discipline);
-        }
-
-        // Filtre par Saison
-        if (!empty($audience)) {
-            $qb->andWhere('s.audience = :audience')
-               ->setParameter('audience', $audience);
-        }
-
-        $qb->orderBy('s.title', 'ASC');
-
-        return $qb->getQuery()->getResult();
+    // 1. Recherche textuelle
+    if (!empty(trim($query))) {
+        $qb->andWhere('LOWER(s.title) LIKE LOWER(:q)')
+           ->setParameter('q', '%' . trim($query) . '%');
     }
+
+    // 2. Discipline
+    if ($discipline !== 'Tous' && !empty($discipline)) {
+        $qb->andWhere('s.discipline = :discipline')
+           ->setParameter('discipline', $discipline);
+    }
+
+    // 3. Audience
+    if ($audience !== 'Tous' && !empty($audience)) {
+        $qb->andWhere('s.audience = :audience')
+           ->setParameter('audience', $audience);
+    }
+
+    // 4. Thème (Attention à la jointure)
+    if ($theme !== 'Tous' && !empty($theme)) {
+        $qb->innerJoin('s.themes', 't')
+           ->andWhere('t.id = :themeId')
+           ->setParameter('themeId', $theme);
+    }
+
+    $qb->orderBy('s.title', 'ASC');
+
+    return $qb->getQuery()->getResult();
+}
     
     //    public function findOneBySomeField($value): ?Show
     //    {
