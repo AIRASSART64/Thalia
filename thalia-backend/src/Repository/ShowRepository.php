@@ -42,7 +42,42 @@ class ShowRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+    
+     //Recherche filtrée et sécurisée par Organisation pour les Spectacles
+     
+    public function searchShowsForOrganization(
+        Organization $organization,
+        string $query = '',
+        string $discipline = 'Tous',
+        string $audience = 'Tout_public'
+    ): array {
+        $qb = $this->createQueryBuilder('s')
+            ->andWhere('s.organization = :org') 
+            ->setParameter('org', $organization);
 
+        // Filtre Recherche textuelle (Titre du spectacle)
+        if (!empty($query)) {
+            $qb->andWhere('s.title LIKE :q')
+               ->setParameter('q', '%' . $query . '%');
+        }
+
+        // Filtre par Discipline
+        if ($discipline !== 'Tous' && !empty($discipline)) {
+            $qb->andWhere('s.discipline = :discipline')
+               ->setParameter('discipline', $discipline);
+        }
+
+        // Filtre par Saison
+        if (!empty($audience)) {
+            $qb->andWhere('s.audience = :audience')
+               ->setParameter('audience', $audience);
+        }
+
+        $qb->orderBy('s.title', 'ASC');
+
+        return $qb->getQuery()->getResult();
+    }
+    
     //    public function findOneBySomeField($value): ?Show
     //    {
     //        return $this->createQueryBuilder('s')

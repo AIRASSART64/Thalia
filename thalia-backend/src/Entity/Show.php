@@ -10,6 +10,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ShowRepository::class)]
 #[ORM\Table(name: '`show`')]
@@ -22,30 +23,45 @@ class Show
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\NotBlank(message: "Le titre du spectacle est obligatoire.")]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: "Le titre ne peut pas dépasser {{ limit }} caractères."
+    )]
     private ?string $title = null;
 
     #[ORM\Column(length: 255, nullable: true, enumType: DisciplineEnum::class)]
     private ?DisciplineEnum $discipline = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\PositiveOrZero(message: "La durée doit être un nombre positif.")]
     private ?int $duration_min = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $synopsis = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\PositiveOrZero(message: "La largeur d'ouverture doit être un nombre positif.")]
     private ?float $min_stage_width = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\PositiveOrZero(message: "La profondeur scénique doit être un nombre positif.")]
     private ?float $min_stage_depth = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\PositiveOrZero(message: "La hauteur sous perches doit être un nombre positif.")]
     private ?float $min_stage_height = null;
 
     #[ORM\Column(length: 100, nullable: true, enumType: PipelineStatusEnum::class)]
     private ?PipelineStatusEnum $pipeline_status = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    // #[Assert\File(
+    //     maxSize: "4M",
+    //     mimeTypes: ["image/jpeg", "image/png", "image/webp"],
+    //     maxSizeMessage: "L'image ne doit pas dépasser {{ limit }} {{ suffix }}.",
+    //     mimeTypesMessage: "Format d'image invalide (JPG, PNG ou WebP uniquement)."
+    // )]
     private ?string $artwork_url = null;
 
     #[ORM\ManyToOne]
@@ -74,6 +90,12 @@ class Show
     private ?AudienceClassificationEnum $audience = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    // #[Assert\File(
+    //     maxSize: "6M",
+    //     mimeTypes: ["application/pdf"],
+    //     maxSizeMessage: "Le dossier artistique ne doit pas dépasser {{ limit }} {{ suffix }}.",
+    //     mimeTypesMessage: "Seul le format PDF est accepté pour le dossier artistique."
+    // )]
     private ?string $artistic_file = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -83,6 +105,7 @@ class Show
     private ?string $technical_information = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, nullable: true)]
+    #[Assert\PositiveOrZero(message: "Le coût unitaire doit être un montant positif.")]
     private ?string $global_unit_cost = null;
 
     /**

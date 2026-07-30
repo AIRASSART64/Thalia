@@ -92,6 +92,7 @@ class ShowFormType extends AbstractType
                         'maxSize' => '40M',
                         'mimeTypes' => ['application/pdf', 'application/x-pdf'],
                         'mimeTypesMessage' => 'Seuls les documents au format PDF sont acceptés.',
+                        'notFoundMessage' => 'Le fichier n\'a pas pu être trouvé sur le serveur.',
                     ])
                 ],
             ])

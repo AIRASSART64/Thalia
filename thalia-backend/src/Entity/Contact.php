@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ContactRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -18,21 +19,52 @@ class Contact
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\NotBlank(message: "Le prénom du contact est obligatoire.")]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: "Le prénom ne peut pas dépasser {{ limit }} caractères."
+    )]
     private ?string $first_name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\NotBlank(message: "Le nom du contact est obligatoire.")]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: "Le nom ne peut pas dépasser {{ limit }} caractères."
+    )]
     private ?string $last_name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: "Le nom de la structure ne peut pas dépasser {{ limit }} caractères."
+    )]
     private ?string $company_name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: "Le rôle ne peut pas dépasser {{ limit }} caractères."
+    )]
     private ?string $role = null;
 
     #[ORM\Column(length: 30, nullable: true)]
+    #[Assert\Length(
+        max: 30,
+        maxMessage: "Le numéro de téléphone est trop long (maximum {{ limit }} caractères)."
+    )]
+    #[Assert\Regex(
+        pattern: "/^[0-9\+\-\s\.\(\)]+$/",
+        message: "Le format du numéro de téléphone n'est pas valide."
+    )]
     private ?string $phone = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Email(message: "L'adresse email '{{ value }}' n'est pas une adresse valide.")]
+    #[Assert\Length(
+        max: 255,
+        maxMessage: "L'email ne peut pas dépasser {{ limit }} caractères."
+    )]
     private ?string $email = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]

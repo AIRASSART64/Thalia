@@ -1,5 +1,25 @@
 {{ form_start(form, {'attr': {'class': 'space-y-6', 'novalidate': 'novalidate'}}) }}
 
+{# ─── ALERTE GLOBALE EN HAUT SI ERREURS ─── #}
+{% if not form.vars.valid %}
+<div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs shadow-sm">
+    <div class="flex items-center gap-2 font-bold mb-1 text-rose-700">
+        <i class="fa-solid fa-triangle-exclamation text-sm"></i>
+        <span>Des erreurs sont survenues dans le formulaire :</span>
+    </div>
+    <ul class="list-disc list-inside space-y-0.5 text-rose-700 font-medium">
+        {{ form_errors(form) }}
+        {% for child in form.children %}
+        {% for error in child.vars.errors %}
+        <li>
+            <strong>{{ child.vars.label|default(child.vars.name) }} :</strong> {{ error.message }}
+        </li>
+        {% endfor %}
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
 <div class="form-card">
 
     {# ─── 1. TITRE ET INFORMATIONS GÉNÉRALES ─── #}
@@ -8,67 +28,64 @@
             Informations Générales
         </h2>
 
-        <div>
+        <div class="form-group {% if not form.title.vars.valid %}has-error{% endif %}">
             {{ form_label(form.title, null, {'label_attr': {'class': 'form-label'}}) }}
             {{ form_widget(form.title, {'attr': {'class': 'form-input'}}) }}
             {{ form_errors(form.title) }}
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            <div>
+            <div class="form-group {% if not form.pipeline_status.vars.valid %}has-error{% endif %}">
                 {{ form_label(form.pipeline_status, null, {'label_attr': {'class': 'form-label'}}) }}
                 {{ form_widget(form.pipeline_status, {'attr': {'class': 'form-input'}}) }}
                 {{ form_errors(form.pipeline_status) }}
             </div>
-            <div>
+            <div class="form-group {% if not form.discipline.vars.valid %}has-error{% endif %}">
                 {{ form_label(form.discipline, null, {'label_attr': {'class': 'form-label'}}) }}
                 {{ form_widget(form.discipline, {'attr': {'class': 'form-input'}}) }}
                 {{ form_errors(form.discipline) }}
             </div>
-            <div>
+            <div class="form-group {% if not form.audience.vars.valid %}has-error{% endif %}">
                 {{ form_label(form.audience, null, {'label_attr': {'class': 'form-label'}}) }}
                 {{ form_widget(form.audience, {'attr': {'class': 'form-input'}}) }}
                 {{ form_errors(form.audience) }}
             </div>
-
         </div>
     </div>
 
-     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4">
-          
-            <div>
-                {{ form_label(form.duration_min, null, {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(form.duration_min, {'attr': {'class': 'form-input'}}) }}
-                {{ form_errors(form.duration_min) }}
-            </div>
-            <div>
-                {{ form_label(form.global_unit_cost, null, {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(form.global_unit_cost, {'attr': {'class': 'form-input'}}) }}
-                {{ form_errors(form.global_unit_cost) }}
-            </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 gap-4 py-4 border-b border-gray-100">
+        <div class="form-group {% if not form.duration_min.vars.valid %}has-error{% endif %}">
+            {{ form_label(form.duration_min, null, {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.duration_min, {'attr': {'class': 'form-input'}}) }}
+            {{ form_errors(form.duration_min) }}
+        </div>
+        <div class="form-group {% if not form.global_unit_cost.vars.valid %}has-error{% endif %}">
+            {{ form_label(form.global_unit_cost, null, {'label_attr': {'class': 'form-label'}}) }}
+            {{ form_widget(form.global_unit_cost, {'attr': {'class': 'form-input'}}) }}
+            {{ form_errors(form.global_unit_cost) }}
+        </div>
     </div>
-    
 
     {# ─── 2. PRÉSENTATION & CONTENU ARTISTIQUE ─── #}
-    <div class="border-b border-gray-100 pb-6 space-y-4">
+    <div class="border-b border-gray-100 py-6 space-y-4">
         <h2 class="form-section-title">
             Présentation & Contenu
         </h2>
 
-        <div>
+        <div class="form-group {% if not form.synopsis.vars.valid %}has-error{% endif %}">
             {{ form_label(form.synopsis, null, {'label_attr': {'class': 'form-label'}}) }}
             {{ form_widget(form.synopsis, {'attr': {'class': 'form-input', 'rows': '3'}}) }}
             {{ form_errors(form.synopsis) }}
         </div>
 
-        <div>
+        <div class="form-group {% if not form.themes.vars.valid %}has-error{% endif %}">
             {{ form_label(form.themes, null, {'label_attr': {'class': 'form-label'}}) }}
             {{ form_widget(form.themes, {'attr': {'class': 'tom-select form-input py-2'}}) }}
             <p class="form-help-text">Maintenez Ctrl (ou Cmd sur Mac) appuyé pour sélectionner plusieurs thèmes.</p>
             {{ form_errors(form.themes) }}
         </div>
 
-        <div>
+        <div class="form-group {% if not form.artistic_information.vars.valid %}has-error{% endif %}">
             {{ form_label(form.artistic_information, null, {'label_attr': {'class': 'form-label'}}) }}
             {{ form_widget(form.artistic_information, {'attr': {'class': 'form-input', 'rows': '3'}}) }}
             {{ form_errors(form.artistic_information) }}
@@ -76,30 +93,30 @@
     </div>
 
     {# ─── 3. DONNÉES TECHNIQUES ─── #}
-    <div class="border-b border-gray-100 pb-6 space-y-4">
+    <div class="border-b border-gray-100 py-6 space-y-4">
         <h2 class="form-section-title">
             Données Techniques
         </h2>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
+            <div class="form-group {% if not form.min_stage_width.vars.valid %}has-error{% endif %}">
                 {{ form_label(form.min_stage_width, null, {'label_attr': {'class': 'form-label'}}) }}
                 {{ form_widget(form.min_stage_width, {'attr': {'class': 'form-input'}}) }}
                 {{ form_errors(form.min_stage_width) }}
             </div>
-            <div>
+            <div class="form-group {% if not form.min_stage_depth.vars.valid %}has-error{% endif %}">
                 {{ form_label(form.min_stage_depth, null, {'label_attr': {'class': 'form-label'}}) }}
                 {{ form_widget(form.min_stage_depth, {'attr': {'class': 'form-input'}}) }}
                 {{ form_errors(form.min_stage_depth) }}
             </div>
-            <div>
+            <div class="form-group {% if not form.min_stage_height.vars.valid %}has-error{% endif %}">
                 {{ form_label(form.min_stage_height, null, {'label_attr': {'class': 'form-label'}}) }}
                 {{ form_widget(form.min_stage_height, {'attr': {'class': 'form-input'}}) }}
                 {{ form_errors(form.min_stage_height) }}
             </div>
         </div>
 
-        <div>
+        <div class="form-group {% if not form.technical_information.vars.valid %}has-error{% endif %}">
             {{ form_label(form.technical_information, null, {'label_attr': {'class': 'form-label'}}) }}
             {{ form_widget(form.technical_information, {'attr': {'class': 'form-input', 'rows': '3'}}) }}
             {{ form_errors(form.technical_information) }}
@@ -107,23 +124,24 @@
     </div>
 
     {# ─── 4. MÉDIAS ET DOCUMENTS ATTACHÉS ─── #}
-    <div class="space-y-4">
+    <div class="pt-6 space-y-4">
         <h2 class="form-section-title">
             Fichiers & Visuels
         </h2>
 
-        {# Affiche de spectacle #}
-        <div>
+        {# Affiche du spectacle #}
+        <div class="form-group {% if not form.artworkUrl.vars.valid %}has-error{% endif %}">
             {{ form_label(form.artworkUrl, null, {'label_attr': {'class': 'form-label'}}) }}
             <div class="form-file-box">
                 {% if show is defined and show.id and show.artworkUrl %}
-                    <div class="form-file-preview">
-                        <img src="{{ path('secure_show_image', {'id': show.id}) }}" class="w-full h-full object-cover" alt="Affiche actuelle">
-                    </div>
+                <div class="form-file-preview">
+                    <img src="{{ path('secure_show_image', {'id': show.id}) }}" class="w-full h-full object-cover"
+                        alt="Affiche actuelle">
+                </div>
                 {% else %}
-                    <div class="form-file-preview">
-                        <i class="fa-regular fa-image text-xl"></i>
-                    </div>
+                <div class="form-file-preview">
+                    <i class="fa-regular fa-image text-xl"></i>
+                </div>
                 {% endif %}
                 <div class="grow w-full">
                     {{ form_widget(form.artworkUrl, {'attr': {'class': 'form-input-sm'}}) }}
@@ -134,29 +152,48 @@
         </div>
 
         {# Documentation PDF #}
-        <div>
+        <div class="form-group {% if not form.artistic_file.vars.valid %}has-error{% endif %}">
             {{ form_label(form.artistic_file, null, {'label_attr': {'class': 'form-label'}}) }}
             <div class="form-file-box">
+
+                {# On vérifie si l'entité show possède déjà un PDF enregistré #}
                 {% if show is defined and show.id and show.artisticFile %}
-                    <div class="form-file-preview bg-red-50 text-red-500 border-red-100">
-                        <i class="fa-regular fa-file-pdf text-2xl"></i>
-                    </div>
-                {% else %}
-                    <div class="form-file-preview">
-                        <i class="fa-regular fa-file-pdf text-xl"></i>
-                    </div>
-                {% endif %}
-                <div class="grow w-full">
-                    {{ form_widget(form.artistic_file, {'attr': {'class': 'form-input-sm'}}) }}
-                    <p class="form-help-text">Format PDF uniquement - Max 4 Mo.</p>
+                <div
+                    class="form-file-preview bg-red-50 text-red-500 border-red-100 flex flex-col items-center justify-center p-2">
+                    <i class="fa-regular fa-file-pdf text-2xl"></i>
                 </div>
+                {% else %}
+                <div class="form-file-preview">
+                    <i class="fa-regular fa-file-pdf text-xl"></i>
+                </div>
+                {% endif %}
+
+                <div class="grow w-full space-y-1">
+                    {{ form_widget(form.artistic_file, {'attr': {'class': 'form-input-sm'}}) }}
+
+                    {# Si un fichier est déjà rattaché, on affiche son statut + un lien de téléchargement #}
+                    {% if show is defined and show.id and show.artisticFile %}
+                    <div class="flex items-center gap-2 text-xs text-gray-600 mt-1">
+                        <span class="font-medium text-emerald-600">
+                            <i class="fa-solid fa-circle-check text-emerald-500"></i> Document actuel :
+                        </span>
+                        <a href="{{ path('secure_show_pdf', {'id': show.id}) }}" target="_blank"
+                            class="font-semibold text-indigo-600 hover:text-indigo-800 underline inline-flex items-center gap-1">
+                            <i class="fa-solid fa-download text-[10px]"></i> {{ show.artisticFile }}
+                        </a>
+                    </div>
+                    {% else %}
+                    <p class="form-help-text">Format PDF uniquement - Max 40 Mo.</p>
+                    {% endif %}
+                </div>
+
             </div>
             {{ form_errors(form.artistic_file) }}
         </div>
     </div>
 
     {# ─── ACTIONS ─── #}
-    <div class="form-actions">
+    <div class="form-actions mt-6">
         <a href="{{ path('show_index') }}" class="btn-cancel">
             Annuler
         </a>

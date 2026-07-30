@@ -1,28 +1,50 @@
 {{ form_start(form, {'attr': {'class': 'space-y-6', 'novalidate': 'novalidate'}}) }}
 
+{# ─── 1. ALERTE GLOBALE SI LE FORMULAIRE EST INVALIDE ─── #}
+{# {% if not form.vars.valid %}
+    <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs">
+        <div class="flex items-center gap-2 font-bold mb-1 text-rose-700">
+            <i class="fa-solid fa-triangle-exclamation text-sm"></i>
+            <span>Veuillez corriger les erreurs ci-dessous :</span>
+        </div>
+        <ul class="list-disc list-inside space-y-0.5 text-rose-700">
+            {{ form_errors(form) }}
+        </ul>
+    </div>
+{% endif %} #}
+
+{{ form_start(form, {'attr': {'class': 'space-y-6', 'novalidate': 'novalidate'}}) }}
+
+{# ─── 1. ALERTE GLOBALE SI LE FORMULAIRE EST INVALIDE ─── #}
+{% if not form.vars.valid %}
+    <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs">
+        <div class="flex items-center gap-2 font-bold mb-1 text-rose-700">
+            <i class="fa-solid fa-triangle-exclamation text-sm"></i>
+            <span>Veuillez corriger les erreurs ci-dessous :</span>
+        </div>
+        <ul class="list-disc list-inside space-y-0.5 text-rose-700">
+            {{ form_errors(form) }}
+        </ul>
+    </div>
+{% endif %}
+
 <div class="form-card">
     
-    {# ─── EN-TÊTE ─── #}
     <div class="form-section-header">
-        <h2 class="form-section-title">
-            Informations du contact
-        </h2>
-        
+        <h2 class="form-section-title">Informations du contact</h2>
         {% if show is defined and show %}
-            <span class="form-badge-link">
-                Liaison : {{ show.title }}
-            </span>
+            <span class="form-badge-link">Liaison : {{ show.title }}</span>
         {% endif %}
     </div>
 
     {# ─── IDENTITÉ ─── #}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
+        <div class="form-group {% if not form.first_name.vars.valid %}has-error{% endif %}">
             {{ form_label(form.first_name, null, {'label_attr': {'class': 'form-label'}}) }}
             {{ form_widget(form.first_name, {'attr': {'class': 'form-input'}}) }}
             {{ form_errors(form.first_name) }}
         </div>
-        <div>
+        <div class="form-group {% if not form.last_name.vars.valid %}has-error{% endif %}">
             {{ form_label(form.last_name, null, {'label_attr': {'class': 'form-label'}}) }}
             {{ form_widget(form.last_name, {'attr': {'class': 'form-input'}}) }}
             {{ form_errors(form.last_name) }}
@@ -31,12 +53,12 @@
 
     {# ─── STRUCTURE & RÔLE ─── #}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-gray-50 pt-4">
-        <div>
+        <div class="form-group {% if not form.company_name.vars.valid %}has-error{% endif %}">
             {{ form_label(form.company_name, null, {'label_attr': {'class': 'form-label'}}) }}
             {{ form_widget(form.company_name, {'attr': {'class': 'form-input'}}) }}
             {{ form_errors(form.company_name) }}
         </div>
-        <div>
+        <div class="form-group {% if not form.role.vars.valid %}has-error{% endif %}">
             {{ form_label(form.role, null, {'label_attr': {'class': 'form-label'}}) }}
             {{ form_widget(form.role, {'attr': {'class': 'form-input'}}) }}
             {{ form_errors(form.role) }}
@@ -45,12 +67,12 @@
 
     {# ─── COORDONNÉES ─── #}
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-gray-50 pt-4">
-        <div>
+        <div class="form-group {% if not form.email.vars.valid %}has-error{% endif %}">
             {{ form_label(form.email, null, {'label_attr': {'class': 'form-label'}}) }}
             {{ form_widget(form.email, {'attr': {'class': 'form-input'}}) }}
             {{ form_errors(form.email) }}
         </div>
-        <div>
+        <div class="form-group {% if not form.phone.vars.valid %}has-error{% endif %}">
             {{ form_label(form.phone, null, {'label_attr': {'class': 'form-label'}}) }}
             {{ form_widget(form.phone, {'attr': {'class': 'form-input'}}) }}
             {{ form_errors(form.phone) }}
@@ -58,19 +80,18 @@
     </div>
 
     {# ─── SPECTACLES RATTACHÉS ─── #}
-    <div class="border-t border-gray-50 pt-4">
+    <div class="form-group border-t border-gray-50 pt-4 {% if not form.shows.vars.valid %}has-error{% endif %}">
         {{ form_label(form.shows, null, {'label_attr': {'class': 'form-label'}}) }}
-        <div class="relative">
-            {{ form_widget(form.shows, {'attr': {'class': 'tom-select form-input py-2'}}) }}
-        </div>
-        <p class="form-help-text">
+          <p class="form-help-text mt-1">
             <i class="fa-solid fa-circle-info mr-1"></i> Recherchez ou sélectionnez un ou plusieurs spectacles dans la liste.
         </p>
+        {{ form_widget(form.shows, {'attr': {'class': 'tom-select form-input py-2'}}) }}
+      
         {{ form_errors(form.shows) }}
     </div>
 
     {# ─── NOTES INTERNES ─── #}
-    <div class="border-t border-gray-50 pt-4">
+    <div class="form-group border-t border-gray-50 pt-4 {% if not form.notes.vars.valid %}has-error{% endif %}">
         {{ form_label(form.notes, null, {'label_attr': {'class': 'form-label'}}) }}
         {{ form_widget(form.notes, {'attr': {'class': 'form-input', 'rows': '3'}}) }}
         {{ form_errors(form.notes) }}
@@ -79,13 +100,9 @@
     {# ─── ACTIONS ─── #}
     <div class="form-actions">
         {% if show is defined and show %}
-            <a href="{{ path('show_show', {'id': show.id}) }}" class="btn-cancel">
-                Retour au spectacle
-            </a>
+            <a href="{{ path('show_show', {'id': show.id}) }}" class="btn-cancel">Retour au spectacle</a>
         {% else %}
-            <a href="{{ path('contact_index') }}" class="btn-cancel">
-                Annuler
-            </a>
+            <a href="{{ path('contact_index') }}" class="btn-cancel">Annuler</a>
         {% endif %}
 
         <button type="submit" class="btn-submit">

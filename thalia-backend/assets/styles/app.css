@@ -311,3 +311,186 @@ h1 {
     color: rgb(51, 65, 85); /* slate-700 */
     background-color: rgb(241, 245, 249);
 }
+/* ─── GESTION DES ERREURS DANS LES FORMULAIRES ─── */
+
+/* 1. Style des champs texte & select génériques en erreur */
+.form-group.has-error .form-input,
+.form-group.has-error .form-input-sm {
+    border-color: #f43f5e !important; /* Tailwind rose-500 */
+    background-color: #fff1f2 !important; /* Tailwind rose-50 */
+}
+
+/* 2. Style de TomSelect en erreur */
+.form-group.has-error .ts-control {
+    border-color: #f43f5e !important;
+    background-color: #fff1f2 !important;
+}
+
+/* 3. Style des boîtes d'upload de fichiers en erreur */
+.form-group.has-error .form-file-box {
+    border-color: #f43f5e !important;
+    background-color: #fff1f2 !important;
+}
+
+/* 4. Style du label en erreur */
+.form-group.has-error .form-label {
+    color: #e11d48 !important; /* Tailwind rose-600 */
+}
+
+/* 5. Style des listes et messages d'erreur générés par {{ form_errors() }} */
+.form-group .invalid-feedback,
+.form-group ul {
+    margin-top: 0.375rem;
+    padding-left: 0;
+    list-style: none;
+}
+
+.form-group ul li {
+    color: #e11d48; /* Tailwind rose-600 */
+    font-size: 0.75rem; /* text-xs */
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+/* Ajoute automatiquement une mini-croix avant le message d'erreur */
+.form-group ul li::before {
+    content: "\f057"; /* Code unicode FontAwesome pour fa-circle-xmark */
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 0.75rem;
+    color: #f43f5e;
+}
+
+/* ─── 4. COMPOSANTS DE RECHERCHE & FILTRES (LIVE COMPONENTS) ─── */
+
+/* Barre contenant les filtres et le champ de recherche */
+.filter-bar {
+    background-color: #ffffff;
+    border-radius: 0.75rem;
+    border: 1px solid rgb(241, 245, 249);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .filter-bar {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+}
+
+/* Boutons de filtres (Agent, Directeur, Disciplines...) */
+.filter-pill {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.5rem;
+    color: rgb(100, 116, 139);
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 150ms ease-in-out;
+}
+
+.filter-pill:hover {
+    background-color: rgb(248, 250, 252);
+    color: rgb(51, 65, 85);
+}
+
+.filter-pill.active {
+    background-color: rgb(79, 70, 229);
+    color: #ffffff;
+    font-weight: 700;
+    box-shadow: 0 1px 2px 0 rgba(79, 70, 229, 0.2);
+}
+
+/* Champ de recherche avec loupe */
+.filter-search-group {
+    position: relative;
+    width: 100%;
+}
+
+@media (min-width: 640px) {
+    .filter-search-group {
+        width: 16rem;
+    }
+}
+
+.filter-search-input {
+    width: 100%;
+    font-size: 0.75rem;
+    padding: 0.5rem 0.75rem 0.5rem 2rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgb(229, 231, 235);
+    background-color: rgba(249, 250, 251, 0.5);
+    outline: none;
+    transition: all 150ms ease-in-out;
+}
+
+.filter-search-input:focus {
+    border-color: rgb(99, 102, 241);
+    background-color: #ffffff;
+}
+
+.filter-search-icon {
+    position: absolute;
+    left: 0.625rem;
+    top: 0.625rem;
+    font-size: 0.75rem;
+    color: rgb(156, 163, 175);
+    pointer-events: none;
+}
+
+/* Indicateur de chargement AJAX (Spinner) */
+.filter-loader {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgb(79, 70, 229);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Carte de résultat générique pour la grille */
+.search-card {
+    background-color: #ffffff;
+    border-radius: 1rem;
+    border: 1px solid rgb(241, 245, 249);
+    padding: 1.25rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+    transition: all 200ms ease-in-out;
+    position: relative;
+}
+
+.search-card:hover {
+    border-color: rgb(226, 232, 240);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+/* Etat vide quand il n'y a aucun résultat */
+.empty-results {
+    grid-column: 1 / -1;
+    background-color: #ffffff;
+    border: 1px solid rgb(241, 245, 249);
+    border-radius: 1rem;
+    padding: 2.5rem 1rem;
+    text-align: center;
+    color: rgb(148, 163, 184);
+    font-size: 0.875rem;
+}
+
+
+
+
+
+
+
+
