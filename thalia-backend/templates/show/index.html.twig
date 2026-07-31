@@ -25,103 +25,6 @@
             </div>
         </div>
 
-          {# Barre de filtres et d'outils #}
-        {# <div class="bg-white p-2 rounded-xl border border-gray-100 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-            <div class="flex flex-wrap gap-1.5 w-full sm:w-auto">
-                <button class="bg-indigo-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm">Tous ({{ shows|length }})</button>
-                <button class="text-gray-500 hover:bg-gray-50 text-xs font-semibold px-3 py-1.5 rounded-lg transition">Théâtre</button>
-                <button class="text-gray-500 hover:bg-gray-50 text-xs font-semibold px-3 py-1.5 rounded-lg transition">Danse</button>
-                <button class="text-gray-500 hover:bg-gray-50 text-xs font-semibold px-3 py-1.5 rounded-lg transition">Musique</button>
-                <button class="text-gray-500 hover:bg-gray-50 text-xs font-semibold px-3 py-1.5 rounded-lg transition">Cirque</button>
-            </div>
-            <div class="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto text-xs border-t sm:border-t-0 border-gray-50 pt-2 sm:pt-0">
-                <div class="text-gray-400 font-medium">Saison : <span class="text-gray-900 font-bold">2026-2027</span></div>
-                <button class="inline-flex items-center gap-1.5 bg-white border border-gray-200 text-gray-700 px-2.5 py-1 rounded-lg font-medium hover:bg-gray-50 transition">
-                    <i class="fa-solid fa-sliders text-gray-400"></i> Filtres CRM
-                </button>
-            </div>
-        </div>  #}
-
-        {# Grille de cartes #}
-        {# <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {% for show in shows %}
-                <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden flex flex-col justify-between group hover:shadow-md hover:border-gray-200/80 transition duration-200 relative"> #}
-                
-                    {# Badge de discipline absolu #}
-                    {# <span class="absolute top-3 start-3 z-10 bg-indigo-600/90 text-white text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md backdrop-blur-sm shadow-sm">
-                        {{ show.discipline.value|default('Spectacle') }}
-                    </span> #}
-
-                    {# Zone d'image / Artwork #}
-                    {# <div class="h-48 bg-gray-100 relative overflow-hidden shrink-0">
-                        {% if show.id and show.artworkUrl %}
-                            <img src="{{ path('secure_show_image', {'id': show.id}) }}" 
-                                 class="w-full h-full object-cover group-hover:scale-102 transition duration-500" 
-                                 alt="{{ show.title }}">
-                        {% else %}
-                            <div class="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center text-slate-600">
-                                <i class="fa-solid fa-masks-theater text-4xl opacity-30"></i>
-                            </div>
-                        {% endif %}
-                    </div> #}
-
-                    {# Corps de la carte #}
-                    {# <div class="p-4 flex-grow flex flex-col justify-between gap-4">
-                        <div>
-                            <div class="flex items-start justify-between gap-2 mb-1">
-                                <h3 class="font-bold text-gray-900 text-sm leading-tight hover:text-indigo-600 transition">
-                                    
-                                    <a href="{{ path('show_show', {'id': show.id}) }}" class="after:absolute after:inset-0 focus:outline-none">
-                                        {{ show.title }}
-                                    </a>
-                                </h3> #}
-                                
-                                {# Badge de statut #}
-                                {# {% set status = show.pipelineStatus.value|lower|default('prospection') %}
-                                <span class="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide z-10 relative
-                                    {% if 'sign' in status or 'valide' in status %} bg-emerald-50 text-emerald-700
-                                    {% elseif 'nego' in status or 'attente' in status %} bg-amber-50 text-amber-700
-                                    {% else %} bg-gray-50 text-gray-600 {% endif %}">
-                                    <span class="w-1 h-1 rounded-full {% if 'sign' in status or 'valide' in status %} bg-emerald-500 {% elseif 'nego' in status or 'attente' in status %} bg-amber-500 {% else %} bg-gray-400 {% endif %}"></span>
-                                    {{ show.pipelineStatus.value|default('Prospection') }}
-                                </span>
-                            </div>
-                            <p class="text-xs text-gray-400 font-medium">Compagnie de l'Instant Présent</p>
-                        </div>
-
-                        
-                        <div class="flex items-center justify-between pt-3 border-t border-gray-50 text-xs text-gray-400 z-20 relative">
-                            <span class="font-medium"><i class="fa-regular fa-clock mr-1"></i> {{ show.DurationMin }} min</span> #}
-                            
-                            {# Actions réservées #}
-                            {# <div class="flex items-center gap-1">
-                                {% if is_granted('SHOW_EDIT', show) %}
-                                    <a href="{{ path('show_edit', {'id': show.id}) }}" class="p-1 px-2 text-amber-600 hover:bg-amber-50 rounded-md transition" title="Modifier">
-                                        <i class="fa-regular fa-pen-to-square"></i>
-                                    </a>
-                                {% endif %}
-
-                                {% if is_granted('SHOW_DELETE', show) %}
-                                    <form method="post" action="{{ path('show_delete', {'id': show.id}) }}" onsubmit="return confirm('Supprimer ce spectacle ?');" class="inline">
-                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ show.id) }}">
-                                        <button class="p-1 px-2 text-red-600 hover:bg-red-50 rounded-md transition" title="Supprimer">
-                                            <i class="fa-regular fa-trash-can"></i>
-                                        </button>
-                                    </form>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            {% else %}
-                <div class="col-span-full bg-white border border-gray-100 rounded-2xl p-12 text-center">
-                    <div class="w-12 h-12 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <i class="fa-solid fa-folder-open text-lg"></i>
-                    </div>
-                    <p class="text-sm font-medium text-gray-500">Aucun spectacle n'a été enregistré pour cette organisation.</p>
-                </div>
-            {% endfor %}
-        </div>  #}
         {{ component('show_search')}}
 
         {# Pagination #}
@@ -141,7 +44,7 @@
 
 {# Bouton d'action flottant (+) mobile #}
 {% if is_granted('SHOW_CREATE') %}
-    <a href="{{ path('show_new') }}" class="md:hidden fixed bottom-6 right-6 w-12 h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full flex items-center justify-center shadow-lg transition z-50">
+    <a href="{{ path('show_new') }}" class="md:hidden fixed bottom-20 right-5 w-12 h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full flex items-center justify-center shadow-xl hover:shadow-2xl transition-all duration-200 z-50 active:scale-95">
         <i class="fa-solid fa-plus text-lg"></i>
     </a>
 {% endif %}
