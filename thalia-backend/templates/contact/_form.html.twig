@@ -1,17 +1,4 @@
-{{ form_start(form, {'attr': {'class': 'space-y-6', 'novalidate': 'novalidate'}}) }}
 
-{# ─── 1. ALERTE GLOBALE SI LE FORMULAIRE EST INVALIDE ─── #}
-{# {% if not form.vars.valid %}
-    <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs">
-        <div class="flex items-center gap-2 font-bold mb-1 text-rose-700">
-            <i class="fa-solid fa-triangle-exclamation text-sm"></i>
-            <span>Veuillez corriger les erreurs ci-dessous :</span>
-        </div>
-        <ul class="list-disc list-inside space-y-0.5 text-rose-700">
-            {{ form_errors(form) }}
-        </ul>
-    </div>
-{% endif %} #}
 
 {{ form_start(form, {'attr': {'class': 'space-y-6', 'novalidate': 'novalidate'}}) }}
 

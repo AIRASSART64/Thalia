@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Show;
+use App\Entity\User;
 use App\Entity\Venue;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -92,7 +93,7 @@ class FileController extends AbstractController
 
         return $response;
     }
-      #[Route('/secure-uploads/venues/plan/{id}', name: 'secure_venue_paln', methods: ['GET'])]
+      #[Route('/secure-uploads/venues/plan/{id}', name: 'secure_venue_plan', methods: ['GET'])]
     #[IsGranted('VENUE_VIEW', subject: 'venue')] 
     public function getVenuePlan(Venue $venue): Response
     {
@@ -107,6 +108,29 @@ class FileController extends AbstractController
 
         if (!file_exists($filePath)) {
             throw $this->createNotFoundException("Le plan de la salle n'existe plus sur le serveur.");
+        }
+
+        $response = new BinaryFileResponse($filePath);
+        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_INLINE);
+
+        return $response;
+    }
+
+    #[Route('/secure-uploads/profile/{id}', name: 'secure_profile', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
+    public function getAvatar(User $user): Response
+    {
+        $filename = $user->getAvatarFilename(); 
+
+        if (!$filename) {
+            throw $this->createNotFoundException("Cette image de profil n'existe pas.");
+        }
+
+       
+        $filePath = $this->params->get('profiles_directory') . '/' . $filename;
+
+        if (!file_exists($filePath)) {
+            throw $this->createNotFoundException("L'image de profil n'existe plus sur le serveur.");
         }
 
         $response = new BinaryFileResponse($filePath);

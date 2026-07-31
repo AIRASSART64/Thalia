@@ -1,0 +1,83 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier mon profil - Thalia{% endblock %}
+
+{% block body %}
+<div class="modal-backdrop">
+    <div class="modal-card">
+        
+        {# Bouton fermer (Croix) #}
+        <a href="{{ path('profile_index') }}" class="modal-close-btn" title="Fermer">
+            <i class="fa-solid fa-xmark text-lg"></i>
+        </a>
+
+        <div class="text-center mb-6">
+            <h1 class="text-xl font-extrabold text-slate-900 tracking-tight">Modifier mon profil</h1>
+            <p class="form-help-text mt-1">Mettez à jour vos informations personnelles et votre photo de profil.</p>
+        </div>
+
+        {{ form_start(form, {'attr': {'class': 'space-y-4', 'novalidate': 'novalidate'}}) }}
+            
+            {# Zone Avatar #}
+            <div class="flex flex-col items-center justify-center gap-3 pb-2">
+                <div class="relative group">
+                    <div class="w-20 h-20 rounded-2xl bg-slate-100 border-2 border-slate-200 shadow-xs flex items-center justify-center text-slate-400 overflow-hidden relative">
+                        {% if user.avatarFilename %}
+                            <img id="avatar-preview-img" src="{{ path('secure_profile', {'id': user.id}) }}" alt="Avatar" class="w-full h-full object-cover">
+                        {% else %}
+                            <i id="avatar-preview-icon" class="fa-regular fa-user text-2xl"></i>
+                            <img id="avatar-preview-img" src="" alt="Avatar" class="w-full h-full object-cover hidden">
+                        {% endif %}
+
+                        {# Label d'upload déclenchant le clic #}
+                        <label for="{{ form.avatar.vars.id }}" class="absolute inset-0 bg-indigo-900/60 text-white flex flex-col items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition cursor-pointer">
+                            <i class="fa-solid fa-camera text-xs"></i>
+                            <span class="text-[9px] font-semibold">Changer</span>
+                        </label>
+                    </div>
+
+                    {# Widget File Symfony (Accessible mais invisible) #}
+                    {{ form_widget(form.avatar, {
+                        'attr': {
+                            'class': 'sr-only',
+                            'accept': 'image/*',
+                            'onchange': "handleImagePreview(this, 'avatar-preview-img', 'avatar-preview-icon')"
+                        }
+                    }) }}
+                </div>
+                
+                {{ form_errors(form.avatar) }}
+                <span class="text-[11px] text-slate-400 font-medium">Format JPG, PNG ou WEBP (max 20 Mo)</span>
+            </div>
+
+            {# 1. Prénom #}
+            <div class="form-group {{ form.firstName.vars.errors|length > 0 ? 'has-error' : '' }}">
+                {{ form_label(form.firstName, null, {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.firstName, {'attr': {'class': 'form-input', 'placeholder': 'Votre prénom'}}) }}
+                {{ form_errors(form.firstName) }}
+            </div>
+
+            {# 2. Nom #}
+            <div class="form-group {{ form.lastName.vars.errors|length > 0 ? 'has-error' : '' }}">
+                {{ form_label(form.lastName, null, {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.lastName, {'attr': {'class': 'form-input', 'placeholder': 'Votre nom'}}) }}
+                {{ form_errors(form.lastName) }}
+            </div>
+
+            {# Actions #}
+            <div class="form-actions pt-4">
+                <a href="{{ path('profile_index') }}" class="btn-cancel">
+                    Annuler
+                </a>
+                <button type="submit" class="btn-submit">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    <span>Enregistrer</span>
+                </button>
+            </div>
+
+        {{ form_end(form) }}
+    </div>
+</div>
+
+
+{% endblock %}

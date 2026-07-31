@@ -65,3 +65,53 @@ export function initAvatarPreview() {
 // Initialisation au chargement standard et lors des navigations Turbo
 document.addEventListener("DOMContentLoaded", initAvatarPreview);
 document.addEventListener("turbo:load", initAvatarPreview);
+
+// assets/app.js
+
+
+// assets/app.js
+
+/**
+ * Prévisualisation d'images (Avatar, Affiches, Visuels...)
+ */
+window.handleImagePreview = function(input, previewImgId, placeholderIconId) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            const previewImg = document.getElementById(previewImgId);
+            const placeholderIcon = document.getElementById(placeholderIconId);
+
+            if (previewImg) {
+                previewImg.src = e.target.result;
+                previewImg.classList.remove('hidden');
+            }
+            if (placeholderIcon) {
+                placeholderIcon.classList.add('hidden');
+            }
+        };
+
+        reader.readAsDataURL(file);
+    }
+};
+
+/**
+ * Prévisualisation de documents (PDF, Dossiers d'artistes, etc.)
+ */
+window.handleDocumentPreview = function(input, infoContainerId) {
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const infoContainer = document.getElementById(infoContainerId);
+
+        if (infoContainer) {
+            const fileSize = (file.size / (1024 * 1024)).toFixed(2); // Taille en Mo
+            infoContainer.innerHTML = `
+                <span class="font-medium text-amber-600 inline-flex items-center gap-1">
+                    <i class="fa-solid fa-file-circle-check text-amber-500"></i> Nouveau fichier sélectionné :
+                </span>
+                <span class="font-semibold text-slate-700">${file.name} (${fileSize} Mo)</span>
+            `;
+        }
+    }
+};

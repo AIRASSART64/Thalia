@@ -129,64 +129,64 @@
             Fichiers & Visuels
         </h2>
 
-        {# Affiche du spectacle #}
+        {# 🖼️ Affiche du spectacle #}
         <div class="form-group {% if not form.artworkUrl.vars.valid %}has-error{% endif %}">
             {{ form_label(form.artworkUrl, null, {'label_attr': {'class': 'form-label'}}) }}
             <div class="form-file-box">
-                {% if show is defined and show.id and show.artworkUrl %}
-                <div class="form-file-preview">
-                    <img src="{{ path('secure_show_image', {'id': show.id}) }}" class="w-full h-full object-cover"
-                        alt="Affiche actuelle">
+                <div class="form-file-preview w-16 h-16 rounded-lg bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center shrink-0">
+                    {% if show is defined and show.id and show.artworkUrl %}
+                        <img id="artwork-preview-img" src="{{ path('secure_show_image', {'id': show.id}) }}" class="w-full h-full object-cover" alt="Affiche actuelle">
+                        <i id="artwork-preview-icon" class="fa-regular fa-image text-xl hidden"></i>
+                    {% else %}
+                        <i id="artwork-preview-icon" class="fa-regular fa-image text-xl text-slate-400"></i>
+                        <img id="artwork-preview-img" src="" class="w-full h-full object-cover hidden" alt="Prévisualisation">
+                    {% endif %}
                 </div>
-                {% else %}
-                <div class="form-file-preview">
-                    <i class="fa-regular fa-image text-xl"></i>
-                </div>
-                {% endif %}
                 <div class="grow w-full">
-                    {{ form_widget(form.artworkUrl, {'attr': {'class': 'form-input-sm'}}) }}
+                    {{ form_widget(form.artworkUrl, {
+                        'attr': {
+                            'class': 'form-input-sm',
+                            'accept': 'image/jpeg,image/png,image/webp',
+                            'onchange': "handleImagePreview(this, 'artwork-preview-img', 'artwork-preview-icon')"
+                        }
+                    }) }}
                     <p class="form-help-text">Format JPG, PNG ou WebP - Max 1 Mo.</p>
                 </div>
             </div>
             {{ form_errors(form.artworkUrl) }}
         </div>
 
-        {# Documentation PDF #}
+        {# 📄 Documentation PDF #}
         <div class="form-group {% if not form.artistic_file.vars.valid %}has-error{% endif %}">
             {{ form_label(form.artistic_file, null, {'label_attr': {'class': 'form-label'}}) }}
             <div class="form-file-box">
-
-                {# On vérifie si l'entité show possède déjà un PDF enregistré #}
-                {% if show is defined and show.id and show.artisticFile %}
-                <div
-                    class="form-file-preview bg-red-50 text-red-500 border-red-100 flex flex-col items-center justify-center p-2">
+                <div class="form-file-preview w-12 h-12 rounded-lg bg-red-50 text-red-500 border border-red-100 flex items-center justify-center shrink-0">
                     <i class="fa-regular fa-file-pdf text-2xl"></i>
                 </div>
-                {% else %}
-                <div class="form-file-preview">
-                    <i class="fa-regular fa-file-pdf text-xl"></i>
-                </div>
-                {% endif %}
 
                 <div class="grow w-full space-y-1">
-                    {{ form_widget(form.artistic_file, {'attr': {'class': 'form-input-sm'}}) }}
+                    {{ form_widget(form.artistic_file, {
+                        'attr': {
+                            'class': 'form-input-sm',
+                            'accept': 'application/pdf',
+                            'onchange': "handleDocumentPreview(this, 'pdf-file-info')"
+                        }
+                    }) }}
 
-                    {# Si un fichier est déjà rattaché, on affiche son statut + un lien de téléchargement #}
-                    {% if show is defined and show.id and show.artisticFile %}
-                    <div class="flex items-center gap-2 text-xs text-gray-600 mt-1">
-                        <span class="font-medium text-emerald-600">
-                            <i class="fa-solid fa-circle-check text-emerald-500"></i> Document actuel :
-                        </span>
-                        <a href="{{ path('secure_show_pdf', {'id': show.id}) }}" target="_blank"
-                            class="font-semibold text-indigo-600 hover:text-indigo-800 underline inline-flex items-center gap-1">
-                            <i class="fa-solid fa-download text-[10px]"></i> {{ show.artisticFile }}
-                        </a>
+                    {# Zone d'information dynamique pour le document #}
+                    <div id="pdf-file-info" class="flex items-center gap-2 text-xs text-gray-600 mt-1">
+                        {% if show is defined and show.id and show.artisticFile %}
+                            <span class="font-medium text-emerald-600">
+                                <i class="fa-solid fa-circle-check text-emerald-500"></i> Document actuel :
+                            </span>
+                            <a href="{{ path('secure_show_pdf', {'id': show.id}) }}" target="_blank" class="font-semibold text-indigo-600 hover:text-indigo-800 underline inline-flex items-center gap-1">
+                                <i class="fa-solid fa-download text-[10px]"></i> {{ show.artisticFile }}
+                            </a>
+                        {% else %}
+                            <p class="form-help-text">Format PDF uniquement - Max 40 Mo.</p>
+                        {% endif %}
                     </div>
-                    {% else %}
-                    <p class="form-help-text">Format PDF uniquement - Max 40 Mo.</p>
-                    {% endif %}
                 </div>
-
             </div>
             {{ form_errors(form.artistic_file) }}
         </div>

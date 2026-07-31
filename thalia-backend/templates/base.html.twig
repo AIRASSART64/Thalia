@@ -54,9 +54,18 @@
 
                 <div class="hidden sm:flex items-center gap-4">
                     {% if app.user %}
-                        <div class="flex items-center gap-2 text-sm text-gray-600 mr-2">
-                            <i class="fa-regular fa-circle-user text-gray-400 text-base"></i>
-                            <span class="font-medium">{{ app.user.firstName }} {{ app.user.lastName }}</span>
+                        {# ─── BLOC PROFILE USER (DESKTOP) ─── #}
+                        <div class="flex items-center gap-2.5 text-sm text-gray-700 mr-2">
+                            {% if app.user.avatarFilename %}
+                                <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 overflow-hidden shrink-0 shadow-xs">
+                                    <img src="{{ path('secure_profile', {'id': app.user.id}) }}" 
+                                         alt="Avatar de {{ app.user.firstName }}" 
+                                         class="w-full h-full object-cover">
+                                </div>
+                            {% else %}
+                                <i class="fa-regular fa-circle-user text-gray-400 text-lg"></i>
+                            {% endif %}
+                            <span class="font-semibold text-slate-800">{{ app.user.firstName }} {{ app.user.lastName }}</span>
                         </div>
 
                         {% if 'ROLE_SUPER_ADMIN' in app.user.roles %}
@@ -88,12 +97,26 @@
             </div>
         </div>
 
+        {# ─── MENU MOBILE ─── #}
         <div id="mobile-menu"
-            class="hidden sm:hidden border-t border-gray-100 bg-white px-4 pt-2 pb-4 space-y-2 shadow-inner">
+            class="hidden sm:hidden border-t border-gray-100 bg-white px-4 pt-3 pb-4 space-y-3 shadow-inner">
             {% if app.user %}
-                <div class="px-2 py-1 text-xs font-bold text-gray-400 uppercase tracking-wider">
-                    {{ app.user.firstName }} {{ app.user.lastName }} ({{ app.user.email }})
+                <div class="flex items-center gap-3 px-2 py-1">
+                    {% if app.user.avatarFilename %}
+                        <div class="w-9 h-9 rounded-full bg-slate-100 border border-slate-200 overflow-hidden shrink-0">
+                            <img src="{{ path('secure_profile', {'id': app.user.id}) }}" 
+                                 alt="Avatar de {{ app.user.firstName }}" 
+                                 class="w-full h-full object-cover">
+                        </div>
+                    {% else %}
+                        <i class="fa-regular fa-circle-user text-gray-400 text-2xl"></i>
+                    {% endif %}
+                    <div class="flex flex-col">
+                        <span class="text-xs font-bold text-slate-800">{{ app.user.firstName }} {{ app.user.lastName }}</span>
+                        <span class="text-[11px] text-gray-400 truncate">{{ app.user.email }}</span>
+                    </div>
                 </div>
+
                 {% if 'ROLE_SUPER_ADMIN' in app.user.roles %}
                     <a href="{{ path('superadmin_dashboard') }}"
                         class="block text-sm font-medium text-indigo-600 bg-indigo-50/50 px-3 py-2 rounded-lg">Console Admin</a>
