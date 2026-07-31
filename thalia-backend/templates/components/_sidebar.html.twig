@@ -1,28 +1,31 @@
 {# templates/components/_sidebar.html.twig #}
 <aside class="w-64 bg-white border-r border-slate-100 hidden md:flex flex-col p-4 space-y-1 shrink-0">
     
-    {# Organisation #}
-    <a href="#" 
+    {# Organisation - Accessible à tous les utilisateurs connectés #}
+    <a href="{{ path('organization') }}" 
        class="sidebar-link {{ app.current_route starts with 'organization' ? 'active' : '' }}">
         <i class="fa-solid fa-sitemap w-5 {{ app.current_route starts with 'organization' ? 'text-indigo-600' : 'text-slate-400' }}"></i> 
         Organisation
     </a>
 
-    {# Spectacles #}
-    <a href="#" 
-       class="sidebar-link {{ app.current_route starts with 'show' ? 'active' : '' }}">
-        <i class="fa-solid fa-masks-theater w-5 {{ app.current_route starts with 'show' ? 'text-indigo-600' : 'text-slate-400' }}"></i> 
-        Spectacles
-    </a>
+    {# Réservé aux Programmateurs et Administrateurs #}
+    {% if is_granted('ROLE_PROGRAMMATEUR') or is_granted('ROLE_ADMIN') %}
+        {# Spectacles #}
+        <a href="{{ path('show_index') }}" 
+           class="sidebar-link {{ app.current_route starts with 'show' ? 'active' : '' }}">
+            <i class="fa-solid fa-masks-theater w-5 {{ app.current_route starts with 'show' ? 'text-indigo-600' : 'text-slate-400' }}"></i> 
+            Spectacles
+        </a>
 
-    {# Contacts #}
-    <a href="#" 
-       class="sidebar-link {{ app.current_route starts with 'contact' ? 'active' : '' }}">
-        <i class="fa-solid fa-address-book w-5 {{ app.current_route starts with 'contact' ? 'text-indigo-600' : 'text-slate-400' }}"></i> 
-        Contacts
-    </a>
+        {# Contacts #}
+        <a href="{{ path('contact_index') }}" 
+           class="sidebar-link {{ app.current_route starts with 'contact' ? 'active' : '' }}">
+            <i class="fa-solid fa-address-book w-5 {{ app.current_route starts with 'contact' ? 'text-indigo-600' : 'text-slate-400' }}"></i> 
+            Contacts
+        </a>
+    {% endif %}
 
-    {# Mon espace (Profil) #}
+    {# Mon espace (Profil) - Accessible à tous #}
     <a href="{{ path('profile_index') }}" 
        class="sidebar-link {{ app.current_route starts with 'profile' ? 'active' : '' }}">
         <i class="fa-regular fa-user w-5 {{ app.current_route starts with 'profile' ? 'text-indigo-600' : 'text-slate-400' }}"></i> 
