@@ -6,6 +6,7 @@ use App\Entity\Organization;
 use App\Entity\Season;
 use App\Entity\Show;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -31,7 +32,9 @@ class ShowRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    //chargement des thémes associés à un spectacle qui dépend d'une organization
+    /**
+     * Chargement des thèmes associés à un spectacle qui dépend d'une organisation
+     */
     public function findByOrganizationWithThemes(Organization $organization): array
     {
         return $this->createQueryBuilder('s')
@@ -43,52 +46,90 @@ class ShowRepository extends ServiceEntityRepository
             ->getResult();
     }
     
-     //Recherche filtrée et sécurisée par Organisation pour les Spectacles
-     
+    /**
+     * Recherche filtrée, sécurisée par Organisation et PAGINÉE pour les Spectacles
+     */
     public function searchShowsForOrganization(
-    Organization $organization,
-    string $query = '',
-    string $discipline = 'Tous',
-    string $audience = 'Tous',
-    string $theme = 'Tous' // 👈 Le 5ème paramètre doit être présent ici !
-): array {
-    $qb = $this->createQueryBuilder('s')
-        ->andWhere('s.organization = :org')
-        ->setParameter('org', $organization);
+        Organization $organization,
+        string $query = '',
+        string $discipline = 'Tous',
+        string $audience = 'Tous',
+        string $theme = 'Tous',
+        int $page = 1,
+        int $limit = 10
+    ): array {
+        $qb = $this->createSearchQueryBuilder($organization, $query, $discipline, $audience, $theme);
 
-    // 1. Recherche textuelle
-    if (!empty(trim($query))) {
-        $qb->andWhere('(
-        LOWER(s.title) LIKE LOWER(:q)
-        OR LOWER(s.synopsis) LIKE LOWER(:q)
-        )')
+        // Application de l'offset et du limit pour la pagination
+        $qb->orderBy('s.title', 'ASC')
+           ->setFirstResult(($page - 1) * $limit)
+           ->setMaxResults($limit);
 
-           ->setParameter('q', '%' . trim($query) . '%');
+        return $qb->getQuery()->getResult();
     }
 
-    // 2. Discipline
-    if ($discipline !== 'Tous' && !empty($discipline)) {
-        $qb->andWhere('s.discipline = :discipline')
-           ->setParameter('discipline', $discipline);
+    /**
+     * Compte le nombre TOTAL de résultats pour la pagination (sans appliquer le LIMIT)
+     */
+    public function countShowsForOrganization(
+        Organization $organization,
+        string $query = '',
+        string $discipline = 'Tous',
+        string $audience = 'Tous',
+        string $theme = 'Tous'
+    ): int {
+        $qb = $this->createSearchQueryBuilder($organization, $query, $discipline, $audience, $theme);
+
+        return (int) $qb->select('COUNT(DISTINCT s.id)')
+                        ->getQuery()
+                        ->getSingleScalarResult();
     }
 
-    // 3. Audience
-    if ($audience !== 'Tous' && !empty($audience)) {
-        $qb->andWhere('s.audience = :audience')
-           ->setParameter('audience', $audience);
+    /**
+     * Factorisation du QueryBuilder de recherche pour éviter la répétition de code
+     */
+    private function createSearchQueryBuilder(
+        Organization $organization,
+        string $query = '',
+        string $discipline = 'Tous',
+        string $audience = 'Tous',
+        string $theme = 'Tous'
+    ): QueryBuilder {
+        $qb = $this->createQueryBuilder('s')
+            ->andWhere('s.organization = :org')
+            ->setParameter('org', $organization);
+
+        // 1. Recherche textuelle
+        if (!empty(trim($query))) {
+            $qb->andWhere('(
+                LOWER(s.title) LIKE LOWER(:q)
+                OR LOWER(s.synopsis) LIKE LOWER(:q)
+            )')
+            ->setParameter('q', '%' . trim($query) . '%');
+        }
+
+        // 2. Discipline
+        if ($discipline !== 'Tous' && !empty($discipline)) {
+            $qb->andWhere('s.discipline = :discipline')
+               ->setParameter('discipline', $discipline);
+        }
+
+        // 3. Audience
+        if ($audience !== 'Tous' && !empty($audience)) {
+            $qb->andWhere('s.audience = :audience')
+               ->setParameter('audience', $audience);
+        }
+
+        // 4. Thème (Jointure conditionnelle)
+        if ($theme !== 'Tous' && !empty($theme)) {
+            $qb->innerJoin('s.themes', 't')
+               ->andWhere('t.id = :themeId')
+               ->setParameter('themeId', $theme);
+        }
+
+        return $qb;
     }
 
-    // 4. Thème (Attention à la jointure)
-    if ($theme !== 'Tous' && !empty($theme)) {
-        $qb->innerJoin('s.themes', 't')
-           ->andWhere('t.id = :themeId')
-           ->setParameter('themeId', $theme);
-    }
-
-    $qb->orderBy('s.title', 'ASC');
-
-    return $qb->getQuery()->getResult();
-}
     
     //    public function findOneBySomeField($value): ?Show
     //    {

@@ -31,20 +31,35 @@ class ShowSearchComponent
     #[LiveProp(writable: true, url: true)]
     public string $theme = 'Tous';
 
+    
+    #[LiveProp(writable: true, url: true)]
+    public int $page = 1;
+
+    public int $itemsPerPage = 10;
+
     public function __construct(
         private ShowRepository $showRepository,
         private ThemeRepository $themeRepository,
         private Security $security
     ) {
     }
+
+   
+    public function updatedQuery(): void { $this->page = 1; }
+    public function updatedDiscipline(): void { $this->page = 1; }
+    public function updatedAudience(): void { $this->page = 1; }
+    public function updatedTheme(): void { $this->page = 1; }
+
     public function getDisciplines(): array
     {
         return DisciplineEnum::cases();
     }
-       public function getAudiences(): array
+
+    public function getAudiences(): array
     {
         return AudienceClassificationEnum::cases();
     }
+
     public function getThemes(): array
     {
         return $this->themeRepository->findBy([], ['name' => 'ASC']);
@@ -62,6 +77,44 @@ class ShowSearchComponent
             $this->discipline,
             $this->audience,
             $this->theme,
+            $this->page,
+            $this->itemsPerPage
         );
+    }
+
+  
+
+    public function getTotalItems(): int
+    {
+        /** @var User $user */
+        $user = $this->security->getUser();
+        $organization = $user->getOrganization();
+
+        return $this->showRepository->countShowsForOrganization(
+            $organization,
+            $this->query,
+            $this->discipline,
+            $this->audience,
+            $this->theme
+        );
+    }
+
+    public function getMaxPages(): int
+    {
+        $total = $this->getTotalItems();
+        return $total > 0 ? (int) ceil($total / $this->itemsPerPage) : 1;
+    }
+
+    public function getPageStart(): int
+    {
+        if ($this->getTotalItems() === 0) {
+            return 0;
+        }
+        return (($this->page - 1) * $this->itemsPerPage) + 1;
+    }
+
+    public function getPageEnd(): int
+    {
+        return min($this->page * $this->itemsPerPage, $this->getTotalItems());
     }
 }

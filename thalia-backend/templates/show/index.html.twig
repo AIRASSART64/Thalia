@@ -27,17 +27,6 @@
 
         {{ component('show_search')}}
 
-        {# Pagination #}
-        {% if shows|length > 0 %}
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-8 pt-4 border-t border-gray-100 text-xs text-gray-500">
-                <p>Affichage de <span class="font-semibold text-gray-900">1-{{ shows|length }}</span> sur <span class="font-semibold text-gray-900">{{ shows|length }}</span> spectacles.</p>
-                <nav class="inline-flex shadow-sm rounded-lg border border-gray-200 bg-white overflow-hidden font-semibold">
-                    <button class="px-3 py-1.5 text-gray-400 hover:bg-gray-50 border-r border-gray-200 disabled:opacity-50" disabled>Précédent</button>
-                    <button class="px-3 py-1.5 bg-indigo-600 text-white border-r border-gray-200">1</button>
-                    <button class="px-3 py-1.5 text-gray-600 hover:bg-gray-50">Suivant</button>
-                </nav>
-            </div>
-        {% endif %}
 
     </main>
 </div>
