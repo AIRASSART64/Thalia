@@ -251,28 +251,9 @@
 
         {# Navigation (Si plus d'1 page) #}
         {% if this.maxPages > 1 %}
-        <nav class="inline-flex shadow-sm rounded-lg border border-slate-200 bg-white overflow-hidden font-semibold">
 
-            {# Précédent #}
-            <button type="button" data-action="live#update" data-model="page" data-value="{{ this.page - 1 }}"
-                class="px-3 py-1.5 text-slate-600 hover:bg-slate-50 border-r border-slate-200 disabled:opacity-40 disabled:hover:bg-white transition cursor-pointer"
-                {{ this.page <=1 ? 'disabled' : '' }}>
-                Précédent
-            </button>
+        {% include 'components/_pagination.html.twig' %}
 
-            {# Page active / Max #}
-            <span
-                class="px-3.5 py-1.5 bg-indigo-600 text-white border-r border-slate-200 flex items-center justify-center">
-                {{ this.page }} / {{ this.maxPages }}
-            </span>
-
-            {# Suivant #}
-            <button type="button" data-action="live#update" data-model="page" data-value="{{ this.page + 1 }}"
-                class="px-3 py-1.5 text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-white transition cursor-pointer"
-                {{ this.page>= this.maxPages ? 'disabled' : '' }}>
-                Suivant
-            </button>
-        </nav>
         {% endif %}
 
     </div>

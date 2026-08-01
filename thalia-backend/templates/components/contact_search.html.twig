@@ -5,24 +5,24 @@
 
     {# ─── BARRE DE FILTRES ET RECHERCHE ─── #}
     <div class="bg-white p-3 sm:p-4 rounded-xl border border-slate-100 shadow-sm mb-6">
-        
+
         {# VUE MOBILE : Recherche + Bouton Tiroir #}
         <div class="flex items-center gap-2 sm:hidden">
             <div class="grow">
                 {% include 'components/_search_bar.html.twig' with {
-                    placeholder: 'Nom, prénom ou notes...'
+                placeholder: 'Nom, prénom ou notes...'
                 } %}
             </div>
-            
-            <button type="button" 
-                    @click="openFilters = true"
-                    class="relative flex items-center gap-2 px-3.5 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition shrink-0">
+
+            <button type="button" @click="openFilters = true"
+                class="relative flex items-center gap-2 px-3.5 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition shrink-0">
                 <i class="fa-solid fa-sliders"></i>
                 <span>Filtres</span>
                 {% if activeFiltersCount > 0 %}
-                    <span class="w-4 h-4 bg-indigo-600 text-white text-[10px] rounded-full flex items-center justify-center font-bold ml-0.5">
-                        {{ activeFiltersCount }}
-                    </span>
+                <span
+                    class="w-4 h-4 bg-indigo-600 text-white text-[10px] rounded-full flex items-center justify-center font-bold ml-0.5">
+                    {{ activeFiltersCount }}
+                </span>
                 {% endif %}
             </button>
         </div>
@@ -30,63 +30,57 @@
         {# VUE DESKTOP : Filtres Alignés (Sélecteurs réduits à w-48 pour laisser de l'espace au tableau) #}
         <div class="hidden sm:flex sm:flex-row items-center gap-3 w-full">
             <div class="w-48 shrink-0">
-                <select data-model="companyName" class="w-full form-input-sm py-2 px-3 text-xs font-medium bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500">
+                <select data-model="companyName"
+                    class="w-full form-input-sm py-2 px-3 text-xs font-medium bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500">
                     <option value="Tous">Toutes les structures</option>
                     {% for company in this.companies %}
-                        <option value="{{ company }}" {{ this.companyName == company ? 'selected' : '' }}>
-                            {{ company }}
-                        </option>
+                    <option value="{{ company }}" {{ this.companyName==company ? 'selected' : '' }}>
+                        {{ company }}
+                    </option>
                     {% endfor %}
                 </select>
             </div>
 
             <div class="w-48 shrink-0">
-                <select data-model="role" class="w-full form-input-sm py-2 px-3 text-xs font-medium bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500">
+                <select data-model="role"
+                    class="w-full form-input-sm py-2 px-3 text-xs font-medium bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500">
                     <option value="Tous">Tous les rôles</option>
                     {% for r in this.roles %}
-                        <option value="{{ r }}" {{ this.role == r ? 'selected' : '' }}>
-                            {{ r }}
-                        </option>
+                    <option value="{{ r }}" {{ this.role==r ? 'selected' : '' }}>
+                        {{ r }}
+                    </option>
                     {% endfor %}
                 </select>
             </div>
 
             <div class="filter-search-group grow">
                 {% include 'components/_search_bar.html.twig' with {
-                    placeholder: 'Nom, prénom ou notes...'
+                placeholder: 'Nom, prénom ou notes...'
                 } %}
             </div>
         </div>
     </div>
 
     {# ─── TIROIR DE FILTRES SLIDE-OVER (MOBILE) ─── #}
-    <div x-show="openFilters" 
-         x-transition:enter="transition ease-out duration-300"
-         x-transition:enter-start="opacity-0"
-         x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-200"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0"
-         class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs sm:hidden flex justify-end"
-         style="display: none;">
-        
-        <div @click.away="openFilters = false" 
-             x-transition:enter="transition ease-out duration-300 transform"
-             x-transition:enter-start="translate-x-full"
-             x-transition:enter-end="translate-x-0"
-             x-transition:leave="transition ease-in duration-200 transform"
-             x-transition:leave-start="translate-x-0"
-             x-transition:leave-end="translate-x-full"
-             class="w-4/5 max-w-xs bg-white h-full p-5 flex flex-col justify-between shadow-2xl">
-            
+    <div x-show="openFilters" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+        class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs sm:hidden flex justify-end" style="display: none;">
+
+        <div @click.away="openFilters = false" x-transition:enter="transition ease-out duration-300 transform"
+            x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
+            x-transition:leave="transition ease-in duration-200 transform" x-transition:leave-start="translate-x-0"
+            x-transition:leave-end="translate-x-full"
+            class="w-4/5 max-w-xs bg-white h-full p-5 flex flex-col justify-between shadow-2xl">
+
             <div class="space-y-5">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                     <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
                         <i class="fa-solid fa-sliders text-indigo-600"></i> Filtres
                         {% if activeFiltersCount > 0 %}
-                            <span class="bg-indigo-100 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                                {{ activeFiltersCount }}
-                            </span>
+                        <span class="bg-indigo-100 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                            {{ activeFiltersCount }}
+                        </span>
                         {% endif %}
                     </h3>
                     <button type="button" @click="openFilters = false" class="text-slate-400 hover:text-slate-600 p-1">
@@ -96,32 +90,33 @@
 
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1.5">Structure</label>
-                    <select data-model="companyName" class="w-full py-2.5 px-3 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500">
+                    <select data-model="companyName"
+                        class="w-full py-2.5 px-3 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500">
                         <option value="Tous">Toutes les structures</option>
                         {% for company in this.companies %}
-                            <option value="{{ company }}" {{ this.companyName == company ? 'selected' : '' }}>
-                                {{ company }}
-                            </option>
+                        <option value="{{ company }}" {{ this.companyName==company ? 'selected' : '' }}>
+                            {{ company }}
+                        </option>
                         {% endfor %}
                     </select>
                 </div>
 
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1.5">Rôle</label>
-                    <select data-model="role" class="w-full py-2.5 px-3 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500">
+                    <select data-model="role"
+                        class="w-full py-2.5 px-3 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500">
                         <option value="Tous">Tous les rôles</option>
                         {% for r in this.roles %}
-                            <option value="{{ r }}" {{ this.role == r ? 'selected' : '' }}>
-                                {{ r }}
-                            </option>
+                        <option value="{{ r }}" {{ this.role==r ? 'selected' : '' }}>
+                            {{ r }}
+                        </option>
                         {% endfor %}
                     </select>
                 </div>
             </div>
 
-            <button type="button" 
-                    @click="openFilters = false" 
-                    class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg text-xs hover:bg-indigo-700 transition shadow-sm">
+            <button type="button" @click="openFilters = false"
+                class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg text-xs hover:bg-indigo-700 transition shadow-sm">
                 Voir les résultats
             </button>
         </div>
@@ -129,209 +124,236 @@
 
     {# Loader discret #}
     {% include 'components/_search_loader.html.twig' with {
-        label: 'Recherche des contacts...'
+    label: 'Recherche des contacts...'
     } %}
 
     {# ─── LISTE DES CONTACTS (RÉSULTATS) ─── #}
     {% if this.contacts is not empty %}
 
-        {# 1. VUE MOBILE (Cartes sans initiales) #}
-        <div class="space-y-3 sm:hidden">
-            {% for contact in this.contacts %}
-                <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative hover:border-indigo-200 transition">
-                    
-                    {# En-tête : Nom + Badge Rôle #}
-                    <div class="flex items-start justify-between gap-2 mb-2.5">
-                        <div class="min-w-0">
-                            <a href="{{ path('contact_show', {'id': contact.id}) }}" class="font-bold text-slate-900 text-sm hover:text-indigo-600 transition block focus:outline-none after:absolute after:inset-0 truncate">
-                                {{ contact.firstName }} {{ contact.lastName }}
-                            </a>
-                            {% if contact.companyName %}
-                                <span class="text-xs text-slate-500 flex items-center gap-1 mt-0.5 truncate">
-                                    <i class="fa-regular fa-building text-slate-400 text-[10px] shrink-0"></i>
-                                    <span class="truncate">{{ contact.companyName }}</span>
-                                </span>
-                            {% endif %}
-                        </div>
+    {# 1. VUE MOBILE (Cartes sans initiales) #}
+    <div class="space-y-3 sm:hidden">
+        {% for contact in this.contacts %}
+        <div
+            class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative hover:border-indigo-200 transition">
 
-                        {% if contact.role %}
-                            <span class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-600 shrink-0 max-w-[50%] truncate" title="{{ contact.role }}">
-                                {{ contact.role }}
-                            </span>
-                        {% endif %}
-                    </div>
+            {# En-tête : Nom + Badge Rôle #}
+            <div class="flex items-start justify-between gap-2 mb-2.5">
+                <div class="min-w-0">
+                    <a href="{{ path('contact_show', {'id': contact.id}) }}"
+                        class="font-bold text-slate-900 text-sm hover:text-indigo-600 transition block focus:outline-none after:absolute after:inset-0 truncate">
+                        {{ contact.firstName }} {{ contact.lastName }}
+                    </a>
+                    {% if contact.companyName %}
+                    <span class="text-xs text-slate-500 flex items-center gap-1 mt-0.5 truncate">
+                        <i class="fa-regular fa-building text-slate-400 text-[10px] shrink-0"></i>
+                        <span class="truncate">{{ contact.companyName }}</span>
+                    </span>
+                    {% endif %}
+                </div>
 
-                    {# Notes si présentes #}
-                    {% if contact.notes %}
-                        <p class="text-xs text-slate-400 italic line-clamp-2 mb-3 bg-slate-50 p-2 rounded-lg">
-                            "{{ contact.notes }}"
-                        </p>
+                {% if contact.role %}
+                <span
+                    class="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-600 shrink-0 max-w-[50%] truncate"
+                    title="{{ contact.role }}">
+                    {{ contact.role }}
+                </span>
+                {% endif %}
+            </div>
+
+            {# Notes si présentes #}
+            {% if contact.notes %}
+            <p class="text-xs text-slate-400 italic line-clamp-2 mb-3 bg-slate-50 p-2 rounded-lg">
+                "{{ contact.notes }}"
+            </p>
+            {% endif %}
+
+            {# Pied de carte : Coordonnées + Modifier/Supprimer #}
+            <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs relative z-10">
+                <div class="flex items-center gap-2 text-slate-500">
+                    {% if contact.email %}
+                    <a href="mailto:{{ contact.email }}"
+                        class="p-2 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition"
+                        title="{{ contact.email }}">
+                        <i class="fa-regular fa-envelope text-xs"></i>
+                    </a>
+                    {% endif %}
+                    {% if contact.phone %}
+                    <a href="tel:{{ contact.phone }}"
+                        class="p-2 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition"
+                        title="{{ contact.phone }}">
+                        <i class="fa-solid fa-phone text-xs"></i>
+                    </a>
+                    {% endif %}
+                </div>
+
+                {# Actions Mobile : Modifier + Supprimer #}
+                <div class="flex items-center gap-3">
+                    {% if is_granted('CONTACT_EDIT', contact) %}
+                    <a href="{{ path('contact_edit', {'id': contact.id}) }}"
+                        class="p-2 text-amber-600 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition flex items-center gap-1"
+                        title="Modifier le contact">
+                        <i class="fa-regular fa-pen-to-square text-xs"></i>
+
+                    </a>
                     {% endif %}
 
-                    {# Pied de carte : Coordonnées + Modifier/Supprimer #}
-                    <div class="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs relative z-10">
-                        <div class="flex items-center gap-2 text-slate-500">
-                            {% if contact.email %}
-                                <a href="mailto:{{ contact.email }}" class="p-2 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition" title="{{ contact.email }}">
-                                    <i class="fa-regular fa-envelope text-xs"></i>
-                                </a>
-                            {% endif %}
-                            {% if contact.phone %}
-                                <a href="tel:{{ contact.phone }}" class="p-2 bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg transition" title="{{ contact.phone }}">
-                                    <i class="fa-solid fa-phone text-xs"></i>
-                                </a>
-                            {% endif %}
-                        </div>
+                    {% if is_granted('CONTACT_DELETE', contact) %}
+                    <form method="post" action="{{ path('contact_delete', {'id': contact.id}) }}"
+                        onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce contact ?');" class="inline">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ contact.id) }}">
+                        <button type="submit"
+                            class="p-2 text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-lg transition"
+                            title="Supprimer le contact">
+                            <i class="fa-regular fa-trash-can text-xs"></i>
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
 
-                        {# Actions Mobile : Modifier + Supprimer #}
-                        <div class="flex items-center gap-3">
-                            {% if is_granted('CONTACT_EDIT', contact) %}
-                                <a href="{{ path('contact_edit', {'id': contact.id}) }}" class="p-2 text-amber-600 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 rounded-lg transition flex items-center gap-1" title="Modifier le contact">
-                                    <i class="fa-regular fa-pen-to-square text-xs"></i>
-                                   
-                                </a>
-                            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
 
-                            {% if is_granted('CONTACT_DELETE', contact) %}
-                                <form method="post" action="{{ path('contact_delete', {'id': contact.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce contact ?');" class="inline">
+    {# 2. VUE DESKTOP (Tableau optimisé en largeur, sans initiales, avec Modifier + Supprimer) #}
+    <div class="hidden sm:block bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                    <tr
+                        class="bg-slate-50 border-b border-slate-200 text-[11px] font-black text-slate-400 uppercase tracking-wider select-none">
+
+                        {# Nom & Prénom (Largeur minimale garantie pour aérer) #}
+                        <th class="py-3.5 px-6 min-w-[220px] cursor-pointer hover:text-indigo-600 transition"
+                            data-action="live#update" data-model="sortDirection"
+                            data-value="{{ this.sortDirection == 'ASC' ? 'DESC' : 'ASC' }}">
+                            <div class="flex items-center gap-1.5">
+                                <span>Contact / Nom</span>
+                                {% if this.sortDirection == 'ASC' %}
+                                <i class="fa-solid fa-arrow-up-a-z text-indigo-600"></i>
+                                {% else %}
+                                <i class="fa-solid fa-arrow-down-z-a text-indigo-600"></i>
+                                {% endif %}
+                            </div>
+                        </th>
+
+                        <th class="py-3.5 px-6 min-w-[180px]">Organisation</th>
+                        <th class="py-3.5 px-6 min-w-[200px]">Rôle</th>
+                        <th class="py-3.5 px-6">Coordonnées</th>
+                        <th class="py-3.5 px-6 text-right w-28">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for contact in this.contacts %}
+                    <tr class="hover:bg-slate-50/80 transition duration-150 group relative">
+
+                        {# Nom & Prénom (Sans badge initiales) #}
+                        <td class="py-4 px-6">
+                            <div>
+                                <a href="{{ path('contact_show', {'id': contact.id}) }}"
+                                    class="font-bold text-slate-900 group-hover:text-indigo-600 transition block focus:outline-none after:absolute after:inset-0">
+                                    {{ contact.firstName }} {{ contact.lastName }}
+                                </a>
+                                {% if contact.notes %}
+                                <span class="text-[11px] text-slate-400 italic line-clamp-1"
+                                    title="{{ contact.notes }}">
+                                    "{{ contact.notes }}"
+                                </span>
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        {# Organisation #}
+                        <td class="py-4 px-6 font-medium text-slate-600">
+                            {% if contact.companyName %}
+                            <span class="inline-flex items-center gap-1.5">
+                                <i class="fa-regular fa-building text-slate-400 text-xs"></i>
+                                {{ contact.companyName }}
+                            </span>
+                            {% else %}
+                            <span class="text-slate-300">—</span>
+                            {% endif %}
+                        </td>
+
+                        {# Rôle (Bénéficie de min-w-[200px] pour ne pas s'écraser) #}
+                        <td class="py-4 px-6">
+                            {% if contact.role %}
+                            <span
+                                class="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 inline-block">
+                                {{ contact.role }}
+                            </span>
+                            {% else %}
+                            <span class="text-slate-300">—</span>
+                            {% endif %}
+                        </td>
+
+                        {# Coordonnées (Email & Téléphone) #}
+                        <td class="py-4 px-6 text-slate-500 font-medium text-xs relative z-10">
+                            <div class="space-y-0.5">
+                                {% if contact.email %}
+                                <div>
+                                    <a href="mailto:{{ contact.email }}"
+                                        class="hover:text-indigo-600 transition inline-block">
+                                        <i class="fa-regular fa-envelope text-slate-400 mr-1"></i>{{ contact.email }}
+                                    </a>
+                                </div>
+                                {% endif %}
+                                {% if contact.phone %}
+                                <div class="text-[11px] text-slate-400">
+                                    <a href="tel:{{ contact.phone }}"
+                                        class="hover:text-indigo-600 transition inline-block">
+                                        <i class="fa-solid fa-phone text-slate-400 mr-1"></i>{{ contact.phone }}
+                                    </a>
+                                </div>
+                                {% endif %}
+                                {% if not contact.email and not contact.phone %}
+                                <span class="text-slate-300">—</span>
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        {# Actions Desktop : Modifier + Supprimer #}
+                        <td class="py-4 px-6 text-right relative z-10">
+                            <div class="flex items-center justify-end gap-1">
+                                {% if is_granted('CONTACT_EDIT', contact) %}
+                                <a href="{{ path('contact_edit', {'id': contact.id}) }}"
+                                    class="text-slate-400 hover:text-amber-600 p-2 rounded-lg hover:bg-amber-50 transition"
+                                    title="Modifier">
+                                    <i class="fa-regular fa-pen-to-square text-sm"></i>
+                                </a>
+                                {% endif %}
+
+                                {% if is_granted('CONTACT_DELETE', contact) %}
+                                <form method="post" action="{{ path('contact_delete', {'id': contact.id}) }}"
+                                    onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce contact ?');"
+                                    class="inline">
                                     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ contact.id) }}">
-                                    <button type="submit" class="p-2 text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-lg transition" title="Supprimer le contact">
-                                        <i class="fa-regular fa-trash-can text-xs"></i>
+                                    <button type="submit"
+                                        class="text-slate-400 hover:text-rose-600 p-2 rounded-lg hover:bg-rose-50 transition"
+                                        title="Supprimer">
+                                        <i class="fa-regular fa-trash-can text-sm"></i>
                                     </button>
                                 </form>
-                            {% endif %}
-                        </div>
-                    </div>
+                                {% endif %}
+                            </div>
+                        </td>
 
-                </div>
-            {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
-
-        {# 2. VUE DESKTOP (Tableau optimisé en largeur, sans initiales, avec Modifier + Supprimer) #}
-        <div class="hidden sm:block bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse text-sm">
-                    <thead>
-                        <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-black text-slate-400 uppercase tracking-wider select-none">
-                            
-                            {# Nom & Prénom (Largeur minimale garantie pour aérer) #}
-                            <th class="py-3.5 px-6 min-w-[220px] cursor-pointer hover:text-indigo-600 transition"
-                                data-action="live#update"
-                                data-model="sortDirection"
-                                data-value="{{ this.sortDirection == 'ASC' ? 'DESC' : 'ASC' }}">
-                                <div class="flex items-center gap-1.5">
-                                    <span>Contact / Nom</span>
-                                    {% if this.sortDirection == 'ASC' %}
-                                        <i class="fa-solid fa-arrow-up-a-z text-indigo-600"></i>
-                                    {% else %}
-                                        <i class="fa-solid fa-arrow-down-z-a text-indigo-600"></i>
-                                    {% endif %}
-                                </div>
-                            </th>
-
-                            <th class="py-3.5 px-6 min-w-[180px]">Organisation</th>
-                            <th class="py-3.5 px-6 min-w-[200px]">Rôle</th>
-                            <th class="py-3.5 px-6">Coordonnées</th>
-                            <th class="py-3.5 px-6 text-right w-28">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        {% for contact in this.contacts %}
-                            <tr class="hover:bg-slate-50/80 transition duration-150 group relative">
-                                
-                                {# Nom & Prénom (Sans badge initiales) #}
-                                <td class="py-4 px-6">
-                                    <div>
-                                        <a href="{{ path('contact_show', {'id': contact.id}) }}" class="font-bold text-slate-900 group-hover:text-indigo-600 transition block focus:outline-none after:absolute after:inset-0">
-                                            {{ contact.firstName }} {{ contact.lastName }}
-                                        </a>
-                                        {% if contact.notes %}
-                                            <span class="text-[11px] text-slate-400 italic line-clamp-1" title="{{ contact.notes }}">
-                                                "{{ contact.notes }}"
-                                            </span>
-                                        {% endif %}
-                                    </div>
-                                </td>
-
-                                {# Organisation #}
-                                <td class="py-4 px-6 font-medium text-slate-600">
-                                    {% if contact.companyName %}
-                                        <span class="inline-flex items-center gap-1.5">
-                                            <i class="fa-regular fa-building text-slate-400 text-xs"></i>
-                                            {{ contact.companyName }}
-                                        </span>
-                                    {% else %}
-                                        <span class="text-slate-300">—</span>
-                                    {% endif %}
-                                </td>
-
-                                {# Rôle (Bénéficie de min-w-[200px] pour ne pas s'écraser) #}
-                                <td class="py-4 px-6">
-                                    {% if contact.role %}
-                                        <span class="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 inline-block">
-                                            {{ contact.role }}
-                                        </span>
-                                    {% else %}
-                                        <span class="text-slate-300">—</span>
-                                    {% endif %}
-                                </td>
-
-                                {# Coordonnées (Email & Téléphone) #}
-                                <td class="py-4 px-6 text-slate-500 font-medium text-xs relative z-10">
-                                    <div class="space-y-0.5">
-                                        {% if contact.email %}
-                                            <div>
-                                                <a href="mailto:{{ contact.email }}" class="hover:text-indigo-600 transition inline-block">
-                                                    <i class="fa-regular fa-envelope text-slate-400 mr-1"></i>{{ contact.email }}
-                                                </a>
-                                            </div>
-                                        {% endif %}
-                                        {% if contact.phone %}
-                                            <div class="text-[11px] text-slate-400">
-                                                <a href="tel:{{ contact.phone }}" class="hover:text-indigo-600 transition inline-block">
-                                                    <i class="fa-solid fa-phone text-slate-400 mr-1"></i>{{ contact.phone }}
-                                                </a>
-                                            </div>
-                                        {% endif %}
-                                        {% if not contact.email and not contact.phone %}
-                                            <span class="text-slate-300">—</span>
-                                        {% endif %}
-                                    </div>
-                                </td>
-
-                                {# Actions Desktop : Modifier + Supprimer #}
-                                <td class="py-4 px-6 text-right relative z-10">
-                                    <div class="flex items-center justify-end gap-1">
-                                        {% if is_granted('CONTACT_EDIT', contact) %}
-                                            <a href="{{ path('contact_edit', {'id': contact.id}) }}" class="text-slate-400 hover:text-amber-600 p-2 rounded-lg hover:bg-amber-50 transition" title="Modifier">
-                                                <i class="fa-regular fa-pen-to-square text-sm"></i>
-                                            </a>
-                                        {% endif %}
-
-                                        {% if is_granted('CONTACT_DELETE', contact) %}
-                                            <form method="post" action="{{ path('contact_delete', {'id': contact.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce contact ?');" class="inline">
-                                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ contact.id) }}">
-                                                <button type="submit" class="text-slate-400 hover:text-rose-600 p-2 rounded-lg hover:bg-rose-50 transition" title="Supprimer">
-                                                    <i class="fa-regular fa-trash-can text-sm"></i>
-                                                </button>
-                                            </form>
-                                        {% endif %}
-                                    </div>
-                                </td>
-
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    </div>
+    {% if this.totalPages > 1 %}
+    {% include 'components/_pagination.html.twig' %}
+    {% endif %}
 
     {% else %}
-        {# État vide #}
-        <div class="py-12 text-center text-slate-400 font-medium bg-white rounded-2xl border border-slate-200">
-            <i class="fa-solid fa-address-book text-3xl mb-2 block text-slate-300"></i>
-            Aucun contact ne correspond à vos critères.
-        </div>
+    {# État vide #}
+    <div class="py-12 text-center text-slate-400 font-medium bg-white rounded-2xl border border-slate-200">
+        <i class="fa-solid fa-address-book text-3xl mb-2 block text-slate-300"></i>
+        Aucun contact ne correspond à vos critères.
+    </div>
     {% endif %}
 
 </div>
