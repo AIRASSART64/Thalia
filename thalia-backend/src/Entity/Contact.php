@@ -70,11 +70,11 @@ class Contact
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $notes = null;
 
-    /**
-     * @var Collection<int, Show>
-     */
-    #[ORM\ManyToMany(targetEntity: Show::class, mappedBy: 'contacts')]
-    private Collection $shows;
+    // /**
+    //  * @var Collection<int, Show>
+    //  */
+    // #[ORM\ManyToMany(targetEntity: Show::class, mappedBy: 'contacts')]
+    // private Collection $shows;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $created_at = null;
@@ -86,10 +86,18 @@ class Contact
     #[ORM\JoinColumn(nullable: false)]
     private ?Organization $organization = null;
 
+  /**
+     * Relation vers la table de jonction ShowContact
+     * @var Collection<int, ShowContact>
+     */
+    #[ORM\OneToMany(targetEntity: ShowContact::class, mappedBy: 'contact', cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $showContacts;
+
     
     public function __construct()
     {
-        $this->shows = new ArrayCollection();
+        // $this->shows = new ArrayCollection();
+        $this->showContacts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -174,31 +182,31 @@ class Contact
         return $this;
     }
 
-    /**
+    // /**
      
-     * @return Collection<int, Show>
-     */
-    public function getShows(): Collection
-    {
-        return $this->shows;
-    }
+    // //  * @return Collection<int, Show>
+    // //  */
+    // public function getShows(): Collection
+    // {
+    //     return $this->shows;
+    // }
 
-    public function addShow(Show $show): static
-    {
-        if (!$this->shows->contains($show)) {
-            $this->shows->add($show);
-            $show->addContact($this); 
-        }
-        return $this;
-    }
+    // public function addShow(Show $show): static
+    // {
+    //     if (!$this->shows->contains($show)) {
+    //         $this->shows->add($show);
+    //         // $show->addContact($this); 
+    //     }
+    //     return $this;
+    // }
 
-    public function removeShow(Show $show): static
-    {
-        if ($this->shows->removeElement($show)) {
-            $show->removeContact($this); 
-        }
-        return $this;
-    }
+    // public function removeShow(Show $show): static
+    // {
+    //     if ($this->shows->removeElement($show)) {
+    //         // $show->removeContact($this); 
+    //     }
+    //     return $this;
+    // }
 
     public function getCreatedAt(): ?\DateTimeImmutable
     {
@@ -244,6 +252,36 @@ class Contact
     public function setOrganization(?Organization $organization): static
     {
         $this->organization = $organization;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ShowContact>
+     */
+    public function getShowContacts(): Collection
+    {
+        return $this->showContacts;
+    }
+
+    public function addShowContact(ShowContact $showContact): static
+    {
+        if (!$this->showContacts->contains($showContact)) {
+            $this->showContacts->add($showContact);
+            $showContact->setContact($this);
+        }
+
+        return $this;
+    }
+
+    public function removeShowContact(ShowContact $showContact): static
+    {
+        if ($this->showContacts->removeElement($showContact)) {
+            // set the owning side to null (unless already changed)
+            if ($showContact->getContact() === $this) {
+                $showContact->setContact(null);
+            }
+        }
 
         return $this;
     }

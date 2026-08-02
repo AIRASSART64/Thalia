@@ -3,10 +3,8 @@
 namespace App\Form;
 
 use App\Entity\Contact;
-use App\Entity\Show;
-use Doctrine\ORM\EntityRepository;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
 use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -49,25 +47,36 @@ class ContactFormType extends AbstractType
                 'label' => 'Adresse email',
                 'required' => false,
             ])
-            ->add('shows', EntityType::class, [
-                'class'=> Show::class,
-                'choice_label'=>'title',
-                'multiple'=>true,
-                'expanded'=>false,
-                'label'=> 'Speactacles rattachés',
-                'by_reference'=> false,
-                'query_builder' => function (EntityRepository $er) use ($currentOrganization) {
-                    return $er->createQueryBuilder('s')
-                        ->where('s.organization = :org')
-                        ->setParameter('org', $currentOrganization)
-                        ->orderBy('s.title', 'ASC');
-                },
-                'attr' => [
-                    'class' => 'w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition outline-none text-gray-800'
-                ]
+            // ->add('shows', EntityType::class, [
+            //     'class'=> Show::class,
+            //     'choice_label'=>'title',
+            //     'multiple'=>true,
+            //     'expanded'=>false,
+            //     'label'=> 'Speactacles rattachés',
+            //     'by_reference'=> false,
+            //     'query_builder' => function (EntityRepository $er) use ($currentOrganization) {
+            //         return $er->createQueryBuilder('s')
+            //             ->where('s.organization = :org')
+            //             ->setParameter('org', $currentOrganization)
+            //             ->orderBy('s.title', 'ASC');
+            //     },
+            //     'attr' => [
+            //         'class' => 'w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition outline-none text-gray-800'
+            //     ]
+            // ])
+            ->add('showContacts', CollectionType::class, [
+                'entry_type' => ShowContactFormType::class,
+                'entry_options' => [
+                    'current_organization' => $currentOrganization,
+                ],
+                'allow_add' => true,
+                'allow_delete' => true,
+                'by_reference' => false, 
+                'label' => false,
             ])
+
             ->add('notes', TextareaType::class, [
-                'label' => 'Notes ',
+                'label' => 'Concernant le contact ',
                 'required' => false,
                 'attr' => ['rows' => 2]
             ])

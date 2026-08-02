@@ -84,7 +84,7 @@
                 <button type="button" data-tab="contacts"
                     class="tab-btn border-b-2 border-transparent text-slate-400 hover:text-slate-600 pb-3 px-1 flex items-center gap-2 whitespace-nowrap">
                     <i class="fa-solid fa-address-book"></i>
-                    <span>Contacts ({{ show.contacts|length }})</span>
+                    <span>Contacts ({{ show.showContacts|length }})</span>
                 </button>
 
                 <button type="button" data-tab="medias"
@@ -270,20 +270,25 @@
         </div>
 
         {# ONGLET 3 : LES CONTACTS #}
+        {# ONGLET 3 : LES CONTACTS #}
         <div id="tab-contacts" class="tab-content hidden space-y-6">
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
                 <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Contacts rattachés</h3>
 
-                {% if show.contacts is not empty %}
+                {% if show.showContacts is not empty %}
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {% for contact in show.contacts %}
-                    {# Carte transformée en lien principal avec effet hover #}
+                    {% for showContact in show.showContacts %}
+                    {# On extrait l'objet Contact réel relié à la relation ShowContact #}
+                    {% set contact = showContact.contact %}
+
                     <div
                         class="relative group p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-slate-300 hover:shadow-md transition-all duration-200 flex flex-col justify-between space-y-3">
 
-                        {# Lien invisible qui couvre TOUTE la carte #}
+                        {# Lien vers la fiche du contact #}
+                        {% if contact %}
                         <a href="{{ path('contact_show', {'id': contact.id}) }}" class="absolute inset-0 z-0 rounded-xl"
                             title="Voir la fiche contact"></a>
+                        {% endif %}
 
                         {# En-tête : Avatar + Nom #}
                         <div class="flex items-center gap-3 relative z-10 pointer-events-none">
@@ -294,28 +299,37 @@
                             <div class="truncate">
                                 <h4
                                     class="text-sm font-bold text-slate-800 group-hover:text-sky-600 transition-colors truncate">
-                                    {% if contact.firstName is defined or contact.lastName is defined %}
+                                    {% if contact %}
                                     {{ contact.firstName }} {{ contact.lastName }}
                                     {% else %}
-                                    {{ contact.name|default(contact) }}
+                                    <span class="italic text-slate-400">Contact inconnu</span>
                                     {% endif %}
                                 </h4>
-                                {% if contact.role is defined and contact.role %}
+                                {% if contact and contact.role is defined and contact.role %}
                                 <p class="text-xs text-slate-400 truncate">{{ contact.role }}</p>
                                 {% endif %}
                             </div>
                         </div>
 
-                        {# Pied : Email & Téléphone (z-10 pour conserver leur clic propre) #}
+                        {# Note/Rapport éventuel lié à la relation #}
+                        {% if showContact.report is defined and showContact.report %}
+                        <div
+                            class="relative z-10 p-2.5 rounded-lg bg-indigo-50/60 border border-indigo-100/80 text-[11px] text-slate-600 space-y-1">
+                            <p class="line-clamp-3 italic">{{ showContact.report }}</p>
+                        </div>
+                        {% endif %}
+
+                        {# Pied : Email & Téléphone #}
+                        {% if contact %}
                         <div class="pt-2 border-t border-slate-200/60 space-y-1 text-xs text-slate-600 relative z-10">
-                            {% if contact.email is defined and contact.email %}
+                            {% if contact.email %}
                             <a href="mailto:{{ contact.email }}"
                                 class="flex items-center gap-2 hover:text-sky-600 transition truncate w-max max-w-full">
                                 <i class="fa-regular fa-envelope text-slate-400 w-4"></i>
                                 {{ contact.email }}
                             </a>
                             {% endif %}
-                            {% if contact.phone is defined and contact.phone %}
+                            {% if contact.phone %}
                             <a href="tel:{{ contact.phone }}"
                                 class="flex items-center gap-2 hover:text-sky-600 transition w-max max-w-full">
                                 <i class="fa-solid fa-phone text-slate-400 w-4"></i>
@@ -323,6 +337,8 @@
                             </a>
                             {% endif %}
                         </div>
+                        {% endif %}
+
                     </div>
                     {% endfor %}
                 </div>

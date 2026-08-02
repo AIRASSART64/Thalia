@@ -143,8 +143,8 @@ class ShowController extends AbstractController
 
 
     }
-      #[ Route('/{id}', name:'show_show', methods:['GET'])]
-    public function show(Show $show): Response
+      #[ Route('/{id}', name:'show_show', requirements:['id'=>'\d+'], methods:['GET'])]
+    public function show(Show $show ): Response
     {
         $this->denyAccessUnlessGranted('SHOW_VIEW', $show);
 
@@ -194,7 +194,7 @@ class ShowController extends AbstractController
                 }
             }
             $this->crudManager->delete($show);
-        };
+        }
 
        
         return $this->redirectToRoute('show_index', []);

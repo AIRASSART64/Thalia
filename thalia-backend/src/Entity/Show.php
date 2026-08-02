@@ -56,23 +56,17 @@ class Show
     private ?PipelineStatusEnum $pipeline_status = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    // #[Assert\File(
-    //     maxSize: "4M",
-    //     mimeTypes: ["image/jpeg", "image/png", "image/webp"],
-    //     maxSizeMessage: "L'image ne doit pas dépasser {{ limit }} {{ suffix }}.",
-    //     mimeTypesMessage: "Format d'image invalide (JPG, PNG ou WebP uniquement)."
-    // )]
     private ?string $artwork_url = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?Organization $organization = null;
 
-    /**
-     * @var Collection<int, Contact>
-     */
-    #[ORM\ManyToMany(targetEntity: Contact::class, inversedBy: 'shows', cascade: ['persist'])]
-    private Collection $contacts;
+    // /**
+    //  * @var Collection<int, Contact>
+    //  */
+    // #[ORM\ManyToMany(targetEntity: Contact::class, inversedBy: 'shows', cascade: ['persist'])]
+    // private Collection $contacts;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $created_at = null;
@@ -90,12 +84,6 @@ class Show
     private ?AudienceClassificationEnum $audience = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    // #[Assert\File(
-    //     maxSize: "6M",
-    //     mimeTypes: ["application/pdf"],
-    //     maxSizeMessage: "Le dossier artistique ne doit pas dépasser {{ limit }} {{ suffix }}.",
-    //     mimeTypesMessage: "Seul le format PDF est accepté pour le dossier artistique."
-    // )]
     private ?string $artistic_file = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -114,11 +102,18 @@ class Show
     #[ORM\ManyToMany(targetEntity: Theme::class, inversedBy: 'shows', cascade: ['persist'])]
     private Collection $themes;
 
+    /**
+     * @var Collection<int, ShowContact>
+     */
+    #[ORM\OneToMany(targetEntity: ShowContact::class, mappedBy: 'event')]
+    private Collection $showContacts;
+
     public function __construct()
     {
-        $this->contacts = new ArrayCollection();
+        // $this->contacts = new ArrayCollection();
         $this->performances = new ArrayCollection();
         $this->themes = new ArrayCollection();
+        $this->showContacts = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -236,30 +231,30 @@ class Show
         return $this;
     }
 
-    /**
-     * @return Collection<int, Contact>
-     */
-    public function getContacts(): Collection
-    {
-        return $this->contacts;
-    }
+    // /**
+    //  * @return Collection<int, Contact>
+    //  */
+    // public function getContacts(): Collection
+    // {
+    //     return $this->contacts;
+    // }
 
-    public function addContact(Contact $contact): static
-    {
-        if (!$this->contacts->contains($contact)) {
-            $this->contacts->add($contact);
-            $contact->addShow($this);
-        }
-        return $this;
-    }
+    // public function addContact(Contact $contact): static
+    // {
+    //     if (!$this->contacts->contains($contact)) {
+    //         $this->contacts->add($contact);
+    //         $contact->addShow($this);
+    //     }
+    //     return $this;
+    // }
 
-    public function removeContact(Contact $contact): static
-    {
-        if ($this->contacts->removeElement($contact)) {
-            $contact->removeShow($this);
-        }
-        return $this;
-    }
+    // public function removeContact(Contact $contact): static
+    // {
+    //     if ($this->contacts->removeElement($contact)) {
+    //         $contact->removeShow($this);
+    //     }
+    //     return $this;
+    // }
 
     public function getCreatedAt(): ?\DateTimeImmutable
     {
@@ -398,6 +393,36 @@ class Show
     public function removeTheme(Theme $theme): static
     {
         $this->themes->removeElement($theme);
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, ShowContact>
+     */
+    public function getShowContacts(): Collection
+    {
+        return $this->showContacts;
+    }
+
+    public function addShowContact(ShowContact $showContact): static
+    {
+        if (!$this->showContacts->contains($showContact)) {
+            $this->showContacts->add($showContact);
+            $showContact->setEvent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeShowContact(ShowContact $showContact): static
+    {
+        if ($this->showContacts->removeElement($showContact)) {
+            // set the owning side to null (unless already changed)
+            if ($showContact->getEvent() === $this) {
+                $showContact->setEvent(null);
+            }
+        }
+
         return $this;
     }
 }

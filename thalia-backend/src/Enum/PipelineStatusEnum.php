@@ -4,7 +4,7 @@ namespace App\Enum;
 
 enum PipelineStatusEnum : string
 {
-    case CREATION = 'Creéation';
+    case CREATION = 'Création';
     case A_CONTACTER = 'A contacter';
     case PRISE_CONTACT = 'Prise de contact';
     case NEGOCIATION = 'Négociation';

@@ -3,144 +3,289 @@
 {% block title %}Thalia - {{ contact.firstName }} {{ contact.lastName }}{% endblock %}
 
 {% block body %}
-<div class="min-h-screen bg-slate-50 text-slate-800">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        
-        {# ─── RETOUR ET ACTIONS ─── #}
-        <div class="flex items-center justify-between">
-            <a href="{{ path('contact_index') }}" class="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-800 transition">
-                <i class="fa-solid fa-arrow-left"></i> Retour à la liste
+<div class="min-h-screen bg-[#f8fafc] text-slate-800 pb-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+
+        {# ─── BARRE D'ACTIONS DU HAUT ─── #}
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-4">
+            <a href="{{ path('contact_index') }}"
+                class="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-800 transition">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Retour aux contacts</span>
             </a>
-            <a href="{{ path('contact_edit', {'id': contact.id}) }}" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition shadow-sm">
-                <i class="fa-regular fa-pen-to-square"></i> Modifier la fiche
-            </a>
-             <form method="post" action="{{ path('contact_delete', {'id': contact.id}) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer définitivement ce contact ?');">
-                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ contact.id) }}">
-                <button type="submit" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-semibold text-xs transition">
-                    <i class="fa-regular fa-trash-can"></i> Supprimer
-                </button>
-            </form>
+
+            <div class="flex items-center gap-2">
+                <a href="{{ path('contact_edit', {'id': contact.id}) }}"
+                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition shadow-sm">
+                    <i class="fa-regular fa-pen-to-square"></i>
+                    <span>Modifier la fiche</span>
+                </a>
+
+                <form method="post" action="{{ path('contact_delete', {'id': contact.id}) }}"
+                    onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer définitivement ce contact ?');"
+                    class="inline">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ contact.id) }}">
+                    <button type="submit"
+                        class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs transition border border-rose-100">
+                        <i class="fa-regular fa-trash-can"></i>
+                        <span>Supprimer</span>
+                    </button>
+                </form>
+            </div>
         </div>
 
-        {# ─── PROFILE CARD (HEADER) ─── #}
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col sm:flex-row items-center sm:items-start gap-6 relative overflow-hidden">
-            {# Décor d'arrière-plan #}
-            <div class="absolute right-0 top-0 h-full w-1/3 bg-gradient-to-l from-indigo-50/20 to-transparent pointer-events-none"></div>
+        {# ─── LAYOUT EN 2 COLONNES (Grip 1/3 - 2/3) ─── #}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
 
-            {# Initiale géante style Avatar #}
-            <div class="w-20 h-20 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-3xl font-black text-indigo-600 shrink-0 shadow-inner">
-                {{ contact.firstName|slice(0, 1)|upper }}{{ contact.lastName|slice(0, 1)|upper }}
-            </div>
+            {# ════════════════════════════════════════════════════ #}
+            {# COLONNE GAUCHE (1/3) : IDENTITÉ, COMPAGNIES & COORDONNÉES #}
+            {# ════════════════════════════════════════════════════ #}
+            <div class="space-y-6">
 
-            <div class="text-center sm:text-left space-y-2 z-10">
-                <div class="flex flex-col sm:flex-row sm:items-center gap-2.5">
-                    <h1 class="text-2xl font-black text-slate-900">{{ contact.firstName }} {{ contact.lastName }}</h1>
-                    {% if contact.role %}
-                        <span class="inline-block px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-wider self-center mx-auto sm:mx-0">
+                {# CARD IDENTITÉ PRINCIPALE #}
+                <div
+                    class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 text-center sm:text-left space-y-4">
+                    <div class="flex flex-col sm:flex-row items-center gap-4">
+                        {# Avatar Initiales #}
+                        <div
+                            class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-50 to-sky-50 border border-indigo-100/80 flex items-center justify-center text-2xl font-black text-indigo-600 shrink-0 shadow-inner">
+                            {{ contact.firstName|slice(0, 1)|upper }}{{ contact.lastName|slice(0, 1)|upper }}
+                        </div>
+                        <div class="space-y-1">
+                            <h1 class="text-xl font-extrabold text-slate-900 leading-tight">
+                                {{ contact.firstName }} {{ contact.lastName }}
+                            </h1>
+                            <p class="text-xs font-semibold text-slate-400">Fiche Contact CRM</p>
+                        </div>
+                    </div>
+
+                    <hr class="border-slate-100">
+
+                    {# BLOC COORDONNÉES ACCESSIBLES #}
+                    <div class="space-y-2.5 pt-1">
+                        {# Email #}
+                        {% if contact.email %}
+                        <a href="mailto:{{ contact.email }}"
+                            class="flex items-center gap-3 p-2.5 rounded-xl bg-slate-50 hover:bg-sky-50 text-slate-700 hover:text-sky-700 border border-slate-100 transition group text-xs font-medium">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-white border border-slate-200/60 flex items-center justify-center text-slate-400 group-hover:text-sky-600 shrink-0">
+                                <i class="fa-regular fa-envelope"></i>
+                            </div>
+                            <span class="truncate">{{ contact.email }}</span>
+                        </a>
+                        {% endif %}
+
+                        {# Téléphone #}
+                        {% if contact.phone %}
+                        <a href="tel:{{ contact.phone }}"
+                            class="flex items-center gap-3 p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-100 transition group text-xs font-medium">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-white border border-slate-200/60 flex items-center justify-center text-slate-400 group-hover:text-emerald-600 shrink-0">
+                                <i class="fa-solid fa-phone"></i>
+                            </div>
+                            <span>{{ contact.phone }}</span>
+                        </a>
+                        {% endif %}
+
+                        {% if not contact.email and not contact.phone %}
+                        <p class="text-xs text-slate-400 italic text-center py-2">Aucune coordonnée directe disponible.
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {# CARD MULTI-COMPAGNIES & RÔLES ASSOCIÉS #}
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 space-y-4">
+                    <h3
+                        class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                        <span>Compagnies & Rôles</span>
+                        <i class="fa-solid fa-building text-slate-300"></i>
+                    </h3>
+
+                    {# Adapter la variable selon votre relation Entity (ex: contact.companyRoles ou contact.companies)
+                    #}
+                    {% if contact.companies is defined and contact.companies is not empty %}
+                    <div class="space-y-3">
+                        {% for companyRelation in contact.companies %}
+                        <div class="p-3 rounded-xl border border-slate-100 bg-slate-50/50 space-y-1">
+                            <div class="flex items-center justify-between">
+                                <h4 class="text-xs font-bold text-slate-800">
+                                    {# Si c'est un objet relation intermédiaire (ex: ContactCompany) avec .company #}
+                                    {{ companyRelation.company.name|default(companyRelation.name|default('Compagnie sans
+                                    nom')) }}
+                                </h4>
+                                <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-300"></i>
+                            </div>
+
+                            {# Rôle spécifique du contact dans cette compagnie #}
+                            <div class="flex items-center gap-1.5">
+                                <span
+                                    class="inline-block px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 text-[10px] font-bold">
+                                    <i class="fa-solid fa-user-tag text-[9px] mr-1"></i>
+                                    {{ companyRelation.role|default(contact.role|default('Membre')) }}
+                                </span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% elseif contact.companyName %}
+                    {# Fallback si vous avez encore le champ simple companyName #}
+                    <div class="p-3 rounded-xl border border-slate-100 bg-slate-50/50 space-y-1">
+                        <h4 class="text-xs font-bold text-slate-800">{{ contact.companyName }}</h4>
+                        {% if contact.role %}
+                        <span
+                            class="inline-block px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 text-[10px] font-bold">
                             {{ contact.role }}
                         </span>
-                    {% endif %}
-                </div>
-                
-                <p class="text-sm text-slate-500 font-medium">
-                    {% if contact.companyName %}
-                        <i class="fa-solid fa-building text-slate-300 mr-1.5"></i> {{ contact.companyName }}
+                        {% endif %}
+                    </div>
                     {% else %}
-                        <span class="text-slate-400 italic">Aucune structure renseignée</span>
+                    <p class="text-xs text-slate-400 italic">Aucune compagnie ou structure associée.</p>
                     {% endif %}
-                </p>
-            </div>
-        </div>
-
-        {# ─── COORDONNÉES ET DETAILS (GRID) ─── #}
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            {# Fiche contact rapide (Col-1) #}
-            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 space-y-4">
-                <h3 class="text-xs font-black text-slate-400 uppercase tracking-wider border-b border-slate-50 pb-2">Coordonnées</h3>
-                
-                <div class="space-y-3">
-                    {# Email #}
-                    <div>
-                        <span class="block text-[10px] font-bold text-slate-400 uppercase">Adresse e-mail</span>
-                        {% if contact.email %}
-                            <a href="mailto:{{ contact.email }}" class="text-xs font-bold text-indigo-600 hover:text-indigo-700 break-all transition">
-                                {{ contact.email }}
-                            </a>
-                        {% else %}
-                            <span class="text-xs text-slate-400 italic">-</span>
-                        {% endif %}
-                    </div>
-                    
-                    {# Téléphone #}
-                    <div>
-                        <span class="block text-[10px] font-bold text-slate-400 uppercase">Téléphone</span>
-                        {% if contact.phone %}
-                            <a href="tel:{{ contact.phone }}" class="text-xs font-bold text-slate-700 hover:text-indigo-600 transition">
-                                {{ contact.phone }}
-                            </a>
-                        {% else %}
-                            <span class="text-xs text-slate-400 italic">-</span>
-                        {% endif %}
-                    </div>
                 </div>
+
             </div>
 
-            {# Bloc Notes & Historique (Col-2) #}
-            <div class="md:col-span-2 bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col justify-between">
-                <div>
-                    <h3 class="text-xs font-black text-slate-400 uppercase tracking-wider border-b border-slate-50 pb-2 mb-3">Notes Internes</h3>
-                    <div class="text-xs sm:text-sm text-slate-600 leading-relaxed bg-slate-50 rounded-xl p-4 border border-slate-100 min-h-[100px]">
-                        {% if contact.notes %}
-                            {{ contact.notes|nl2br }}
-                        {% else %}
-                            <span class="text-slate-400 italic">Aucune note ou historique enregistré pour le moment.</span>
-                        {% endif %}
+            {# ════════════════════════════════════════════════════ #}
+            {# COLONNE DROITE (2/3) : SPECTACLES LIÉS & CRM NOTES #}
+            {# ════════════════════════════════════════════════════ #}
+            <div class="lg:col-span-2 space-y-6">
+
+                {# ─── SPECTACLES ASSOCIÉS AVEC PIPELINE STATUS ─── #}
+                {# ─── SPECTACLES ASSOCIÉS AVEC PIPELINE STATUS & RAPPORT ─── #}
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-masks-theater text-indigo-500"></i>
+                            Spectacles associés
+                        </h3>
+                        <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                            {{ contact.showContacts|length }}
+                        </span>
                     </div>
-                </div>
-            </div>
 
-        </div>
+                    {% if contact.showContacts is not empty %}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {% for showContact in contact.showContacts %}
+                        {% set show = showContact.event %} {# Ou showContact.show si votre getter est getShow() #}
 
-        {# ─── RELATION : SPECTACLES ASSOCIÉS ─── #}
-        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-            <h3 class="text-xs font-black text-slate-400 uppercase tracking-wider border-b border-slate-50 pb-3 mb-4">
-                Spectacles associés
-            </h3>
-            
-            {% if contact.shows is defined and contact.shows|length > 0 %}
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {% for show in contact.shows %}
-                        <div class="p-4 rounded-xl border border-slate-100 hover:border-indigo-100 bg-slate-50/50 flex items-center justify-between group transition">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-12 rounded bg-slate-200 overflow-hidden shrink-0">
+                        <div
+                            class="group relative block p-3.5 rounded-2xl border border-slate-200/70 bg-white hover:bg-slate-50/80 hover:border-indigo-300 hover:shadow-md transition-all duration-200 space-y-3">
+
+                            {# CARD DU SPECTACLE #}
+                            <a href="{{ path('show_show', {'id': show.id}) }}" class="flex gap-3 items-center">
+
+                                {# Image / Visuel du spectacle #}
+                                <div
+                                    class="w-14 h-18 rounded-xl bg-slate-900 overflow-hidden shrink-0 border border-slate-200 shadow-sm">
                                     {% if show.artworkUrl %}
-                                        <img src="{{ path('secure_show_image', {'id': show.id}) }}" class="w-full h-full object-cover" alt="{{ show.title }}">
+                                    <img src="{{ path('secure_show_image', {'id': show.id}) }}"
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                        alt="{{ show.title }}">
                                     {% else %}
-                                        <div class="w-full h-full flex items-center justify-center text-slate-400 bg-slate-200">
-                                            <i class="fa-solid fa-masks-theater text-xs"></i>
-                                        </div>
+                                    <div
+                                        class="w-full h-full flex items-center justify-center text-slate-500 bg-slate-800">
+                                        <i class="fa-solid fa-masks-theater text-lg"></i>
+                                    </div>
                                     {% endif %}
                                 </div>
-                                <div>
-                                    <h4 class="text-xs font-bold text-slate-900 group-hover:text-indigo-600 transition">{{ show.title }}</h4>
-                                    <span class="text-[10px] text-slate-400 font-semibold">{{ show.discipline.value|default('Spectacle') }}</span>
-                                </div>
-                            </div>
-                            <a href="{{ path('show_show', {'id': show.id}) }}" class="p-1 text-slate-400 hover:text-indigo-600 transition" title="Voir le spectacle">
-                                <i class="fa-solid fa-arrow-right text-xs"></i>
-                            </a>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="text-center py-6 text-xs text-slate-400 italic bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
-                    <i class="fa-solid fa-masks-theater text-lg mb-2 block opacity-40"></i>
-                    Ce contact n'est lié à aucun spectacle pour le moment.
-                </div>
-            {% endif %}
-        </div>
 
+                                {# Infos du spectacle #}
+                                <div class="flex-1 min-w-0 space-y-2">
+                                    <div>
+                                        <h4
+                                            class="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition truncate">
+                                            {{ show.title }}
+                                        </h4>
+                                        <p class="text-[11px] text-slate-400 font-medium truncate">
+                                            {{ show.discipline ? show.discipline.value|capitalize : 'Discipline non
+                                            définie' }}
+                                        </p>
+                                    </div>
+
+                                    {# BADGE PIPELINE CRM STATUS #}
+                                    <div>
+                                        {% set pipelineStatus =
+                                        show.pipelineStatus.value|default(show.pipelineStatus|default('Inconnu')) %}
+
+                                        {% set statusClass = 'bg-slate-100 text-slate-600 border-slate-200' %}
+                                        {% if pipelineStatus in ['Option', 'En négociation', 'Prospection'] %}
+                                        {% set statusClass = 'bg-amber-50 text-amber-700 border-amber-200' %}
+                                        {% elseif pipelineStatus in ['Confirmé', 'Gagné', 'Signé', 'Vendu'] %}
+                                        {% set statusClass = 'bg-emerald-50 text-emerald-700 border-emerald-200' %}
+                                        {% elseif pipelineStatus in ['Perdu', 'Annulé'] %}
+                                        {% set statusClass = 'bg-rose-50 text-rose-700 border-rose-200' %}
+                                        {% endif %}
+
+                                        <span
+                                            class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold border {{ statusClass }}">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-current"></span>
+                                            {{ pipelineStatus }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {# Flèche indicatrice #}
+                                <div
+                                    class="text-slate-300 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all shrink-0">
+                                    <i class="fa-solid fa-chevron-right text-xs"></i>
+                                </div>
+                            </a>
+
+                            {# AFFICHAGE DU COMPTE-RENDU / RAPPORT LIÉ (SI EXISTANT) #}
+                            {% if showContact.report %}
+                            <div
+                                class="pt-2 border-t border-slate-100 text-[11px] text-slate-600 italic bg-slate-50/60 p-2.5 rounded-xl border border-slate-100/80 space-y-1">
+                                <div
+                                    class="font-bold not-italic text-slate-400 text-[10px] uppercase flex items-center gap-1">
+                                    <i class="fa-regular fa-comment-dots text-indigo-400"></i>
+                                    <span>Note liée :</span>
+                                </div>
+                                <p class="line-clamp-2 whitespace-pre-line">{{ showContact.report }}</p>
+                            </div>
+                            {% endif %}
+
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div
+                        class="text-center py-8 bg-slate-50/50 rounded-xl border border-dashed border-slate-200 space-y-2">
+                        <i class="fa-solid fa-masks-theater text-2xl text-slate-300"></i>
+                        <p class="text-xs text-slate-400 italic">Aucun spectacle lié à ce contact pour le moment.</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {# ─── NOTES CONCERNANT LE CONTACT ─── #}
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-regular fa-clipboard text-indigo-500"></i>
+                            Notes concernant le contact
+                        </h3>
+                        <a href="{{ path('contact_edit', {'id': contact.id}) }}"
+                            class="text-[11px] font-bold text-indigo-600 hover:text-indigo-700">
+                            + Modifier les notes
+                        </a>
+                    </div>
+
+                    {% if contact.notes %}
+                    <div
+                        class="p-4 rounded-xl bg-slate-50 border border-slate-100 text-xs sm:text-sm text-slate-700 leading-relaxed whitespace-pre-line">
+                        {{ contact.notes }}
+                    </div>
+                    {% else %}
+                    <div
+                        class="p-4 text-center text-xs text-slate-400 italic bg-slate-50/50 rounded-xl border border-slate-100">
+                        Aucune note enregistrée sur ce contact.
+                    </div>
+                    {% endif %}
+                </div>
+
+            </div>
+
+        </div>
     </div>
 </div>
 {% endblock %}
