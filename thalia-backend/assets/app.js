@@ -115,3 +115,46 @@ window.handleDocumentPreview = function(input, infoContainerId) {
         }
     }
 };
+
+/**
+ * Gestion des onglets de navigation 
+ */
+export function initTabs() {
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    if (tabButtons.length === 0) return;
+
+    tabButtons.forEach(button => {
+        // Évite de réattacher les événements si Turbo recharge
+        if (button.dataset.tabsInitialized) return;
+        button.dataset.tabsInitialized = "true";
+
+        button.addEventListener('click', () => {
+            const targetTab = button.getAttribute('data-tab');
+
+            // Réinitialiser les styles des boutons
+            tabButtons.forEach(btn => {
+                btn.classList.remove('border-sky-500', 'text-sky-600');
+                btn.classList.add('border-transparent', 'text-slate-400');
+            });
+
+            // Activer le bouton cliqué
+            button.classList.remove('border-transparent', 'text-slate-400');
+            button.classList.add('border-sky-500', 'text-sky-600');
+
+            // Afficher le bon contenu
+            tabContents.forEach(content => {
+                if (content.id === `tab-${targetTab}`) {
+                    content.classList.remove('hidden');
+                } else {
+                    content.classList.add('hidden');
+                }
+            });
+        });
+    });
+}
+
+// Initialisation globale
+document.addEventListener("DOMContentLoaded", initTabs);
+document.addEventListener("turbo:load", initTabs);
