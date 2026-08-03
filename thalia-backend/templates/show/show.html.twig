@@ -3,6 +3,7 @@
 {% block title %}{{ show.title }} - Thalia{% endblock %}
 
 {% block body %}
+{% include 'components/_sidebar.html.twig' with { hide_desktop_sidebar: true } %}
 <div class="min-h-screen bg-[#f8fafc] text-slate-800 pb-16">
 
     {# ─── 1. BANDEAU DE COUVERTURE ─── #}
@@ -277,8 +278,8 @@
                 <div class="flex items-center justify-between border-b border-slate-100 pb-4">
                     <div>
                         <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Contacts rattachés</h3>
-                        <p class="text-xs text-slate-500 mt-1">Gérez les personnes ressources associées à ce spectacle
-                        </p>
+                        {# <p class="text-xs text-slate-500 mt-1">Gérez les personnes ressources associées à ce spectacle
+                        </p> #}
                     </div>
 
                     <a href="{{ path('show_contact_add', {'id': show.id}) }}"
