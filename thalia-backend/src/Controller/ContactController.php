@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Contact;
+use App\Entity\ShowContact;
 use App\Form\ContactFormType;
 use App\Repository\ContactRepository;
 use App\Repository\ShowRepository;
@@ -53,11 +54,11 @@ class ContactController extends AbstractController
              $show = $showRepository->find($showId);
              if ($show) {
            
-                if (method_exists($contact, 'setShow')) {
-                $contact->setShow($show);
-                    } elseif (method_exists($contact, 'addShow')) {
-                    $contact->addShow($show);
-                    }   
+                $showContact = new ShowContact();
+                $showContact->setEvent($show);
+                $showContact->setContact($contact);
+
+                $contact->addShowContact($showContact);
                 }
             }
         

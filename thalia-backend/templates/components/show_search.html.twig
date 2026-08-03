@@ -1,5 +1,4 @@
-{% set activeFiltersCount = (this.discipline != 'Tous' ? 1 : 0) + (this.audience != 'Tous' ? 1 : 0) + (this.theme !=
-'Tous' ? 1 : 0) %}
+{% set activeFiltersCount = (this.discipline != 'Tous' ? 1 : 0) + (this.audience != 'Tous' ? 1 : 0) + (this.theme != 'Tous' ? 1 : 0) + (this.query is not empty ? 1 : 0) %}
 
 <div {{ attributes }} x-data="{ openFilters: false }">
 
@@ -10,7 +9,7 @@
         <div class="flex items-center gap-2 sm:hidden">
             <div class="grow">
                 {% include 'components/_search_bar.html.twig' with {
-                placeholder: 'Titre du spectacle...'
+                    placeholder: 'Titre du spectacle...'
                 } %}
             </div>
 
@@ -32,11 +31,11 @@
 
             {# Select Discipline #}
             <div class="w-52">
-                <select data-model="discipline"
+                <select data-model="live#discipline"
                     class="w-full form-input-sm py-2 px-3 text-xs font-medium bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500">
                     <option value="Tous">Toutes les disciplines</option>
                     {% for d in this.disciplines %}
-                    <option value="{{ d.value }}" {{ this.discipline==d.value ? 'selected' : '' }}>
+                    <option value="{{ d.value }}" {{ this.discipline == d.value ? 'selected' : '' }}>
                         {{ d.name|replace({'_': ' '})|capitalize }}
                     </option>
                     {% endfor %}
@@ -45,11 +44,11 @@
 
             {# Select Audience #}
             <div class="w-52">
-                <select data-model="audience"
+                <select data-model="live#audience"
                     class="w-full form-input-sm py-2 px-3 text-xs font-medium bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500">
                     <option value="Tous">Type de public</option>
                     {% for a in this.audiences %}
-                    <option value="{{ a.value }}" {{ this.audience==a.value ? 'selected' : '' }}>
+                    <option value="{{ a.value }}" {{ this.audience == a.value ? 'selected' : '' }}>
                         {{ a.name|replace({'_': ' '})|capitalize }}
                     </option>
                     {% endfor %}
@@ -58,11 +57,11 @@
 
             {# Select Thème #}
             <div class="w-52">
-                <select data-model="theme"
+                <select data-model="live#theme"
                     class="w-full form-input-sm py-2 px-3 text-xs font-medium bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500">
                     <option value="Tous">Tous les thèmes</option>
                     {% for t in this.themes %}
-                    <option value="{{ t.id }}" {{ this.theme==t.id ? 'selected' : '' }}>
+                    <option value="{{ t.id }}" {{ this.theme == t.id ? 'selected' : '' }}>
                         {{ t.name }}
                     </option>
                     {% endfor %}
@@ -72,7 +71,7 @@
             {# Recherche Desktop #}
             <div class="filter-search-group grow">
                 {% include 'components/_search_bar.html.twig' with {
-                placeholder: 'Titre du spectacle...'
+                    placeholder: 'Titre du spectacle...'
                 } %}
             </div>
 
@@ -110,11 +109,11 @@
                 {# Discipline #}
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1.5">Discipline</label>
-                    <select data-model="discipline"
+                    <select data-model="live#discipline"
                         class="w-full py-2.5 px-3 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500">
                         <option value="Tous">Toutes les disciplines</option>
                         {% for d in this.disciplines %}
-                        <option value="{{ d.value }}" {{ this.discipline==d.value ? 'selected' : '' }}>
+                        <option value="{{ d.value }}" {{ this.discipline == d.value ? 'selected' : '' }}>
                             {{ d.name|replace({'_': ' '})|capitalize }}
                         </option>
                         {% endfor %}
@@ -124,11 +123,11 @@
                 {# Audience #}
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1.5">Public</label>
-                    <select data-model="audience"
+                    <select data-model="live#audience"
                         class="w-full py-2.5 px-3 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500">
                         <option value="Tous">Type de public</option>
                         {% for a in this.audiences %}
-                        <option value="{{ a.value }}" {{ this.audience==a.value ? 'selected' : '' }}>
+                        <option value="{{ a.value }}" {{ this.audience == a.value ? 'selected' : '' }}>
                             {{ a.name|replace({'_': ' '})|capitalize }}
                         </option>
                         {% endfor %}
@@ -138,11 +137,11 @@
                 {# Thème #}
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1.5">Thème</label>
-                    <select data-model="theme"
+                    <select data-model="live#theme"
                         class="w-full py-2.5 px-3 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500">
                         <option value="Tous">Tous les thèmes</option>
                         {% for t in this.themes %}
-                        <option value="{{ t.id }}" {{ this.theme==t.id ? 'selected' : '' }}>
+                        <option value="{{ t.id }}" {{ this.theme == t.id ? 'selected' : '' }}>
                             {{ t.name }}
                         </option>
                         {% endfor %}
@@ -159,7 +158,7 @@
 
     {# Loader discret pendant la mise à jour des données Live #}
     {% include 'components/_search_loader.html.twig' with {
-    label: 'Mise à jour des résultats...'
+        label: 'Mise à jour des résultats...'
     } %}
 
     {# ─── GRILLE DES SPECTACLES ─── #}
@@ -235,6 +234,7 @@
         </div>
         {% endfor %}
     </div>
+
     {# ─── PAGINATION (UNIQUEMENT VUE DESKTOP : hidden sm:flex) ─── #}
     {% if this.totalItems > 0 %}
     <div
@@ -245,19 +245,14 @@
             Affichage de
             <span class="font-semibold text-slate-900">{{ this.pageStart }}-{{ this.pageEnd }}</span>
             sur
-            <span class="font-semibold text-slate-900">{{ this.totalItems }}</span> spectacle{{ this.totalItems > 1 ?
-            's' : '' }}.
+            <span class="font-semibold text-slate-900">{{ this.totalItems }}</span> spectacle{{ this.totalItems > 1 ? 's' : '' }}.
         </p>
 
         {# Navigation (Si plus d'1 page) #}
         {% if this.maxPages > 1 %}
-
-        {% include 'components/_pagination.html.twig' %}
-
+            {% include 'components/_pagination.html.twig' %}
         {% endif %}
 
     </div>
     {% endif %}
-</div>
-
 </div>

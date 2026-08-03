@@ -10,6 +10,8 @@ use App\Repository\ThemeRepository;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
+use Symfony\UX\LiveComponent\Attribute\LiveAction;
+use Symfony\UX\LiveComponent\Attribute\LiveArg;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
 use Symfony\UX\LiveComponent\DefaultActionTrait;
 
@@ -31,7 +33,6 @@ class ShowSearchComponent
     #[LiveProp(writable: true, url: true)]
     public string $theme = 'Tous';
 
-    
     #[LiveProp(writable: true, url: true)]
     public int $page = 1;
 
@@ -44,7 +45,15 @@ class ShowSearchComponent
     ) {
     }
 
-   
+    /**
+     * Action déclenchée par la pagination LiveComponent
+     */
+    #[LiveAction]
+    public function setPage(#[LiveArg] int $page): void
+    {
+        $this->page = $page;
+    }
+
     public function updatedQuery(): void { $this->page = 1; }
     public function updatedDiscipline(): void { $this->page = 1; }
     public function updatedAudience(): void { $this->page = 1; }
@@ -81,8 +90,6 @@ class ShowSearchComponent
             $this->itemsPerPage
         );
     }
-
-  
 
     public function getTotalItems(): int
     {

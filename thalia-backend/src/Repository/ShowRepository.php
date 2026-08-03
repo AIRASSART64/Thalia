@@ -61,7 +61,7 @@ class ShowRepository extends ServiceEntityRepository
         $qb = $this->createSearchQueryBuilder($organization, $query, $discipline, $audience, $theme);
 
         // Application de l'offset et du limit pour la pagination
-        $qb->orderBy('s.title', 'ASC')
+        $qb->orderBy('s.id', 'DESC')
            ->setFirstResult(($page - 1) * $limit)
            ->setMaxResults($limit);
 
