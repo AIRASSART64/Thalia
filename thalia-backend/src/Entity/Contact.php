@@ -7,10 +7,20 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ContactRepository::class)]
 #[ORM\HasLifecycleCallbacks]
+#[UniqueEntity(
+    fields: ['email', 'organization'],
+    message: 'Un contact avec cette adresse email existe déjà dans votre organisation.',
+    ignoreNull: true 
+)]
+#[UniqueEntity(
+    fields: ['first_name', 'last_name','organization'],
+    message: 'Un contact avec ce nom et prénom existe déjà.'
+)]
 class Contact
 {
     #[ORM\Id]

@@ -105,7 +105,7 @@ class Show
     /**
      * @var Collection<int, ShowContact>
      */
-    #[ORM\OneToMany(targetEntity: ShowContact::class, mappedBy: 'event')]
+    #[ORM\OneToMany(targetEntity: ShowContact::class, mappedBy: 'event', cascade: ['persist', 'remove'], orphanRemoval: true)]
     private Collection $showContacts;
 
     public function __construct()

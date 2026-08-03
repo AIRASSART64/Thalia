@@ -270,70 +270,99 @@
         </div>
 
         {# ONGLET 3 : LES CONTACTS #}
-        {# ONGLET 3 : LES CONTACTS #}
         <div id="tab-contacts" class="tab-content hidden space-y-6">
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Contacts rattachés</h3>
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
+
+                {# En-tête de l'onglet avec titre et bouton d'ajout #}
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div>
+                        <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Contacts rattachés</h3>
+                        <p class="text-xs text-slate-500 mt-1">Gérez les personnes ressources associées à ce spectacle
+                        </p>
+                    </div>
+
+                    <a href="{{ path('show_contact_add', {'id': show.id}) }}"
+                        class="inline-flex items-center gap-2 px-3.5 py-2 bg-sky-600 hover:bg-sky-700 text-white font-medium text-xs rounded-xl shadow-sm hover:shadow transition-all duration-200">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Ajouter un contact</span>
+                    </a>
+                </div>
 
                 {% if show.showContacts is not empty %}
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {% for showContact in show.showContacts %}
-                    {# On extrait l'objet Contact réel relié à la relation ShowContact #}
                     {% set contact = showContact.contact %}
 
                     <div
                         class="relative group p-4 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-white hover:border-slate-300 hover:shadow-md transition-all duration-200 flex flex-col justify-between space-y-3">
 
-                        {# Lien vers la fiche du contact #}
+                        {# Lien global vers la fiche du contact (désactivé au survol du bouton détacher) #}
                         {% if contact %}
                         <a href="{{ path('contact_show', {'id': contact.id}) }}" class="absolute inset-0 z-0 rounded-xl"
                             title="Voir la fiche contact"></a>
                         {% endif %}
 
-                        {# En-tête : Avatar + Nom #}
-                        <div class="flex items-center gap-3 relative z-10 pointer-events-none">
-                            <div
-                                class="w-10 h-10 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-sm shrink-0 group-hover:bg-sky-500 group-hover:text-white transition-colors">
-                                <i class="fa-regular fa-user"></i>
-                            </div>
-                            <div class="truncate">
-                                <h4
-                                    class="text-sm font-bold text-slate-800 group-hover:text-sky-600 transition-colors truncate">
-                                    {% if contact %}
-                                    {{ contact.firstName }} {{ contact.lastName }}
-                                    {% else %}
-                                    <span class="italic text-slate-400">Contact inconnu</span>
+                        {# En-tête : Avatar + Nom + Bouton Détacher #}
+                        <div class="flex items-start justify-between gap-3 relative z-10">
+                            <div class="flex items-center gap-3 truncate pointer-events-none">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-sm shrink-0 group-hover:bg-sky-500 group-hover:text-white transition-colors">
+                                    <i class="fa-regular fa-user"></i>
+                                </div>
+                                <div class="truncate">
+                                    <h4
+                                        class="text-sm font-bold text-slate-800 group-hover:text-sky-600 transition-colors truncate">
+                                        {% if contact %}
+                                        {{ contact.firstName }} {{ contact.lastName }}
+                                        {% else %}
+                                        <span class="italic text-slate-400">Contact inconnu</span>
+                                        {% endif %}
+                                    </h4>
+                                    {% if contact and contact.role is defined and contact.role %}
+                                    <p class="text-xs text-slate-400 truncate">{{ contact.role }}</p>
                                     {% endif %}
-                                </h4>
-                                {% if contact and contact.role is defined and contact.role %}
-                                <p class="text-xs text-slate-400 truncate">{{ contact.role }}</p>
-                                {% endif %}
+                                </div>
                             </div>
+
+                            <form method="post"
+                                action="{{ path('show_contact_detach', {'showId': show.id, 'id': showContact.id}) }}"
+                                onsubmit="return confirm('Voulez-vous vraiment détacher ce contact du spectacle ?');"
+                                class="relative z-20 shrink-0">
+
+                                <input type="hidden" name="_token" value="{{ csrf_token('detach_' ~ showContact.id) }}">
+
+                                <button type="submit"
+                                    class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                    title="Détacher du spectacle">
+                                    <i class="fa-solid fa-link-slash text-xs"></i>
+                                </button>
+                            </form>
+
                         </div>
 
-                        {# Note/Rapport éventuel lié à la relation #}
+                        {# Rapport / Rôle spécifique dans le projet #}
                         {% if showContact.report is defined and showContact.report %}
                         <div
-                            class="relative z-10 p-2.5 rounded-lg bg-indigo-50/60 border border-indigo-100/80 text-[11px] text-slate-600 space-y-1">
+                            class="relative z-10 p-2.5 rounded-lg bg-indigo-50/60 border border-indigo-100/80 text-[11px] text-slate-600 space-y-1 pointer-events-none">
                             <p class="line-clamp-3 italic">{{ showContact.report }}</p>
                         </div>
                         {% endif %}
 
                         {# Pied : Email & Téléphone #}
                         {% if contact %}
-                        <div class="pt-2 border-t border-slate-200/60 space-y-1 text-xs text-slate-600 relative z-10">
+                        <div class="pt-2 border-t border-slate-200/60 space-y-1 text-xs text-slate-600 relative z-20">
                             {% if contact.email %}
                             <a href="mailto:{{ contact.email }}"
                                 class="flex items-center gap-2 hover:text-sky-600 transition truncate w-max max-w-full">
-                                <i class="fa-regular fa-envelope text-slate-400 w-4"></i>
-                                {{ contact.email }}
+                                <i class="fa-regular fa-envelope text-slate-400 w-4 shrink-0"></i>
+                                <span class="truncate">{{ contact.email }}</span>
                             </a>
                             {% endif %}
                             {% if contact.phone %}
                             <a href="tel:{{ contact.phone }}"
                                 class="flex items-center gap-2 hover:text-sky-600 transition w-max max-w-full">
-                                <i class="fa-solid fa-phone text-slate-400 w-4"></i>
-                                {{ contact.phone }}
+                                <i class="fa-solid fa-phone text-slate-400 w-4 shrink-0"></i>
+                                <span>{{ contact.phone }}</span>
                             </a>
                             {% endif %}
                         </div>
@@ -343,8 +372,20 @@
                     {% endfor %}
                 </div>
                 {% else %}
-                <p class="text-slate-400 text-sm italic">Aucun contact associé à ce spectacle.</p>
+                {# État vide (Empty State) #}
+                <div class="text-center py-8 border-2 border-dashed border-slate-200 rounded-xl space-y-3">
+                    <div
+                        class="w-12 h-12 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto text-lg">
+                        <i class="fa-regular fa-address-book"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-sm font-medium text-slate-700">Aucun contact associé</p>
+                        <p class="text-xs text-slate-400">Rattachez des contacts à ce spectacle pour faciliter le suivi.
+                        </p>
+                    </div>
+                </div>
                 {% endif %}
+
             </div>
         </div>
         {# ONGLET 4 : LES MÉDIAS #}

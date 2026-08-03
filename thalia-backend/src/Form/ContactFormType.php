@@ -16,7 +16,8 @@ class ContactFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $currentOrganization = $options['current_organization'];
+        $currentOrganization = $options['user_organization'];
+
 
         $builder
             ->add('first_name', TextType::class, [
@@ -67,7 +68,7 @@ class ContactFormType extends AbstractType
             ->add('showContacts', CollectionType::class, [
                 'entry_type' => ShowContactFormType::class,
                 'entry_options' => [
-                    'current_organization' => $currentOrganization,
+                    'user_organization' => $currentOrganization,
                 ],
                 'allow_add' => true,
                 'allow_delete' => true,
@@ -87,8 +88,8 @@ class ContactFormType extends AbstractType
     {
        $resolver->setDefaults([
             'data_class' => Contact::class,
-            'current_organization' => null,
+            'user_organization' => null,
         ]);
-        $resolver->setRequired('current_organization');
+        $resolver->setRequired('user_organization');
     }
 }
