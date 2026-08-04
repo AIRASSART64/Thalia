@@ -31,7 +31,7 @@
 
             {# Select Discipline #}
             <div class="w-52">
-                <select data-model="live#discipline"
+                <select data-model="discipline"
                     class="w-full form-input-sm py-2 px-3 text-xs font-medium bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500">
                     <option value="Tous">Toutes les disciplines</option>
                     {% for d in this.disciplines %}
@@ -44,7 +44,7 @@
 
             {# Select Audience #}
             <div class="w-52">
-                <select data-model="live#audience"
+                <select data-model="audience"
                     class="w-full form-input-sm py-2 px-3 text-xs font-medium bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500">
                     <option value="Tous">Type de public</option>
                     {% for a in this.audiences %}
@@ -57,7 +57,7 @@
 
             {# Select Thème #}
             <div class="w-52">
-                <select data-model="live#theme"
+                <select data-model="theme"
                     class="w-full form-input-sm py-2 px-3 text-xs font-medium bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500">
                     <option value="Tous">Tous les thèmes</option>
                     {% for t in this.themes %}
@@ -109,7 +109,7 @@
                 {# Discipline #}
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1.5">Discipline</label>
-                    <select data-model="live#discipline"
+                    <select data-model="discipline"
                         class="w-full py-2.5 px-3 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500">
                         <option value="Tous">Toutes les disciplines</option>
                         {% for d in this.disciplines %}
@@ -123,7 +123,7 @@
                 {# Audience #}
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1.5">Public</label>
-                    <select data-model="live#audience"
+                    <select data-model="audience"
                         class="w-full py-2.5 px-3 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500">
                         <option value="Tous">Type de public</option>
                         {% for a in this.audiences %}
@@ -137,7 +137,7 @@
                 {# Thème #}
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1.5">Thème</label>
-                    <select data-model="live#theme"
+                    <select data-model="theme"
                         class="w-full py-2.5 px-3 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500">
                         <option value="Tous">Tous les thèmes</option>
                         {% for t in this.themes %}

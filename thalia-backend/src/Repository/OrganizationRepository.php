@@ -21,29 +21,29 @@ class OrganizationRepository extends ServiceEntityRepository
     //    /**
     //     * @return Organization[] Returns an array of Organization objects
     //     */
-       public function findByUser(User $user): ?Organization
-       {
-           return $this->createQueryBuilder('o')
-               ->innerJoin('o.users', 'u')
-               ->andWhere('u.id = :userId')
-               ->setParameter('userId', $user->getId())
-               ->getQuery()
-               ->getOneOrNullResult()
-           ;
-       }
-       /**
+    public function findByUser(User $user): ?Organization
+    {
+        return $this->createQueryBuilder('o')
+            ->innerJoin('o.users', 'u')
+            ->andWhere('u.id = :userId')
+            ->setParameter('userId', $user->getId())
+            ->getQuery()
+            ->getOneOrNullResult()
+        ;
+    }
+    /**
      * Recherche paginée d'organisations
      * 
      * @return Organization[]
      */
-    public function searchOrganizations(string $query,string $status,int $page = 1,int $itemsPerPage = 10 , ?Organization $excludedOrganization = null): array 
+    public function searchOrganizations(string $query, string $status, int $page = 1, int $itemsPerPage = 10, ?Organization $excludedOrganization = null): array
     {
         $qb = $this->createSearchQueryBuilder($query, $status, $excludedOrganization);
 
         $firstResult = ($page - 1) * $itemsPerPage;
         $qb->setFirstResult($firstResult)
-           ->setMaxResults($itemsPerPage)
-           ->orderBy('o.id', 'DESC');
+            ->setMaxResults($itemsPerPage)
+            ->orderBy('o.id', 'DESC');
 
         return $qb->getQuery()->getResult();
     }
@@ -51,7 +51,7 @@ class OrganizationRepository extends ServiceEntityRepository
     /**
      * Nombre total d'organisations correspondant aux filtres
      */
-    public function countSearchOrganizations(string $query,string $status, ?Organization $excludedOrganization = null): int 
+    public function countSearchOrganizations(string $query, string $status, ?Organization $excludedOrganization = null): int
     {
         $qb = $this->createSearchQueryBuilder($query, $status, $excludedOrganization);
 
@@ -63,13 +63,13 @@ class OrganizationRepository extends ServiceEntityRepository
     /**
      * Facteur commun pour la construction de la requête de recherche
      */
-    private function createSearchQueryBuilder(string $query,string $status, ?Organization $excludedOrganization = null): QueryBuilder 
+    private function createSearchQueryBuilder(string $query, string $status, ?Organization $excludedOrganization = null): QueryBuilder
     {
         $qb = $this->createQueryBuilder('o');
 
         if ($excludedOrganization !== null) {
             $qb->andWhere('o.id != :excludedOrgId')
-               ->setParameter('excludedOrgId', $excludedOrganization->getId());
+                ->setParameter('excludedOrgId', $excludedOrganization->getId());
         }
 
         // 1. Recherche textuelle (Nom de l'organisation, SIRET, Ville, Email)
@@ -87,14 +87,36 @@ class OrganizationRepository extends ServiceEntityRepository
         // 2. Filtre par Statut
         if ($status !== 'Tous' && !empty($status)) {
             $isActive = filter_var($status, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-            
+
             if ($isActive !== null) {
                 $qb->andWhere('o.isActive = :isActive')
-                   ->setParameter('isActive', $isActive);
+                    ->setParameter('isActive', $isActive);
             }
         }
 
         return $qb;
+    }
+
+    /**
+     * Récupère les établissements non modifiés depuis leur création (createdAt = updatedAt)
+     * 
+     * @param int|string|null $excludedOrgId ID de l'organisation à exclure (ex: l'organisation du SuperAdmin)
+     * @return Organization[]
+     */
+    public function getPendingOrganizations(?int $excludedOrgId = null): array
+    {
+        $qb = $this->createQueryBuilder('o')
+            ->andWhere('o.created_at = o.updated_at');
+
+        // On n'ajoute l'exclusion que si un ID a été fourni
+        if ($excludedOrgId !== null) {
+            $qb->andWhere('o.id != :excludedId')
+               ->setParameter('excludedId', $excludedOrgId);
+        }
+
+        return $qb->orderBy('o.created_at', 'DESC')
+            ->getQuery()
+            ->getResult();
     }
 
     //    public function findOneBySomeField($value): ?Organization

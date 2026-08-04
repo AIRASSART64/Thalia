@@ -59,8 +59,11 @@ class AdminDashboardComponent
     }
 
     public function getPendingOrganizations(): array
-    {
-        return $this->organizationRepository->findBy([], ['id' => 'DESC'], 5);
+    { 
+        /** @var User|null $currentUser */
+        $currentUser = $this->security->getUser();
+        $excludedOrgId = $currentUser?->getOrganization()?->getId();
+        return $this->organizationRepository->getPendingOrganizations($excludedOrgId);
     }
 
     // --- Données pour l'onglet 2 (Établissements) et l'onglet 3 (Utilisateurs) ---
@@ -101,6 +104,8 @@ class AdminDashboardComponent
             $excludedOrg
         );
     }
+
+
     // --- Calcule de la pagination unifiée ---
     public function getTotalItems(): int
     {

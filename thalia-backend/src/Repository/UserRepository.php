@@ -39,15 +39,15 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
      * 
      * @return User[]
      */
-    public function searchUsers(string $query,string $role,string $status,int $page = 1,int $itemsPerPage = 10): array 
+    public function searchUsers(string $query, string $role, string $status, int $page = 1, int $itemsPerPage = 10): array
     {
         $qb = $this->createSearchQueryBuilder($query, $role, $status);
 
         // Pagination via Doctrine
         $firstResult = ($page - 1) * $itemsPerPage;
         $qb->setFirstResult($firstResult)
-           ->setMaxResults($itemsPerPage)
-           ->orderBy('u.id', 'DESC');
+            ->setMaxResults($itemsPerPage)
+            ->orderBy('u.id', 'DESC');
 
         return $qb->getQuery()->getResult();
     }
@@ -55,10 +55,10 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     /**
      * Nombre total d'utilisateurs correspondant aux filtres
      */
-    public function countSearchUsers(string $query,string $role,string $status): int
+    public function countSearchUsers(string $query, string $role, string $status): int
     {
         $qb = $this->createSearchQueryBuilder($query, $role, $status);
-        
+
         $qb->select('COUNT(DISTINCT u.id)');
 
         return (int) $qb->getQuery()->getSingleScalarResult();
@@ -67,47 +67,56 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     /**
      * Facteur commun pour la construction de la requête de recherche
      */
-    private function createSearchQueryBuilder(string $query, string $role, string $status): QueryBuilder 
-    {
-        $qb = $this->createQueryBuilder('u')
-            ->leftJoin('u.organization', 'o')
-            ->addSelect('o');
+    // src/Repository/UserRepository.php
 
-        $qb->andWhere('u.roles NOT LIKE :superAdminRole')
-           ->setParameter('superAdminRole', '%"ROLE_SUPER_ADMIN"%');
+    // src/Repository/UserRepository.php
 
-        // 1. Recherche textuelle (Nom, Prénom, Email, Nom de l'organisation)
-        if (!empty(trim($query))) {
-            $qb->andWhere(
-                $qb->expr()->orX(
-                    'LOWER(u.firstName) LIKE LOWER(:query)',
-                    'LOWER(u.lastName) LIKE LOWER(:query)',
-                    'LOWER(u.email) LIKE LOWER(:query)',
-                    'LOWER(o.name) LIKE LOWER(:query)'
-                )
-            )->setParameter('query', '%' . trim($query) . '%');
-        }
+   // src/Repository/UserRepository.php
 
-        // 2. Filtre par Rôle
-        if ($role !== 'Tous' && !empty($role)) {
-            $qb->andWhere('u.roles LIKE :role')
-               ->setParameter('role', '%"' . $role . '"%');
-        }
+// src/Repository/UserRepository.php
 
-        // 3. Filtre par Statut (Actif / Inactif)
-        if ($status !== 'Tous' && !empty($status)) {
-            $isActive = filter_var($status, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-            
-            // Si le statut est une chaîne valide ("1", "true", "0", "false")
-            if ($isActive !== null) {
-                $qb->andWhere('u.isActive = :isActive')
-                   ->setParameter('isActive', $isActive);
-            }
-        }
+private function createSearchQueryBuilder(string $query, string $role, string $status): QueryBuilder
+{
+    $qb = $this->createQueryBuilder('u')
+        ->leftJoin('u.organization', 'o')
+        ->addSelect('o');
 
-        return $qb;
+    // Exclure le Super Admin
+    $qb->andWhere('u.roles NOT LIKE :superAdminRole')
+       ->setParameter('superAdminRole', '%"ROLE_SUPER_ADMIN"%');
+
+    // 1. Recherche textuelle
+    if (!empty(trim($query))) {
+        $qb->andWhere(
+            $qb->expr()->orX(
+                'LOWER(u.firstName) LIKE LOWER(:query)',
+                'LOWER(u.lastName) LIKE LOWER(:query)',
+                'LOWER(u.email) LIKE LOWER(:query)',
+                'LOWER(o.name) LIKE LOWER(:query)'
+            )
+        )->setParameter('query', '%' . trim($query) . '%');
     }
-   /**
+
+    // 2. Filtre par Rôle
+    if ($role !== 'Tous' && !empty($role)) {
+        // Garantit le format ROLE_
+        $formattedRole = str_starts_with($role, 'ROLE_') ? $role : 'ROLE_' . $role;
+
+        // ON RECHERCHE EXACTEMENT '"ROLE_TECHNICIEN"' AVEC LES GUILLEMETS DANS LE JSON
+        $qb->andWhere('u.roles LIKE :roleParam')
+           ->setParameter('roleParam', '%"' . $formattedRole . '"%');
+    }
+
+    // 3. Filtre par Statut
+    if ($status === 'active') {
+        $qb->andWhere('u.isActive = :isActive')->setParameter('isActive', true);
+    } elseif ($status === 'inactive') {
+        $qb->andWhere('u.isActive = :isActive')->setParameter('isActive', false);
+    }
+
+    return $qb;
+}
+    /**
      * Récupère les utilisateurs en attente de validation (isActive = false)
      * 
      * @return User[]
