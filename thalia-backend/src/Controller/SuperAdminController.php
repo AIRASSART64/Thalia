@@ -6,7 +6,6 @@ use App\Entity\Organization;
 use App\Entity\User;
 use App\Enum\UserRole;
 use App\Form\OrganizationFormType;
-use App\Repository\OrganizationRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

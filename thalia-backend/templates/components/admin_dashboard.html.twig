@@ -1,50 +1,102 @@
 <div {{ attributes }} x-data="{ openFilters: false }">
 
+    {% set activeFiltersCount = this.activeFiltersCount %}
+
     {# ─── BARRE DE FILTRES ET RECHERCHE HAUTE ─── #}
     <div class="bg-white p-3 sm:p-4 rounded-xl border border-slate-100 shadow-xs mb-6">
 
-        {# VUE MOBILE #}
+        {# ─── VUE MOBILE : Recherche + Bouton Tiroir ─── #}
         <div class="flex items-center gap-2 sm:hidden">
             <div class="grow">
                 {% include 'components/_search_bar.html.twig' with {
-                placeholder: 'Rechercher un nom, un email, un SIRET...'
+                    placeholder: 'Rechercher un nom, un email, un SIRET...'
                 } %}
             </div>
+
             <button type="button" @click="openFilters = true"
                 class="relative flex items-center gap-2 px-3.5 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition shrink-0">
                 <i class="fa-solid fa-sliders"></i>
                 <span>Filtres</span>
+                {% if activeFiltersCount > 0 %}
+                <span class="w-4 h-4 bg-indigo-600 text-white text-[10px] rounded-full flex items-center justify-center font-bold ml-0.5">
+                    {{ activeFiltersCount }}
+                </span>
+                {% endif %}
             </button>
         </div>
 
-        {# VUE DESKTOP #}
-        {# ─── BARRE DE FILTRES ET RECHERCHE HAUTE ─── #}
-        <div class="bg-white p-3 sm:p-4 rounded-xl border border-slate-100 shadow-xs mb-6">
+        {# ─── VUE DESKTOP ─── #}
+        <div class="hidden sm:flex sm:flex-row items-center gap-3 w-full">
 
-            {# VUE MOBILE #}
-            <div class="flex items-center gap-2 sm:hidden">
-                <div class="grow">
-                    {% include 'components/_search_bar.html.twig' with {
-                    placeholder: 'Rechercher un nom, un email, un SIRET...'
-                    } %}
-                </div>
-                <button type="button" @click="openFilters = true"
-                    class="relative flex items-center gap-2 px-3.5 py-2.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold rounded-lg transition shrink-0">
-                    <i class="fa-solid fa-sliders"></i>
-                    <span>Filtres</span>
-                </button>
+            {# Filtre Rôle (Actif uniquement sur l'onglet Utilisateurs) #}
+            <div class="w-48 shrink-0" x-show="activeTab === 'users'">
+                <select data-model="role"
+                    class="w-full form-input-sm py-2 px-3 text-xs font-medium bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500">
+                    <option value="Tous">Tous les rôles</option>
+                    {% for r in this.roles %}
+                    <option value="{{ r.value }}" {{ role == r.value ? 'selected' : '' }}>
+                        {{ r.label() }}
+                    </option>
+                    {% endfor %}
+                </select>
             </div>
 
-            {# VUE DESKTOP #}
-            <div class="hidden sm:flex sm:flex-row items-center gap-3 w-full">
+            {# Filtre Statut #}
+            <div class="w-48 shrink-0" x-show="activeTab !== 'validation'">
+                <select data-model="status"
+                    class="w-full form-input-sm py-2 px-3 text-xs font-medium bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500">
+                    <option value="Tous" {{ status == 'Tous' ? 'selected' : '' }}>Tous les statuts</option>
+                    <option value="active" {{ status == 'active' ? 'selected' : '' }}>Actif</option>
+                    <option value="inactive" {{ status == 'inactive' ? 'selected' : '' }}>En attente / Bloqué</option>
+                </select>
+            </div>
 
-                {# Filtre Rôle (Actif uniquement sur l'onglet Utilisateurs) #}
-                <div class="w-52" x-show="activeTab === 'users'">
+            {# Recherche Desktop #}
+            <div class="filter-search-group grow">
+                {% include 'components/_search_bar.html.twig' with {
+                    placeholder: 'Rechercher un nom, un email, un SIRET...'
+                } %}
+            </div>
+        </div>
+    </div>
+
+    {# ─── TIROIR DE FILTRES SLIDE-OVER (MOBILE) ─── #}
+    <div x-show="openFilters" x-cloak x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs sm:hidden flex justify-end">
+
+        <div @click.away="openFilters = false" x-transition:enter="transition ease-out duration-300 transform"
+            x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
+            x-transition:leave="transition ease-in duration-200 transform" x-transition:leave-start="translate-x-0"
+            x-transition:leave-end="translate-x-full"
+            class="w-4/5 max-w-xs bg-white h-screen max-h-screen p-5 flex flex-col justify-between shadow-2xl overflow-y-auto">
+
+            {# Filtres (Partie haute scrollable) #}
+            <div class="space-y-5">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-indigo-600"></i> Filtres
+                        {% if activeFiltersCount > 0 %}
+                        <span class="bg-indigo-100 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                            {{ activeFiltersCount }}
+                        </span>
+                        {% endif %}
+                    </h3>
+                    <button type="button" @click="openFilters = false" class="text-slate-400 hover:text-slate-600 p-1">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+
+                {# Filtre Rôle #}
+                <div x-show="activeTab === 'users'">
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5">Rôle utilisateur</label>
                     <select data-model="role"
-                        class="w-full form-input-sm py-2 px-3 text-xs font-medium bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500">
+                        class="w-full py-2.5 px-3 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500">
                         <option value="Tous">Tous les rôles</option>
                         {% for r in this.roles %}
-                        <option value="{{ r.value }}" {{ role==r.value ? 'selected' : '' }}>
+                        <option value="{{ r.value }}" {{ role == r.value ? 'selected' : '' }}>
                             {{ r.label() }}
                         </option>
                         {% endfor %}
@@ -52,357 +104,451 @@
                 </div>
 
                 {# Filtre Statut #}
-                <div class="w-52" x-show="activeTab !== 'validation'">
+                <div x-show="activeTab !== 'validation'">
+                    <label class="block text-xs font-bold text-slate-600 mb-1.5">Statut du compte</label>
                     <select data-model="status"
-                        class="w-full form-input-sm py-2 px-3 text-xs font-medium bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500">
-                        <option value="Tous" {{ status=='Tous' ? 'selected' : '' }}>Tous les statuts</option>
-                        <option value="active" {{ status=='active' ? 'selected' : '' }}>Actif</option>
-                        <option value="inactive" {{ status=='inactive' ? 'selected' : '' }}>En attente / Bloqué</option>
+                        class="w-full py-2.5 px-3 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500">
+                        <option value="Tous" {{ status == 'Tous' ? 'selected' : '' }}>Tous les statuts</option>
+                        <option value="active" {{ status == 'active' ? 'selected' : '' }}>Actif</option>
+                        <option value="inactive" {{ status == 'inactive' ? 'selected' : '' }}>En attente / Bloqué</option>
                     </select>
                 </div>
-
-                {# Recherche Desktop #}
-                <div class="filter-search-group grow">
-                    {% include 'components/_search_bar.html.twig' with {
-                    placeholder: 'Rechercher un nom, un email, un SIRET...'
-                    } %}
-                </div>
-            </div>
-        </div>
-
-        {# Loader discret pendant les requêtes Live #}
-        {% include 'components/_search_loader.html.twig' with {
-        label: 'Mise à jour des éléments...'
-        } %}
-
-        {# ════════════════════════════════════════════════════════════════ #}
-        {# ─── ONGLET 1 : À VALIDER (Nouveaux comptes & Établissements) ─── #}
-        {# ════════════════════════════════════════════════════════════════ #}
-        <div x-show="activeTab === 'validation'" class="space-y-8">
-
-            {# Section Utilisateurs en attente #}
-            <div class="space-y-4">
-                <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-                    <i class="fa-solid fa-user-clock text-amber-500"></i> Utilisateurs en attente de validation
-                </h3>
-                <div class="bg-white rounded-2xl border border-slate-100 shadow-xs overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-slate-50/50 border-b border-slate-100">
-                                    <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                                        Utilisateur</th>
-                                    <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                                        Établissement</th>
-                                    <th
-                                        class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider text-right">
-                                        Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-50">
-                                {% for user in this.pendingUsers %}
-                                <tr class="hover:bg-slate-50/30 transition">
-                                    <td class="px-6 py-4">
-                                        <div class="flex flex-col">
-                                            <span class="text-sm font-bold text-slate-900">{{ user.lastName|upper }} {{
-                                                user.firstName }}</span>
-                                            <span class="text-xs text-slate-400">{{ user.email }}</span>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 text-xs text-slate-600">
-                                        {# 🔒 Utilisation de l'opérateur null coalescing ?? #}
-                                        {{ user.organization ? user.organization.name : 'Non rattaché' }}
-                                    </td>
-                                    <td class="px-6 py-4 text-right">
-                                        <div class="flex items-center justify-end gap-2">
-                                            <form action="{{ path('superadmin_user_toggle_active', {'id': user.id}) }}"
-                                                method="POST" class="inline">
-                                                {# 🔒 Ajout du token CSRF pour l'activation #}
-                                                <input type="hidden" name="_token"
-                                                    value="{{ csrf_token('toggle_active_' ~ user.id) }}">
-                                                <button type="submit"
-                                                    class="text-xs font-semibold text-white bg-indigo-600 px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition shadow-xs">
-                                                    Activer
-                                                </button>
-                                            </form>
-                                            <form action="{{ path('superadmin_user_delete', {'id': user.id}) }}"
-                                                method="POST" class="inline"
-                                                onsubmit="return confirm('Refuser et supprimer cet utilisateur ?');">
-                                                <input type="hidden" name="_token"
-                                                    value="{{ csrf_token('delete_user_' ~ user.id) }}">
-                                                <button type="submit"
-                                                    class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition"
-                                                    title="Supprimer">
-                                                    <i class="fa-solid fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% else %}
-                                <tr>
-                                    <td colspan="3" class="px-6 py-8 text-center text-slate-400 text-xs italic">
-                                        Aucun utilisateur en attente de validation.
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
             </div>
 
-            {# Section Établissements récents #}
-            <div class="space-y-4">
-                <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-                    <i class="fa-solid fa-building-circle-exclamation text-amber-500"></i> Établissements sans
-                    modification
-                </h3>
-                <div class="bg-white rounded-2xl border border-slate-100 shadow-xs overflow-hidden">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-slate-50/50 border-b border-slate-100">
-                                    <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                                        Structure</th>
-                                    <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                                        SIRET</th>
-                                    <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                                        Crée le</th>
-                                    <th
-                                        class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider text-right">
-                                        Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-50">
-                                {% for organization in this.pendingOrganizations %}
-                                <tr class="hover:bg-slate-50/30 transition">
-                                    <td class="px-6 py-4 font-bold text-sm text-slate-900">{{ organization.name }}</td>
-                                    <td class="px-6 py-4 text-xs font-mono text-slate-500">{{ organization.siret ?? '-'
-                                        }}
-                                    </td>
-                                    <td class="px-6 py-4 text-xs font-mono text-slate-500">{{ organization.createdAt ?
-                                        organization.createdAt|date('d/m/Y H:i') : '-'}}</td>
-                                    <td class="px-6 py-4 text-right">
-                                        <div class="flex items-center justify-end gap-2">
-                                            <a href="{{ path('superadmin_organization_edit', {'id': organization.id}) }}"
-                                                class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition"
-                                                title="Modifier">
-                                                <i class="fa-solid fa-pen-to-square"></i>
-                                            </a>
-                                            <form
-                                                action="{{ path('superadmin_organization_delete', {'id': organization.id}) }}"
-                                                method="POST" class="inline"
-                                                onsubmit="return confirm('Supprimer cet établissement ?');">
-                                                <input type="hidden" name="_token"
-                                                    value="{{ csrf_token('delete_organization_' ~ organization.id) }}">
-                                                <button type="submit"
-                                                    class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition"
-                                                    title="Supprimer">
-                                                    <i class="fa-solid fa-trash"></i>
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% else %}
-                                <tr>
-                                    <td colspan="3" class="px-6 py-8 text-center text-slate-400 text-xs italic">
-                                        Aucun nouvel établissement à traiter.
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            <div class="pt-4 mt-6 border-t border-slate-100 shrink-0">
+                <button type="button" @click="openFilters = false"
+                    class="w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg text-xs hover:bg-indigo-700 transition shadow-sm active:bg-indigo-800">
+                    Voir les résultats
+                </button>
             </div>
         </div>
-        {# ════════════════════════════════════════════════════════════════ #}
-        {# ─── ONGLET 2 : GESTION DES ÉTABLISSEMENTS ────────────────────── #}
-        {# ════════════════════════════════════════════════════════════════ #}
-        <div x-show="activeTab === 'organizations'"
-            class="bg-white rounded-2xl border border-slate-100 shadow-xs overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-slate-50/50 border-b border-slate-100">
-                            <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                                Structure /
-                                Établissement</th>
-                            <th
-                                class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider hidden md:table-cell">
-                                SIRET</th>
-                            <th
-                                class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider text-right">
-                                Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-50">
-                        {% for organization in this.organizations %}
-                        <tr class="hover:bg-slate-50/30 transition">
-                            <td class="px-6 py-4 font-bold text-sm text-slate-900">{{ organization.name }}</td>
-                            <td class="px-6 py-4 hidden md:table-cell text-xs font-mono text-slate-500">{{
-                                organization.siret|default('-') }}</td>
-                            <td class="px-6 py-4 text-right">
-                                <div class="flex items-center justify-end gap-2">
-                                    <a href="{{ path('superadmin_organization_edit', {'id': organization.id}) }}"
-                                        class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition"
-                                        title="Modifier">
-                                        <i class="fa-solid fa-pen-to-square"></i>
-                                    </a>
-                                    <form action="{{ path('superadmin_organization_delete', {'id': organization.id}) }}"
-                                        method="POST" class="inline"
-                                        onsubmit="return confirm('Confirmez-vous la suppression irréversible ?');">
-                                        <input type="hidden" name="_token"
-                                            value="{{ csrf_token('delete_organization_' ~ organization.id) }}">
-                                        <button type="submit"
-                                            class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition"
-                                            title="Supprimer">
-                                            <i class="fa-solid fa-trash"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="3" class="px-6 py-12 text-center text-slate-400 italic">
-                                Aucun établissement trouvé.
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        {# ════════════════════════════════════════════════════════════════ #}
-        {# ─── ONGLET 3 : GESTION DES UTILISATEURS ──────────────────────── #}
-        {# ════════════════════════════════════════════════════════════════ #}
-        <div x-show="activeTab === 'users'"
-            class="bg-white rounded-2xl border border-slate-100 shadow-xs overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-slate-50/50 border-b border-slate-100">
-                            <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                                Utilisateur
-                            </th>
-                            <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Rôle
-                            </th>
-                            <th
-                                class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider hidden sm:table-cell">
-                                Établissement</th>
-                            <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Statut
-                            </th>
-                            <th
-                                class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider text-right">
-                                Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-50">
-                        {% for user in this.users %}
-                        <tr class="hover:bg-slate-50/30 transition">
-                            <td class="px-6 py-4">
-                                <div class="flex flex-col">
-                                    <span class="text-sm font-bold text-slate-900">{{ user.lastName|upper }} {{
-                                        user.firstName }}</span>
-                                    <span class="text-xs text-slate-400">{{ user.email }}</span>
-                                </div>
-                            </td>
-
-                            {# Sélecteur Inline du Rôle par l'Admin #}
-                            <td class="px-6 py-4">
-                                <form action="{{ path('superadmin_user_change_role', {'id': user.id}) }}" method="POST">
-                                    <input type="hidden" name="_token"
-                                        value="{{ csrf_token('change_role_' ~ user.id) }}">
-
-                                    <select name="role" onchange="this.form.submit()"
-                                        class="text-xs border-slate-200 rounded-lg py-1 px-2 font-medium bg-slate-50 focus:bg-white border text-slate-700">
-                                        {% for role in this.roles %}
-                                        <option value="{{ role.value }}" {{ role.value in user.roles ? 'selected' : ''
-                                            }}>
-                                            {{ role.label() }}
-                                        </option>
-                                        {% endfor %}
-                                    </select>
-                                </form>
-                            </td>
-
-                            <td class="px-6 py-4 hidden sm:table-cell text-xs text-slate-600">
-                                {{ user.organization.name|default('Aucune') }}
-                            </td>
-
-                            <td class="px-6 py-4">
-                                {% if user.isActive %}
-                                <span
-                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">
-                                    Actif
-                                </span>
-                                {% else %}
-                                <span
-                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-100">
-                                    Inactif
-                                </span>
-                                {% endif %}
-                            </td>
-
-                            <td class="px-6 py-4 text-right">
-                                <div class="flex items-center justify-end gap-2">
-                                    {% if app.user and user.email == app.user.email %}
-                                    <span
-                                        class="text-[10px] font-bold text-slate-400 uppercase bg-slate-100 px-2 py-1 rounded-md">Mon
-                                        Compte</span>
-                                    {% else %}
-                                    <form action="{{ path('superadmin_user_toggle_active', {'id': user.id}) }}"
-                                        method="POST" class="inline">
-                                        <button type="submit"
-                                            class="text-xs font-semibold px-2.5 py-1 rounded-lg transition {{ user.isActive ? 'text-amber-600 bg-amber-50 hover:bg-amber-100' : 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100' }}">
-                                            {{ user.isActive ? 'Désactiver' : 'Activer' }}
-                                        </button>
-                                    </form>
-
-                                    <form action="{{ path('superadmin_user_delete', {'id': user.id}) }}" method="POST"
-                                        class="inline"
-                                        onsubmit="return confirm('Supprimer définitivement cet utilisateur ?');">
-                                        <input type="hidden" name="_token"
-                                            value="{{ csrf_token('delete_user_' ~ user.id) }}">
-                                        <button type="submit"
-                                            class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition"
-                                            title="Supprimer">
-                                            <i class="fa-solid fa-trash"></i>
-                                        </button>
-                                    </form>
-                                    {% endif %}
-                                </div>
-                            </td>
-                        </tr>
-                        {% else %}
-                        <tr>
-                            <td colspan="5" class="px-6 py-12 text-center text-slate-400 italic">
-                                Aucun utilisateur trouvé.
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        {# ─── PAGINATION UNIFIÉE ─── #}
-        {% if this.totalItems|default(0) > 0 %}
-        <div
-            class="hidden sm:flex flex-row items-center justify-between gap-4 mt-8 pt-4 border-t border-slate-200 text-xs text-slate-500">
-            <p>
-                Affichage de <span class="font-semibold text-slate-900">{{ this.pageStart }} à {{ this.pageEnd }}</span>
-                sur
-                <span class="font-semibold text-slate-900">{{ this.totalItems }}</span> éléments.
-            </p>
-            {% if this.maxPages|default(1) > 1 %}
-            {% include 'components/_pagination.html.twig' %}
-            {% endif %}
-        </div>
-        {% endif %}
-
     </div>
+
+    {# Loader discret pendant les requêtes Live #}
+    {% include 'components/_search_loader.html.twig' with {
+        label: 'Mise à jour des éléments...'
+    } %}
+
+    {# ════════════════════════════════════════════════════════════════ #}
+    {# ─── ONGLET 1 : À VALIDER (Nouveaux comptes & Établissements) ─── #}
+    {# ════════════════════════════════════════════════════════════════ #}
+    <div x-show="activeTab === 'validation'" class="space-y-8">
+
+        {# Section Utilisateurs en attente #}
+        <div class="space-y-4">
+            <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-user-clock text-amber-500"></i> Utilisateurs en attente de validation
+            </h3>
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-xs overflow-hidden">
+                
+                {# VUE MOBILE (Cartes) #}
+                <div class="block sm:hidden divide-y divide-slate-100">
+                    {% for user in this.pendingUsers %}
+                    <div class="p-4 space-y-3">
+                        <div class="flex items-start justify-between gap-2">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold text-slate-900">{{ user.lastName|upper }} {{ user.firstName }}</span>
+                                <span class="text-xs text-slate-400 break-all">{{ user.email }}</span>
+                            </div>
+                        </div>
+                        <div class="text-xs text-slate-600 bg-slate-50 p-2 rounded-lg">
+                            <span class="font-semibold text-slate-400 block text-[10px] uppercase">Établissement</span>
+                            {{ user.organization ? user.organization.name : 'Non rattaché' }}
+                        </div>
+                        <div class="flex items-center justify-end gap-2 pt-1 border-t border-slate-50">
+                            <form action="{{ path('superadmin_user_toggle_active', {'id': user.id}) }}" method="POST" class="inline">
+                                <input type="hidden" name="_token" value="{{ csrf_token('toggle_active_' ~ user.id) }}">
+                                <button type="submit" class="text-xs font-semibold text-white bg-indigo-600 px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition shadow-xs">
+                                    Activer
+                                </button>
+                            </form>
+                            <form action="{{ path('superadmin_user_delete', {'id': user.id}) }}" method="POST" class="inline" onsubmit="return confirm('Refuser et supprimer cet utilisateur ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete_user_' ~ user.id) }}">
+                                <button type="submit" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition" title="Supprimer">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="p-6 text-center text-slate-400 text-xs italic">
+                        Aucun utilisateur en attente de validation.
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {# VUE DESKTOP (Tableau) #}
+                <div class="hidden sm:block overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50/50 border-b border-slate-100">
+                                <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Utilisateur</th>
+                                <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Établissement</th>
+                                <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+                            {% for user in this.pendingUsers %}
+                            <tr class="hover:bg-slate-50/30 transition">
+                                <td class="px-6 py-4">
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-bold text-slate-900">{{ user.lastName|upper }} {{ user.firstName }}</span>
+                                        <span class="text-xs text-slate-400">{{ user.email }}</span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-xs text-slate-600">
+                                    {{ user.organization ? user.organization.name : 'Non rattaché' }}
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <form action="{{ path('superadmin_user_toggle_active', {'id': user.id}) }}" method="POST" class="inline">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('toggle_active_' ~ user.id) }}">
+                                            <button type="submit" class="text-xs font-semibold text-white bg-indigo-600 px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition shadow-xs">
+                                                Activer
+                                            </button>
+                                        </form>
+                                        <form action="{{ path('superadmin_user_delete', {'id': user.id}) }}" method="POST" class="inline" onsubmit="return confirm('Refuser et supprimer cet utilisateur ?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete_user_' ~ user.id) }}">
+                                            <button type="submit" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition" title="Supprimer">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="3" class="px-6 py-8 text-center text-slate-400 text-xs italic">
+                                    Aucun utilisateur en attente de validation.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        {# Section Établissements récents #}
+        <div class="space-y-4">
+            <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-building-circle-exclamation text-amber-500"></i> Établissements sans modification
+            </h3>
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-xs overflow-hidden">
+                
+                {# VUE MOBILE (Cartes) #}
+                <div class="block sm:hidden divide-y divide-slate-100">
+                    {% for organization in this.pendingOrganizations %}
+                    <div class="p-4 space-y-2">
+                        <div class="font-bold text-sm text-slate-900">{{ organization.name }}</div>
+                        <div class="flex justify-between items-center text-xs font-mono text-slate-500 bg-slate-50 p-2 rounded-lg">
+                            <span>SIRET: {{ organization.siret ?? '-' }}</span>
+                            <span>{{ organization.createdAt ? organization.createdAt|date('d/m/Y H:i') : '-' }}</span>
+                        </div>
+                        <div class="flex items-center justify-end gap-2 pt-2">
+                            <a href="{{ path('superadmin_organization_edit', {'id': organization.id}) }}" class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition" title="Modifier">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>
+                            <form action="{{ path('superadmin_organization_delete', {'id': organization.id}) }}" method="POST" class="inline" onsubmit="return confirm('Supprimer cet établissement ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete_organization_' ~ organization.id) }}">
+                                <button type="submit" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition" title="Supprimer">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="p-6 text-center text-slate-400 text-xs italic">
+                        Aucun nouvel établissement à traiter.
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {# VUE DESKTOP (Tableau) #}
+                <div class="hidden sm:block overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50/50 border-b border-slate-100">
+                                <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Structure</th>
+                                <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">SIRET</th>
+                                <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Créé le</th>
+                                <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+                            {% for organization in this.pendingOrganizations %}
+                            <tr class="hover:bg-slate-50/30 transition">
+                                <td class="px-6 py-4 font-bold text-sm text-slate-900">{{ organization.name }}</td>
+                                <td class="px-6 py-4 text-xs font-mono text-slate-500">{{ organization.siret ?? '-' }}</td>
+                                <td class="px-6 py-4 text-xs font-mono text-slate-500">{{ organization.createdAt ? organization.createdAt|date('d/m/Y H:i') : '-' }}</td>
+                                <td class="px-6 py-4 text-right">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <a href="{{ path('superadmin_organization_edit', {'id': organization.id}) }}" class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition" title="Modifier">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </a>
+                                        <form action="{{ path('superadmin_organization_delete', {'id': organization.id}) }}" method="POST" class="inline" onsubmit="return confirm('Supprimer cet établissement ?');">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete_organization_' ~ organization.id) }}">
+                                            <button type="submit" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition" title="Supprimer">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="px-6 py-8 text-center text-slate-400 text-xs italic">
+                                    Aucun nouvel établissement à traiter.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# ════════════════════════════════════════════════════════════════ #}
+    {# ─── ONGLET 2 : GESTION DES ÉTABLISSEMENTS ────────────────────── #}
+    {# ════════════════════════════════════════════════════════════════ #}
+    <div x-show="activeTab === 'organizations'" class="bg-white rounded-2xl border border-slate-100 shadow-xs overflow-hidden">
+        
+        {# VUE MOBILE (Cartes) #}
+        <div class="block sm:hidden divide-y divide-slate-100">
+            {% for organization in this.organizations %}
+            <div class="p-4 flex items-center justify-between gap-3">
+                <div class="space-y-1">
+                    <div class="font-bold text-sm text-slate-900">{{ organization.name }}</div>
+                    <div class="text-xs font-mono text-slate-500">SIRET: {{ organization.siret|default('-') }}</div>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                    <a href="{{ path('superadmin_organization_edit', {'id': organization.id}) }}" class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition" title="Modifier">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </a>
+                    <form action="{{ path('superadmin_organization_delete', {'id': organization.id}) }}" method="POST" class="inline" onsubmit="return confirm('Confirmez-vous la suppression irréversible ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete_organization_' ~ organization.id) }}">
+                        <button type="submit" class="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition" title="Supprimer">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% else %}
+            <div class="p-8 text-center text-slate-400 italic text-xs">
+                Aucun établissement trouvé.
+            </div>
+            {% endfor %}
+        </div>
+
+        {# VUE DESKTOP (Tableau) #}
+        <div class="hidden sm:block overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50/50 border-b border-slate-100">
+                        <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Structure / Établissement</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider hidden md:table-cell">SIRET</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    {% for organization in this.organizations %}
+                    <tr class="hover:bg-slate-50/30 transition">
+                        <td class="px-6 py-4 font-bold text-sm text-slate-900">{{ organization.name }}</td>
+                        <td class="px-6 py-4 hidden md:table-cell text-xs font-mono text-slate-500">{{ organization.siret|default('-') }}</td>
+                        <td class="px-6 py-4 text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                <a href="{{ path('superadmin_organization_edit', {'id': organization.id}) }}" class="p-1.5 text-amber-600 hover:bg-amber-50 rounded-lg transition" title="Modifier">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </a>
+                                <form action="{{ path('superadmin_organization_delete', {'id': organization.id}) }}" method="POST" class="inline" onsubmit="return confirm('Confirmez-vous la suppression irréversible ?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete_organization_' ~ organization.id) }}">
+                                    <button type="submit" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition" title="Supprimer">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3" class="px-6 py-12 text-center text-slate-400 italic">
+                            Aucun établissement trouvé.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {# ════════════════════════════════════════════════════════════════ #}
+    {# ─── ONGLET 3 : GESTION DES UTILISATEURS ──────────────────────── #}
+    {# ════════════════════════════════════════════════════════════════ #}
+    <div x-show="activeTab === 'users'" class="bg-white rounded-2xl border border-slate-100 shadow-xs overflow-hidden">
+        
+        {# VUE MOBILE (Cartes) #}
+        <div class="block sm:hidden divide-y divide-slate-100">
+            {% for user in this.users %}
+            <div class="p-4 space-y-3">
+                <div class="flex items-start justify-between gap-2">
+                    <div class="flex flex-col">
+                        <span class="text-sm font-bold text-slate-900">{{ user.lastName|upper }} {{ user.firstName }}</span>
+                        <span class="text-xs text-slate-400 break-all">{{ user.email }}</span>
+                    </div>
+                    {% if user.isActive %}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-100 shrink-0">
+                        Actif
+                    </span>
+                    {% else %}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-50 text-amber-700 border border-amber-100 shrink-0">
+                        Inactif
+                    </span>
+                    {% endif %}
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-2.5 rounded-lg">
+                    <div>
+                        <span class="font-semibold text-slate-400 block text-[10px] uppercase">Rôle</span>
+                        <form action="{{ path('superadmin_user_change_role', {'id': user.id}) }}" method="POST" class="mt-1">
+                            <input type="hidden" name="_token" value="{{ csrf_token('change_role_' ~ user.id) }}">
+                            <select name="role" onchange="this.form.submit()" class="w-full text-xs border-slate-200 rounded-lg py-1 px-1.5 font-medium bg-white border text-slate-700">
+                                {% for role in this.roles %}
+                                <option value="{{ role.value }}" {{ role.value in user.roles ? 'selected' : '' }}>
+                                    {{ role.label() }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                    </div>
+                    <div>
+                        <span class="font-semibold text-slate-400 block text-[10px] uppercase">Structure</span>
+                        <span class="text-slate-700 inline-block mt-1 font-medium truncate w-full" title="{{ user.organization.name|default('Aucune') }}">
+                            {{ user.organization.name|default('Aucune') }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-2 pt-1">
+                    {% if app.user and user.email == app.user.email %}
+                    <span class="text-[10px] font-bold text-slate-400 uppercase bg-slate-100 px-2 py-1 rounded-md">Mon Compte</span>
+                    {% else %}
+                    <form action="{{ path('superadmin_user_toggle_active', {'id': user.id}) }}" method="POST" class="inline">
+                        <button type="submit" class="text-xs font-semibold px-3 py-1.5 rounded-lg transition {{ user.isActive ? 'text-amber-600 bg-amber-50 hover:bg-amber-100' : 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100' }}">
+                            {{ user.isActive ? 'Désactiver' : 'Activer' }}
+                        </button>
+                    </form>
+                    <form action="{{ path('superadmin_user_delete', {'id': user.id}) }}" method="POST" class="inline" onsubmit="return confirm('Supprimer définitivement cet utilisateur ?');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete_user_' ~ user.id) }}">
+                        <button type="submit" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition" title="Supprimer">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <div class="p-8 text-center text-slate-400 italic text-xs">
+                Aucun utilisateur trouvé.
+            </div>
+            {% endfor %}
+        </div>
+
+        {# VUE DESKTOP (Tableau) #}
+        <div class="hidden sm:block overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50/50 border-b border-slate-100">
+                        <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Utilisateur</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Rôle</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider hidden sm:table-cell">Établissement</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Statut</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    {% for user in this.users %}
+                    <tr class="hover:bg-slate-50/30 transition">
+                        <td class="px-6 py-4">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold text-slate-900">{{ user.lastName|upper }} {{ user.firstName }}</span>
+                                <span class="text-xs text-slate-400">{{ user.email }}</span>
+                            </div>
+                        </td>
+
+                        <td class="px-6 py-4">
+                            <form action="{{ path('superadmin_user_change_role', {'id': user.id}) }}" method="POST">
+                                <input type="hidden" name="_token" value="{{ csrf_token('change_role_' ~ user.id) }}">
+                                <select name="role" onchange="this.form.submit()"
+                                    class="text-xs border-slate-200 rounded-lg py-1 px-2 font-medium bg-slate-50 focus:bg-white border text-slate-700">
+                                    {% for role in this.roles %}
+                                    <option value="{{ role.value }}" {{ role.value in user.roles ? 'selected' : '' }}>
+                                        {{ role.label() }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </form>
+                        </td>
+
+                        <td class="px-6 py-4 hidden sm:table-cell text-xs text-slate-600">
+                            {{ user.organization.name|default('Aucune') }}
+                        </td>
+
+                        <td class="px-6 py-4">
+                            {% if user.isActive %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                Actif
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-100">
+                                Inactif
+                            </span>
+                            {% endif %}
+                        </td>
+
+                        <td class="px-6 py-4 text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                {% if app.user and user.email == app.user.email %}
+                                <span class="text-[10px] font-bold text-slate-400 uppercase bg-slate-100 px-2 py-1 rounded-md">Mon Compte</span>
+                                {% else %}
+                                <form action="{{ path('superadmin_user_toggle_active', {'id': user.id}) }}" method="POST" class="inline">
+                                    <button type="submit" class="text-xs font-semibold px-2.5 py-1 rounded-lg transition {{ user.isActive ? 'text-amber-600 bg-amber-50 hover:bg-amber-100' : 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100' }}">
+                                        {{ user.isActive ? 'Désactiver' : 'Activer' }}
+                                    </button>
+                                </form>
+
+                                <form action="{{ path('superadmin_user_delete', {'id': user.id}) }}" method="POST" class="inline" onsubmit="return confirm('Supprimer définitivement cet utilisateur ?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete_user_' ~ user.id) }}">
+                                    <button type="submit" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition" title="Supprimer">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center text-slate-400 italic">
+                            Aucun utilisateur trouvé.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {# ─── PAGINATION UNIFIÉE ─── #}
+    {% if this.totalItems|default(0) > 0 %}
+    <div class="hidden sm:flex flex-row items-center justify-between gap-4 mt-8 pt-4 border-t border-slate-200 text-xs text-slate-500">
+        <p>
+            Affichage de <span class="font-semibold text-slate-900">{{ this.pageStart }} à {{ this.pageEnd }}</span> sur <span class="font-semibold text-slate-900">{{ this.totalItems }}</span> éléments.
+        </p>
+        {% if this.maxPages|default(1) > 1 %}
+        {% include 'components/_pagination.html.twig' %}
+        {% endif %}
+    </div>
+    {% endif %}
+
+</div>

@@ -54,9 +54,18 @@ class AdminDashboardComponent
     }
 
     // Remise à zéro automatique de la pagination lors de la modification des filtres
-    public function updatedQuery(): void { $this->page = 1; }
-    public function updatedRole(): void { $this->page = 1; }
-    public function updatedStatus(): void { $this->page = 1; }
+    public function updatedQuery(): void
+    {
+        $this->page = 1;
+    }
+    public function updatedRole(): void
+    {
+        $this->page = 1;
+    }
+    public function updatedStatus(): void
+    {
+        $this->page = 1;
+    }
 
     // --- Onglet 1 : Demandes à valider ---
     public function getPendingUsers(): array
@@ -65,7 +74,7 @@ class AdminDashboardComponent
     }
 
     public function getPendingOrganizations(): array
-    { 
+    {
         /** @var User|null $currentUser */
         $currentUser = $this->security->getUser();
         $excludedOrgId = $currentUser?->getOrganization()?->getId();
@@ -85,7 +94,7 @@ class AdminDashboardComponent
     }
 
     public function getOrganizations(): array
-    { 
+    {
         /** @var User|null $currentUser */
         $currentUser = $this->security->getUser();
         $excludedOrg = $currentUser?->getOrganization();
@@ -146,6 +155,20 @@ class AdminDashboardComponent
         return UserRole::cases();
     }
 
+    public function getActiveFiltersCount(): int
+    {
+        $count = 0;
+
+        if ($this->role !== 'Tous') {
+            $count++;
+        }
+
+        if ($this->status !== 'Tous') {
+            $count++;
+        }
+
+        return $count;
+    }
     /**
      * Méthode d'aide pour garantir que la valeur transmise au Repository est une chaîne nettoyée
      */
