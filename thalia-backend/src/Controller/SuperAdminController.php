@@ -97,7 +97,7 @@ class SuperAdminController extends AbstractController
             return $this->redirectToRoute('superadmin_dashboard');
         }
 
-        return $this->render('superadmin/organization_edit.html.twig', [
+        return $this->render('organization/edit.html.twig', [
             'organization' => $organization,
             'organizationForm' => $form->createView(),
         ]);

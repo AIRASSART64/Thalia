@@ -1,49 +1,32 @@
-<div class="modal-backdrop">
-    
-    <div class="modal-card modal-card-lg">
+{{ form_start(organizationForm, {'attr': {'novalidate': 'novalidate'}}) }}
 
-        {# ─── BOUTON DE FERMETURE (CROIX EN HAUT À DROITE) ─── #}
-        <button type="button" class="modal-close-btn" data-bs-dismiss="modal" data-action="modal#close">
-            <i class="fa-solid fa-xmark text-lg"></i>
-        </button>
-
-        {# ─── EN-TÊTE DE LA MODALE ─── #}
-        <div class="border-b border-gray-100 pb-4 mb-6">
-            <h1 class="text-xl font-black text-gray-900 tracking-tight">
-                Édition de : {{ organization.name }}
-            </h1>
-            <p class="text-xs text-gray-400 font-mono mt-0.5">
-                SIRET : {{ organization.siret|default('Non renseigné') }}
-            </p>
+    {# ─── ALERTE ERREURS ─── #}
+    {% if not organizationForm.vars.valid %}
+    <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs mb-6">
+        <div class="flex items-center gap-2 font-bold mb-1 text-rose-700">
+            <i class="fa-solid fa-triangle-exclamation text-sm"></i>
+            <span>Veuillez corriger les erreurs ci-dessous :</span>
         </div>
+        <ul class="list-disc list-inside space-y-0.5 text-rose-700 font-medium">
+            {{ form_errors(organizationForm) }}
+            {% for child in organizationForm.children %}
+                {% for error in child.vars.errors %}
+                <li><strong>{{ child.vars.label|default(child.vars.name) }} :</strong> {{ error.message }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
 
-        {# ─── FORMULAIRE ─── #}
-        {{ form_start(organizationForm, {'attr': {'class': 'space-y-6', 'novalidate': 'novalidate'}}) }}
+    <div class="form-card space-y-6">
 
-            {# ─── ALERTE GLOBALE EN HAUT SI ERREURS ─── #}
-            {% if not organizationForm.vars.valid %}
-            <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs shadow-sm mb-6">
-                <div class="flex items-center gap-2 font-bold mb-1 text-rose-700">
-                    <i class="fa-solid fa-triangle-exclamation text-sm"></i>
-                    <span>Des erreurs sont survenues dans le formulaire :</span>
-                </div>
-                <ul class="list-disc list-inside space-y-0.5 text-rose-700 font-medium">
-                    {{ form_errors(organizationForm) }}
-                    {% for child in organizationForm.children %}
-                        {% for error in child.vars.errors %}
-                        <li>
-                            <strong>{{ child.vars.label|default(child.vars.name) }} :</strong> {{ error.message }}
-                        </li>
-                        {% endfor %}
-                    {% endfor %}
-                </ul>
-            </div>
-            {% endif %}
-
-            {# ─── 1. INFORMATIONS GÉNÉRALES & JURIDIQUES ─── #}
-            <div class="border-b border-gray-100 pb-6 space-y-4">
+        {# ─── 1. INFORMATIONS GÉNÉRALES & JURIDIQUES ─── #}
+        <div>
+            <div class="form-section-header mb-4">
                 <h2 class="form-section-title">Informations Générales & Juridiques</h2>
-
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="form-group {% if not organizationForm.name.vars.valid %}has-error{% endif %}">
                     {{ form_label(organizationForm.name, null, {'label_attr': {'class': 'form-label'}}) }}
                     {{ form_widget(organizationForm.name, {'attr': {'class': 'form-input'}}) }}
@@ -80,15 +63,25 @@
                     {{ form_errors(organizationForm.manager_title) }}
                 </div>
             </div>
+        </div>
 
-            {# ─── 2. LICENCES & PARAMÈTRES FISCAUX ─── #}
-            <div class="border-b border-gray-100 pb-6 space-y-4">
+        {# ─── 2. LICENCES & FISCALITÉ ─── #}
+        <div class="border-t border-gray-100 pt-4">
+            <div class="form-section-header mb-4">
                 <h2 class="form-section-title">Licences & Fiscalité</h2>
+            </div>
 
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="form-group {% if not organizationForm.licence_number.vars.valid %}has-error{% endif %}">
                     {{ form_label(organizationForm.licence_number, null, {'label_attr': {'class': 'form-label'}}) }}
                     {{ form_widget(organizationForm.licence_number, {'attr': {'class': 'form-input'}}) }}
                     {{ form_errors(organizationForm.licence_number) }}
+                </div>
+
+                <div class="form-group {% if not organizationForm.vat_number.vars.valid %}has-error{% endif %}">
+                    {{ form_label(organizationForm.vat_number, null, {'label_attr': {'class': 'form-label'}}) }}
+                    {{ form_widget(organizationForm.vat_number, {'attr': {'class': 'form-input font-mono'}}) }}
+                    {{ form_errors(organizationForm.vat_number) }}
                 </div>
 
                 <div class="form-group {% if not organizationForm.erp_category.vars.valid %}has-error{% endif %}">
@@ -103,12 +96,6 @@
                     {{ form_errors(organizationForm.erp_type) }}
                 </div>
 
-                <div class="form-group {% if not organizationForm.vat_number.vars.valid %}has-error{% endif %}">
-                    {{ form_label(organizationForm.vat_number, null, {'label_attr': {'class': 'form-label'}}) }}
-                    {{ form_widget(organizationForm.vat_number, {'attr': {'class': 'form-input font-mono'}}) }}
-                    {{ form_errors(organizationForm.vat_number) }}
-                </div>
-
                 <div class="form-group {% if not organizationForm.defaultVatRate.vars.valid %}has-error{% endif %}">
                     {{ form_label(organizationForm.defaultVatRate, null, {'label_attr': {'class': 'form-label'}}) }}
                     {{ form_widget(organizationForm.defaultVatRate, {'attr': {'class': 'form-input'}}) }}
@@ -121,11 +108,15 @@
                     {{ form_errors(organizationForm.spectacle_vat_rate) }}
                 </div>
             </div>
+        </div>
 
-            {# ─── 3. COORDONNÉES ─── #}
-            <div class="space-y-4">
+        {# ─── 3. COORDONNÉES ─── #}
+        <div class="border-t border-gray-100 pt-4">
+            <div class="form-section-header mb-4">
                 <h2 class="form-section-title">Coordonnées & Adresse</h2>
+            </div>
 
+            <div class="space-y-4">
                 <div class="form-group {% if not organizationForm.phone.vars.valid %}has-error{% endif %}">
                     {{ form_label(organizationForm.phone, null, {'label_attr': {'class': 'form-label'}}) }}
                     {{ form_widget(organizationForm.phone, {'attr': {'class': 'form-input'}}) }}
@@ -138,19 +129,19 @@
                     {{ form_errors(organizationForm.adress) }}
                 </div>
             </div>
+        </div>
 
-            {# ─── ACTIONS EN PIED DE MODALE ─── #}
-            <div class="form-actions mt-8">
-                <button type="button" class="btn-cancel" data-bs-dismiss="modal" data-action="modal#close">
-                    Annuler
-                </button>
-                <button type="submit" class="btn-submit">
-                    Confirmer les modifications <i class="fa-solid fa-arrow-right text-[10px] ml-1"></i>
-                </button>
-            </div>
-
-        {{ form_rest(organizationForm) }}
-        {{ form_end(organizationForm) }}
+        {# ─── ACTIONS ─── #}
+        <div class="form-actions">
+            <button type="button" class="btn-cancel" data-bs-dismiss="modal" data-action="modal#close">
+                Annuler
+            </button>
+            <button type="submit" class="btn-submit">
+                {{ button_label|default('Confirmer les modifications') }} <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </button>
+        </div>
 
     </div>
-</div>
+
+{{ form_rest(organizationForm) }}
+{{ form_end(organizationForm) }}

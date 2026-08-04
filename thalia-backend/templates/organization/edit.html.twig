@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Thalia - Édition {{ organization.name }}{% endblock %}
+
+{% block body %}
+<div class="modal-backdrop">
+    <div class="modal-card modal-card-lg">
+        
+        {# BOUTON DE FERMETURE #}
+        <button type="button" class="modal-close-btn" data-bs-dismiss="modal" data-action="modal#close" title="Fermer">
+            <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+
+        {# EN-TÊTE MODALE #}
+        <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+            <div>
+                <h1 class="text-xl font-bold text-slate-900 tracking-tight">Édition de l'établissement</h1>
+                <p class="text-xs text-indigo-600 font-semibold mt-0.5">{{ organization.name }}</p>
+            </div>
+            {% if organization.siret %}
+                <span class="text-xs font-mono bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md border border-slate-200">
+                    SIRET : {{ organization.siret }}
+                </span>
+            {% endif %}
+        </div>
+
+        {# INCLUSION DU FORMULAIRE #}
+        {{ include('organization/_form.html.twig', {'button_label': 'Confirmer les modifications'}) }}
+        
+    </div>
+</div>
+{% endblock %}
