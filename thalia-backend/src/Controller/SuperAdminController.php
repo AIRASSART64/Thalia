@@ -29,12 +29,9 @@ class SuperAdminController extends AbstractController
     }
 
     #[Route('/dashboard', name: 'dashboard', methods: ['GET'])]
-    public function dashboard( OrganizationRepository $organizationRepository, UserRepository $userRepository ): Response
+    public function dashboard(): Response
     {
-        return $this->render('superadmin/index.html.twig', [
-            'users' => $userRepository->findAll(),
-            'organizations' => $organizationRepository->findAll(),
-        ]);
+        return $this->render('superadmin/index.html.twig');
     }
     #[Route('/user/{id}/change-role', name:'user_change_role', methods:['POST'])]
     public function changeRole(User $user, Request $request, EntityManagerInterface $em): Response

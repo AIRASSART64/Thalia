@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Enum\UserRole;
 use App\Repository\OrganizationRepository;
 use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
@@ -38,7 +39,12 @@ class AdminDashboardComponent
         private UserRepository $userRepository,
         private OrganizationRepository $organizationRepository,
         private Security $security,
+        private EntityManagerInterface $em // <-- 1. Injection de l'EntityManager
     ) {
+        // 2. Désactivation du filtre Multi-tenant à chaque appel (initial ou Live AJAX)
+        if ($this->em->getFilters()->isEnabled('tenant_filters')) {
+            $this->em->getFilters()->disable('tenant_filters');
+        }
     }
 
     #[LiveAction]
@@ -47,12 +53,12 @@ class AdminDashboardComponent
         $this->page = $page;
     }
 
-    // Remise à zéro de la pagination lors du changement de filtre
+    // Remise à zéro automatique de la pagination lors de la modification des filtres
     public function updatedQuery(): void { $this->page = 1; }
     public function updatedRole(): void { $this->page = 1; }
     public function updatedStatus(): void { $this->page = 1; }
 
-    // --- Données spécifiques à l'onglet 1 (À valider) ---
+    // --- Onglet 1 : Demandes à valider ---
     public function getPendingUsers(): array
     {
         return $this->userRepository->getPendingUsers();
@@ -66,12 +72,12 @@ class AdminDashboardComponent
         return $this->organizationRepository->getPendingOrganizations($excludedOrgId);
     }
 
-    // --- Données pour l'onglet 2 (Établissements) et l'onglet 3 (Utilisateurs) ---
+    // --- Onglet 2 & 3 : Établissements et Utilisateurs ---
     public function getUsers(): array
     {
         return $this->userRepository->searchUsers(
             $this->query,
-            $this->role,
+            $this->getCleanRoleValue(),
             $this->status,
             $this->page,
             $this->itemsPerPage
@@ -92,6 +98,7 @@ class AdminDashboardComponent
             $excludedOrg
         );
     }
+
     public function getTotalOrganizations(): int
     {
         /** @var User|null $currentUser */
@@ -105,14 +112,13 @@ class AdminDashboardComponent
         );
     }
 
-
-    // --- Calcule de la pagination unifiée ---
+    // --- Calculs de pagination ---
     public function getTotalItems(): int
     {
         return $this->userRepository->countSearchUsers(
-            $this->query,
-            $this->role,
-            $this->status
+            query: $this->query,
+            role: $this->getCleanRoleValue(),
+            status: $this->status
         );
     }
 
@@ -134,8 +140,21 @@ class AdminDashboardComponent
     {
         return min($this->page * $this->itemsPerPage, $this->getTotalItems());
     }
+
     public function getRoles(): array
     {
-    return UserRole::cases();
+        return UserRole::cases();
+    }
+
+    /**
+     * Méthode d'aide pour garantir que la valeur transmise au Repository est une chaîne nettoyée
+     */
+    private function getCleanRoleValue(): string
+    {
+        if ($this->role instanceof UserRole) {
+            return $this->role->value;
+        }
+
+        return $this->role;
     }
 }
