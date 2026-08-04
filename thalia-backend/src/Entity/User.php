@@ -47,6 +47,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?bool $isActive = null;
 
+    #[ORM\Column]
+    private ?\DateTimeImmutable $created_at = null;
+
     /**
      * @var Collection<int, Notification>
      */
@@ -219,5 +222,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->avatarFilename = $avatarFilename;
 
         return $this;
+
     }
+
+   public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->created_at;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $created_at): static
+    {
+        $this->created_at = $created_at;
+        return $this;
+    }
+    #[ORM\PrePersist]
+    public function setInitialDates(): void
+    {
+        $now = new \DateTimeImmutable();
+        $this->created_at = $now;
+    
+    }
+
+
+
+
 }

@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -31,6 +32,98 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $user->setPassword($newHashedPassword);
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
+    }
+
+    /**
+     * Recherche paginée d'utilisateurs
+     * 
+     * @return User[]
+     */
+    public function searchUsers(string $query,string $role,string $status,int $page = 1,int $itemsPerPage = 10): array 
+    {
+        $qb = $this->createSearchQueryBuilder($query, $role, $status);
+
+        // Pagination via Doctrine
+        $firstResult = ($page - 1) * $itemsPerPage;
+        $qb->setFirstResult($firstResult)
+           ->setMaxResults($itemsPerPage)
+           ->orderBy('u.id', 'DESC');
+
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Nombre total d'utilisateurs correspondant aux filtres
+     */
+    public function countSearchUsers(string $query,string $role,string $status): int
+    {
+        $qb = $this->createSearchQueryBuilder($query, $role, $status);
+        
+        $qb->select('COUNT(DISTINCT u.id)');
+
+        return (int) $qb->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * Facteur commun pour la construction de la requête de recherche
+     */
+    private function createSearchQueryBuilder(string $query, string $role, string $status): QueryBuilder 
+    {
+        $qb = $this->createQueryBuilder('u')
+            ->leftJoin('u.organization', 'o')
+            ->addSelect('o');
+
+        $qb->andWhere('u.roles NOT LIKE :superAdminRole')
+           ->setParameter('superAdminRole', '%"ROLE_SUPER_ADMIN"%');
+
+        // 1. Recherche textuelle (Nom, Prénom, Email, Nom de l'organisation)
+        if (!empty(trim($query))) {
+            $qb->andWhere(
+                $qb->expr()->orX(
+                    'LOWER(u.firstName) LIKE LOWER(:query)',
+                    'LOWER(u.lastName) LIKE LOWER(:query)',
+                    'LOWER(u.email) LIKE LOWER(:query)',
+                    'LOWER(o.name) LIKE LOWER(:query)'
+                )
+            )->setParameter('query', '%' . trim($query) . '%');
+        }
+
+        // 2. Filtre par Rôle
+        if ($role !== 'Tous' && !empty($role)) {
+            $qb->andWhere('u.roles LIKE :role')
+               ->setParameter('role', '%"' . $role . '"%');
+        }
+
+        // 3. Filtre par Statut (Actif / Inactif)
+        if ($status !== 'Tous' && !empty($status)) {
+            $isActive = filter_var($status, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+            
+            // Si le statut est une chaîne valide ("1", "true", "0", "false")
+            if ($isActive !== null) {
+                $qb->andWhere('u.isActive = :isActive')
+                   ->setParameter('isActive', $isActive);
+            }
+        }
+
+        return $qb;
+    }
+   /**
+     * Récupère les utilisateurs en attente de validation (isActive = false)
+     * 
+     * @return User[]
+     */
+    public function getPendingUsers(): array
+    {
+        return $this->createQueryBuilder('u')
+            ->leftJoin('u.organization', 'o')
+            ->addSelect('o')
+            ->where('u.isActive = :isActive')
+            ->andWhere('u.roles NOT LIKE :superAdminRole')
+            ->setParameter('isActive', false)
+            ->setParameter('superAdminRole', '%"ROLE_SUPER_ADMIN"%')
+            ->orderBy('u.id', 'DESC')
+            ->getQuery()
+            ->getResult();
     }
 
     //    /**
