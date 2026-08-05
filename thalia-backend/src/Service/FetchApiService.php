@@ -2,7 +2,6 @@
 
 namespace App\Service;
 
-
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface;
@@ -11,13 +10,10 @@ use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
-
 class FetchApiService
 {
-    private const API_URL = 'https://data.culture.gouv.fr/api/explore/v2.1/catalog/datasets/declarations-des-entrepreneurs-de-spectacles-vivants/records';
-
-    // Un user ne peut être associé qu'à un établissement qui dispose du statut 'valide' dans l'api.
-    private const VALID_STATUSES = ['valide'];
+    // API unique et officielle du gouvernement français (Gratuite, haut débit, sans redirection)
+    private const API_URL = 'https://recherche-entreprises.api.gouv.fr/search';
 
     public function __construct(
         private readonly HttpClientInterface $httpClient,
@@ -36,68 +32,74 @@ class FetchApiService
         try {
             $response = $this->httpClient->request('GET', self::API_URL, [
                 'query' => [
-                    'where' => sprintf("siren_siret='%s'", $siret),
-                    'limit' => 1,
+                    'q' => $siret,
+                    'limite_matching_etablissements' => 1,
                 ],
-                'timeout' => 3.0,
+                'timeout' => 4.0,
             ]);
 
             $data = $response->toArray();
         } catch (TransportExceptionInterface $e) {
-            $this->logger->error('API Culture inaccessible (transport)', [
+            $this->logger->error('API Recherche Entreprises inaccessible (transport)', [
                 'siret' => $siret,
                 'exception' => $e->getMessage(),
             ]);
-            throw new \Exception('API Culture inaccessible.', previous: $e);
+            throw new \Exception('API de vérification inaccessible.', previous: $e);
         } catch (ClientExceptionInterface|ServerExceptionInterface|RedirectionExceptionInterface $e) {
-            $this->logger->error('API Culture a répondu en erreur', [
+            $this->logger->error('API Recherche Entreprises a répondu en erreur', [
                 'siret' => $siret,
                 'status_code' => $e->getResponse()->getStatusCode(),
             ]);
-            throw new \Exception('API Culture a répondu en erreur.', previous: $e);
+            throw new \Exception('API de vérification a répondu en erreur.', previous: $e);
         } catch (DecodingExceptionInterface $e) {
-            $this->logger->error('Réponse API Culture illisible', [
+            $this->logger->error('Réponse API Recherche Entreprises illisible', [
                 'siret' => $siret,
                 'exception' => $e->getMessage(),
             ]);
-            throw new \Exception('Réponse API Culture illisible.', previous: $e);
+            throw new \Exception('Réponse API de vérification illisible.', previous: $e);
         }
 
-        // Gestion du cas : SIRET inexistant dans la base
+        // 1. SIRET non trouvé dans la base SIRENE
         if (empty($data['results'])) {
+            $this->logger->info('SIRET non trouvé dans la base nationale', ['siret' => $siret]);
             return null;
         }
 
-        $record = $data['results'][0];
-      
+        $company = $data['results'][0];
+        $complements = $company['complements'] ?? [];
 
-        // Gestion du cas : licence non valide (invalidée, expirée, en instruction)
-        $statut = $record['statut'] ?? null;
-        $statut = isset($record['statut_recepisse']) ? mb_strtolower($record['statut_recepisse']) : null;
-        if (null !== $statut && !in_array($statut, self::VALID_STATUSES, true)) {
-            $this->logger->info('SIRET trouvé mais licence non valide', [
-                'siret' => $siret,
-                'statut' => $statut,
-            ]);
+        // 2. Vérification du statut d'entrepreneur de spectacles vivants
+        $isEntrepreneur = $complements['est_entrepreneur_spectacle'] 
+                       ?? $complements['spectacle_vivant']['est_entrepreneur_spectacle'] 
+                       ?? false;
 
+        if (!$isEntrepreneur) {
+            $this->logger->info('SIRET trouvé mais non enregistré comme entrepreneur de spectacles', ['siret' => $siret]);
             return null;
         }
+
+        // 3. Extraction du numéro de récépissé/licence
         $licenceNumber = null;
-        if (is_array($record)) {
-            $licenceNumber = $record['numero_recepisse'] ?? $record['numero_de_recepisse'] ?? null;
-        } elseif (is_object($record)) {
-            $licenceNumber = $record->numero_recepisse ?? $record->numero_de_recepisse ?? null;
+        $spectacleData = $complements['spectacle_vivant'] ?? [];
+
+        if (isset($spectacleData['numero_recepisse'])) {
+            $licenceNumber = $spectacleData['numero_recepisse'];
+        } elseif (!empty($spectacleData['licences']) && is_array($spectacleData['licences'])) {
+            $licence = current($spectacleData['licences']);
+            $licenceNumber = $licence['numero_recepisse'] ?? $licence['numero'] ?? null;
         }
+
         if (!$licenceNumber) {
-            $licenceNumber = 'NOT-FOUND'; 
+            $licenceNumber = 'PLATESV-VALIDE'; 
         }
+
+        $name = $company['nom_complet'] ?? $company['nom_raison_sociale'] ?? 'Structure Inconnue';
 
         return [
-            'name' => $record['raison_sociale'] ?? 'Structure Inconnue',
-            'business_name' => $record['raison_sociale'] ?? 'Structure Inconnue',
+            'name' => $name,
+            'business_name' => $name,
             'licence_number' => $licenceNumber,
-            'siret' => $record['siren_siret'] ?? $siret,
-            
+            'siret' => $siret,
         ];
     }
 

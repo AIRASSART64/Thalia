@@ -15,8 +15,8 @@ use Symfony\Component\Routing\Annotation\Route;
 class RegistrationController extends AbstractController
 {
     #[Route('/register', name: 'register', methods: ['GET', 'POST'])]
-    public function register( Request $request, RegistrationManager $registrationManager ): Response 
-        {
+    public function register(Request $request, RegistrationManager $registrationManager): Response
+    {
         $user = new User();
         $isJson = str_contains($request->headers->get('Content-Type', ''), 'application/json');
 
@@ -53,26 +53,22 @@ class RegistrationController extends AbstractController
 
         try {
             $orgName = $registrationManager->registerUser($user, $siret, $password);
-            
+
             if ($isJson) {
                 return new JsonResponse(['success' => 'Inscription enregistrée avec succès !', 'organization_created' => $orgName], 201);
             }
             $this->addFlash('success', 'Inscription enregistrée ! En attente de validation.');
             return $this->redirectToRoute('app_login');
-
         } catch (\RuntimeException $e) { // Email doublon
             if ($isJson) return new JsonResponse(['error' => $e->getMessage()], 409);
             $this->addFlash('danger', $e->getMessage());
             return $this->redirectToRoute('register');
-
         } catch (\InvalidArgumentException $e) { // SIRET mal formé
             if ($isJson) return new JsonResponse(['error' => $e->getMessage()], 400);
             $form->get('siret')->addError(new FormError('Le numéro de SIRET renseigné est invalide (14 chiffres attendus).'));
-
         } catch (\LogicException $e) { // SIRET absent ou invalide MCC
             if ($isJson) return new JsonResponse(['error' => $e->getMessage()], 400);
             $form->get('siret')->addError(new FormError($e->getMessage()));
-
         } catch (\Exception $e) { // Api inaccessible 
             if ($isJson) return new JsonResponse(['error' => 'Service indisponible, réessayez plus tard'], 503);
             $this->addFlash('danger', 'Le service de vérification est temporairement indisponible.');
@@ -82,17 +78,3 @@ class RegistrationController extends AbstractController
         return $this->render('registration/index.html.twig', ['registrationForm' => $form->createView()]);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

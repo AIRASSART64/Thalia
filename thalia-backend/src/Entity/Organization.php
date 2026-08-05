@@ -137,7 +137,11 @@ class Organization
     private Collection $themes;
 
     public function __construct()
-    {
+    {   
+        $now = new \DateTimeImmutable();
+        $this->created_at = $now;
+        $this->updated_at = $now;
+
         $this->users = new ArrayCollection();
         $this->shows = new ArrayCollection();
         $this->notifications = new ArrayCollection();
@@ -429,9 +433,13 @@ class Organization
 
     public function setInitialDates(): void
     {
-    $now = new \DateTimeImmutable();
-    $this->created_at = $now;
-    $this->updated_at = $now;
+    if (null === $this->created_at) {
+            $this->created_at = new \DateTimeImmutable();
+        }
+        
+        if (null === $this->updated_at) {
+            $this->updated_at = new \DateTimeImmutable();
+        }
     }
 
     #[ORM\PreUpdate]

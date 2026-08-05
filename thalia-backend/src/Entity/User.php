@@ -11,7 +11,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
-
+#[ORM\HasLifecycleCallbacks] // 1. OBLIGATOIRE pour que #[ORM\PrePersist] fonctionne
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -45,7 +45,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?Organization $organization = null;
 
     #[ORM\Column]
-    private ?bool $isActive = null;
+    private ?bool $isActive = true; // Par défaut à true
 
     #[ORM\Column]
     private ?\DateTimeImmutable $created_at = null;
@@ -61,6 +61,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct()
     {
+        // 2. Initialisation immédiate dans le constructeur
+        $this->created_at = new \DateTimeImmutable();
+        $this->isActive = true;
         $this->notifications = new ArrayCollection();
     }
 
@@ -203,7 +206,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeNotification(Notification $notification): static
     {
         if ($this->notifications->removeElement($notification)) {
-            // set the owning side to null (unless already changed)
             if ($notification->getUser() === $this) {
                 $notification->setUser(null);
             }
@@ -222,10 +224,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->avatarFilename = $avatarFilename;
 
         return $this;
-
     }
 
-   public function getCreatedAt(): ?\DateTimeImmutable
+    public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->created_at;
     }
@@ -233,17 +234,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCreatedAt(\DateTimeImmutable $created_at): static
     {
         $this->created_at = $created_at;
+
         return $this;
     }
+
     #[ORM\PrePersist]
     public function setInitialDates(): void
     {
-        $now = new \DateTimeImmutable();
-        $this->created_at = $now;
-    
+        if (null === $this->created_at) {
+            $this->created_at = new \DateTimeImmutable();
+        }
     }
-
-
-
-
 }
