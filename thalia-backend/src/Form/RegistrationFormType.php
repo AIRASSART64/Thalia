@@ -12,13 +12,14 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\Regex;
 
 class RegistrationFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-               ->add('firstName', TextType::class, [
+            ->add('firstName', TextType::class, [
                 'label' => 'Prénom',
                 'constraints' => [new NotBlank(['message' => 'Veuillez saisir votre prénom.'])]
             ])
@@ -33,13 +34,20 @@ class RegistrationFormType extends AbstractType
             ->add('password', PasswordType::class, [
                 'label' => 'Mot de passe',
                 'mapped' => false,
-                'attr' => ['autocomplete' => 'new-password'],
+                'attr' => [
+                    'autocomplete' => 'new-password',
+                    'placeholder' => '••••••••',
+                    'minlength' => 8, // Validation HTML5 côté navigateur
+                ],
+                'help' => 'Le mot de passe doit contenir au moins 8 caractères.', // Optionnel : message sous le champ
                 'constraints' => [
-                    new NotBlank(['message' => 'Veuillez saisir un mot de passe.']),
+                    new NotBlank([
+                        'message' => 'Veuillez saisir un mot de passe.',
+                    ]),
                     new Length([
                         'min' => 8,
-                        'minMessage' => 'Votre mot de passe doit faire au moins 8 caractères.',
-                        'max' => 4096,
+                        'minMessage' => 'Votre mot de passe doit faire au moins {{ limit }} caractères.',
+                        'max' => 4096, // Sécurité recommandée pour éviter les attaques DoS sur le hachage
                     ]),
                 ],
             ])
@@ -54,9 +62,12 @@ class RegistrationFormType extends AbstractType
                         'max' => 14,
                         'exactMessage' => 'Un numéro SIRET valide comporte exactement {{ limit }} chiffres.'
                     ]),
+                    new Regex([
+                        'pattern' => '/^\d{14}$/',
+                        'message' => 'Le numéro SIRET doit contenir uniquement 14 chiffres.',
+                    ])
                 ],
             ]);
-
     }
 
     public function configureOptions(OptionsResolver $resolver): void

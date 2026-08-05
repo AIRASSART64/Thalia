@@ -32,44 +32,50 @@ class SuperAdminController extends AbstractController
     {
         return $this->render('superadmin/index.html.twig');
     }
-    #[Route('/user/{id}/change-role', name:'user_change_role', methods:['POST'])]
+    #[Route('/user/{id}/change-role', name: 'user_change_role', methods: ['POST'])]
     public function changeRole(User $user, Request $request, EntityManagerInterface $em): Response
     {
         // Sécurité : évite l'auto-modification
-    if ($user === $this->getUser()) {
-        $this->addFlash('danger', 'Action impossible : vous ne pouvez pas modifier votre propre rôle !');
+        if ($user === $this->getUser()) {
+            $this->addFlash('danger', 'Action impossible : vous ne pouvez pas modifier votre propre rôle !');
+            return $this->redirectToRoute('superadmin_dashboard');
+        }
+
+        // Récupération et conversion du rôle via l'Enum
+        $roleInput = $request->request->get('role', '');
+        $newRoleEnum = UserRole::tryFrom($roleInput);
+
+        if ($newRoleEnum !== null) {
+            // Actualisation du rôle
+            $user->setRoles([$newRoleEnum->value]);
+            $em->flush();
+
+            $this->addFlash('success', sprintf(
+                'Le rôle de %s a été mis à jour en "%s".',
+                $user->getEmail(),
+                $newRoleEnum->label()
+            ));
+        } else {
+            $this->addFlash('danger', 'Rôle sélectionné invalide.');
+        }
+
         return $this->redirectToRoute('superadmin_dashboard');
-    }
-
-    // Récupération et conversion du rôle via l'Enum
-    $roleInput = $request->request->get('role', '');
-    $newRoleEnum = UserRole::tryFrom($roleInput);
-
-    if ($newRoleEnum !== null) {
-        // Actualisation du rôle
-        $user->setRoles([$newRoleEnum->value]);
-        $em->flush();
-
-        $this->addFlash('success', sprintf( 'Le rôle de %s a été mis à jour en "%s".', $user->getEmail(),$newRoleEnum->label()
-        ));
-    } else {
-        $this->addFlash('danger', 'Rôle sélectionné invalide.');
-    }
-
-    return $this->redirectToRoute('superadmin_dashboard');
     }
 
     #[Route('/user/{id}/toggle-active', name: 'user_toggle_active', methods: ['POST'])]
     public function toggleActive(User $user, Request $request, EntityManagerInterface $em): Response
     {
-       // 1. Sécurité pour éviter l'auto-désactivation
+        // 1. Sécurité pour éviter l'auto-désactivation
         if ($user === $this->getUser()) {
             $this->addFlash('danger', 'Action impossible : vous ne pouvez pas désactiver votre propre compte !');
             return $this->redirectToRoute('superadmin_dashboard');
         }
 
+        // Récupération du token transmis par le formulaire POST
+        $submittedToken = $request->request->get('_token');
+
         // 2. Vérification de la validité du jeton CSRF
-        if ($this->isCsrfTokenValid('toggle_active_' . $user->getId(), $request->request->get('_token'))) {
+        if ($this->isCsrfTokenValid('toggle_active_' . $user->getId(), $submittedToken)) {
             // Inversion du statut
             $user->setIsActive(!$user->isActive());
             $em->flush();
