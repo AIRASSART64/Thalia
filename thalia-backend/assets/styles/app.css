@@ -486,7 +486,19 @@ h1 {
     color: rgb(148, 163, 184);
     font-size: 0.875rem;
 }
+/* Masquer la barre de défilement */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
 
+/* Éviter le clignotement Alpine.js au chargement */
+[x-cloak] {
+    display: none !important;
+}
 
 
 
