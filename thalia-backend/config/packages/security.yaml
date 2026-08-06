@@ -21,7 +21,24 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
-        
+        # 1. Firewall pour l'obtention du token JWT
+        login:
+            pattern: ^/api/login_check
+            stateless: true
+            json_login:
+                check_path: /api/login_check
+                username_path: email
+                password_path: password
+                success_handler: lexik_jwt_authentication.handler.authentication_success
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+
+        # 2. Firewall pour sécuriser les routes de votre API
+        api:
+            pattern:   ^/api
+            stateless: true
+            jwt: ~
+
+        # 3. Firewall pour votre application Web classique
         main:
             lazy: true
             provider: app_user_provider
@@ -34,21 +51,15 @@ security:
                 lifetime: 604800
                 path: /
 
-    # Contrôle des accès simplifié
+    # Contrôle des accès
     access_control:
-        - { path: ^/$, roles: PUBLIC_ACCESS }             
+        - { path: ^/api/login_check, roles: PUBLIC_ACCESS }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/$, roles: PUBLIC_ACCESS }              
         - { path: ^/login$, roles: PUBLIC_ACCESS }         
         - { path: ^/register$, roles: PUBLIC_ACCESS }
         - { path: ^/profile, roles: ROLE_USER }   
-
-        #. FILTRAGE GLOBAL PAR URL POUR LES PAGES EXCLUSIVES (Optionnel)
-        # Attention : si une page est partagée avec des droits différents (ex: les Shows), 
-        # ne mets rien ici, laisse l'accès à ROLE_USER et laisse le ShowVoter faire le travail fin !
-        # - { path: ^/financial-dashboard, roles: ROLE_FINANCIER }
-        # - { path: ^/technical-planning, roles: ROLE_TECHNICIEN }
-
         - { path: ^/superadmin, roles: ROLE_SUPER_ADMIN }
-        
 
 when@test:
     security:
