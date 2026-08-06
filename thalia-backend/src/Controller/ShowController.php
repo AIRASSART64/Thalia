@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Contact;
 use App\Entity\Show;
 use App\Entity\ShowContact;
+use App\Form\ContactFormType;
 use App\Form\ShowFormType;
 use App\Repository\ShowRepository;
 use App\Service\CrudManagerService;
@@ -148,54 +149,31 @@ class ShowController extends AbstractController
     }
 
    #[Route('/{id}/contact/add', name: 'show_contact_add', methods: ['GET', 'POST'])]
-    public function addShow(Request $request, Contact $contact): Response
+    public function addShow(Request $request, Show $show): Response
     {
-        $this->denyAccessUnlessGranted('CONTACT_EDIT', $contact);
+        $this->denyAccessUnlessGranted('SHOW_EDIT', $show);
 
-        $show = new Show();
-        $organization = $contact->getOrganization();
+        $contact = new Contact();
+        $organization = $show->getOrganization();
 
-        // 1. Définition de l'organisation et de la relation ShowContact
-        $show->setOrganization($organization);
+        //  Définition de l'organisation et de la relation ShowContact
+        $contact->setOrganization($organization);
         
         $showContact = new ShowContact();
-        $showContact->setContact($contact);
-        $show->addShowContact($showContact);
+        $showContact->setEvent($show);
+        $contact->addShowContact($showContact);
 
         // 2. Formulaire
-        $formShow = $this->createForm(ShowFormType::class, $show, [
+        $form = $this->createForm(ContactFormType::class, $contact, [
             'user_organization' => $organization,
         ]);
-        $formShow->handleRequest($request);
+        $form->handleRequest($request);
 
-        if ($formShow->isSubmitted() && $formShow->isValid()) {
+        if ($form->isSubmitted() && $form->isValid()) {
 
-            // ── Traitement Affiche (Artwork) ──
-            /** @var UploadedFile|null $imageFile */
-            $imageFile = $formShow->get('artworkUrl')->getData();
+            $this->crudManager->create($contact);
 
-            if ($imageFile) {
-                $newFilename = $this->fileUpLoader->upload($imageFile, $this->params->get('shows_images_directory'));
-                if ($newFilename) {
-                    $show->setArtworkUrl($newFilename);
-                }
-            }
-
-            // ── Traitement Dossier Artistique (PDF) ──
-            /** @var UploadedFile|null $artisticFile */
-            $artisticFile = $formShow->get('artistic_file')->getData();
-
-            if ($artisticFile) {
-                $newFilename = $this->fileUpLoader->upload($artisticFile, $this->params->get('shows_documents_directory'));
-                if ($newFilename) {
-                    $show->setArtisticFile($newFilename);
-                }
-            }
-
-            // 3. Persistance
-            $this->crudManager->create($show);
-
-            $this->addFlash('success', 'Le spectacle a été créé et rattaché avec succès.');
+            $this->addFlash('success', 'Le contact a été cré et rattaché avec succès.');
 
             return $this->redirectToRoute('contact_show', [
                 'id' => $contact->getId(),
@@ -205,7 +183,7 @@ class ShowController extends AbstractController
 
         return $this->render('show/new.html.twig', [
             'contact' => $contact,
-            'form' => $formShow->createView(),
+            'form' => $form->createView(),
         ]);
     }
     #[Route('/{showId}/contact/{id}/detach', name: 'show_contact_detach', methods: ['POST'])]

@@ -141,7 +141,6 @@ class ContactController extends AbstractController
         $show = new Show();
         $organization = $contact->getOrganization();
 
-        // Associer l'organisation et la relation intermédiaire ShowContact
         $show->setOrganization($organization);
         
         $showContact = new ShowContact();
