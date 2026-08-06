@@ -7,7 +7,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ShowContactRepository::class)]
-#[ORM\Table(name: 'show_contact')] // Optionnel : force le nom de la table SQL
+#[ORM\Table(name: 'show_contact')] 
 class ShowContact
 {
     #[ORM\Id]
@@ -16,11 +16,11 @@ class ShowContact
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'showContacts')]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')] // <-- Ajouté
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Show $event = null;
 
     #[ORM\ManyToOne(inversedBy: 'showContacts')]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')] // <-- Ajouté
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Contact $contact = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
