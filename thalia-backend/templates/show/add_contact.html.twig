@@ -51,13 +51,13 @@
                 {{ form_errors(form.existingContact) }}
             </div>
 
-            <div
+            {# <div
                 class="form-group border-t border-slate-100 pt-4 {% if form.report is defined and not form.report.vars.valid %}has-error{% endif %}">
                 {{ form_label(form.report, 'Concernat le contact', {'label_attr': {'class':
                 'form-label'}}) }}
                 {{ form_widget(form.report, {'attr': {'class': 'form-input', 'rows': '3', 'placeholder': 'Toutes les informations concernant le contact'}}) }}
                 {{ form_errors(form.report) }}
-            </div>
+            </div> #}
 
             {# Bouton pour soumettre le rattachement #}
             <div class="pt-2">
