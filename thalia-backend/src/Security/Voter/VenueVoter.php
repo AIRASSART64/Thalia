@@ -28,7 +28,7 @@ class VenueVoter extends Voter
             return $subject instanceof Venue;
         }
 
-        return true; // Uniquement pour CREATE (qui n'a pas besoin d'instance Venue)
+        return true; // Uniquement pour CREATE 
     }
 
     protected function voteOnAttribute(string $attribute, mixed $subject, TokenInterface $token): bool
@@ -38,12 +38,12 @@ class VenueVoter extends Voter
         if (!$user instanceof User) {
             return false;
         }
-
+        $venue = $subject instanceof Venue ? $subject : null;
         return match ($attribute) {
-            self::VIEW => $this->canView($subject, $user),
+            self::VIEW => $this->canView($venue, $user),
             self::CREATE => $this->canCreate(),
-            self::EDIT => $this->canEdit($subject, $user),
-            self::DELETE => $this->canDelete($subject, $user),
+            self::EDIT => $this->canEdit($venue, $user),
+            self::DELETE => $this->canDelete($venue, $user),
             default => false,
         };
     }
@@ -71,13 +71,17 @@ class VenueVoter extends Voter
 
     private function canCreate(): bool
     {
-        return $this->hasRequiredRole();
+        return $this->security->isGranted('ROLE_TECHNICIEN');
     }
 
     private function canEdit(Venue $venue, User $user): bool
     {
-        if (!$this->hasRequiredRole()) {
+        if (!$this->security->isGranted('ROLE_TECHNICIEN')) {
             return false;
+        }
+
+        if ($venue === null) {
+            return true;
         }
 
         return $venue->getOrganization() === $user->getOrganization();
@@ -85,8 +89,11 @@ class VenueVoter extends Voter
 
     private function canDelete(Venue $venue, User $user): bool
     {
-        if (!$this->hasRequiredRole()) {
+        if (!$this->security->isGranted('ROLE_TECHNICIEN')) {
             return false;
+        }
+        if($venue === null) {
+            return true;
         }
 
         return $venue->getOrganization() === $user->getOrganization();

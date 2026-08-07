@@ -2,10 +2,9 @@
 
 namespace App\Form;
 
-use App\Entity\Equipment;
+
 use App\Entity\Organization;
 use App\Entity\Venue;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
