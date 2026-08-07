@@ -223,10 +223,11 @@
                         <p class="text-[11px] text-slate-400 mt-0.5">Salles rattachées à cet établissement</p>
                     </div>
                 </div>
-                
+                {# {% if condition %} #}
                 <a href="{{ path('venue_new') }}" class="inline-flex items-center justify-center gap-1.5 bg-indigo-50 text-indigo-700 font-bold px-3.5 py-2 rounded-xl text-xs hover:bg-indigo-100 transition shrink-0">
                     <i class="fa-solid fa-plus text-xs"></i> Créer une salle
                 </a>
+                {# {% endif %} #}
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
