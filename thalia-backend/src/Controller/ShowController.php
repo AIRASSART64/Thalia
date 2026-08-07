@@ -6,6 +6,7 @@ use App\Entity\Contact;
 use App\Entity\Show;
 use App\Entity\ShowContact;
 use App\Form\AddShowContactFormType;
+use App\Form\ShowContactFormType;
 use App\Form\ShowFormType;
 use App\Repository\ShowRepository;
 use App\Service\CrudManagerService;
@@ -154,41 +155,45 @@ class ShowController extends AbstractController
         $this->denyAccessUnlessGranted('SHOW_EDIT', $show);
         $organization = $show->getOrganization();
 
-        $form = $this->createForm(AddShowContactFormType::class, null, [
+        $showContact = new ShowContact();
+        $showContact->setEvent($show); 
+
+        $form = $this->createForm(ShowContactFormType::class, $showContact, [
             'user_organization' => $organization,
+            'show'=> $show,
         ]);
 
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $data = $form->getData();
+            // $data = $form->getData();
 
-            /** @var Contact|null $contact */
-            $contact = $data['existingContact'] ?? null;
-            /** @var Contact|null $newContact */
-            $newContact = $data['newContact'] ?? null;
+            // /** @var Contact|null $contact */
+            // $contact = $data['existingContact'] ?? null;
+            // /** @var Contact|null $newContact */
+            // $newContact = $data['newContact'] ?? null;
 
-            // Cas 1 : Création d'un nouveau contact si aucun contact n'a été sélectionné
-            if (!$contact && $newContact && $newContact->getLastName()) {
-                $contact = $newContact;
-                $contact->setOrganization($organization);
-                $this->crudManager->create($contact);
-            }
+            // // Cas 1 : Création d'un nouveau contact si aucun contact n'a été sélectionné
+            // if (!$contact && $newContact && $newContact->getLastName()) {
+            //     $contact = $newContact;
+            //     $contact->setOrganization($organization);
+            //     $this->crudManager->create($contact);
+            // }
 
             // Vérification qu'un contact est bien présent (existant ou nouveau)
-            if (!$contact) {
-                $this->addFlash('danger', 'Veuillez sélectionner un contact existant ou compléter la création d\'un nouveau contact.');
-                return $this->render('show/add_contact.html.twig', [
-                    'show' => $show,
-                    'form' => $form->createView(),
-                ]);
-            }
+            // if (!$contact) {
+            //     $this->addFlash('danger', 'Veuillez sélectionner un contact existant ou compléter la création d\'un nouveau contact.');
+            //     return $this->render('show/add_contact.html.twig', [
+            //         'show' => $show,
+            //         'form' => $form->createView(),
+            //     ]);
+            // }
 
             // Cas 2 : Création de la relation ShowContact
-            $showContact = new ShowContact();
-            $showContact->setEvent($show);
-            $showContact->setContact($contact);
-            $showContact->setReport($data['report'] ?? null);
+            // $showContact = new ShowContact();
+            // $showContact->setEvent($show);
+            // $showContact->setContact($contact);
+            // $showContact->setReport($data['report'] ?? null);
 
             $this->crudManager->create($showContact);
 

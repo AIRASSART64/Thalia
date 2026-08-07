@@ -42,14 +42,14 @@ class AddShowContactFormType extends AbstractType
         // ]);
 
         // 3. Informations spécifiques à la relation (ShowContact)
-        $builder->add('report', TextareaType::class, [
-            'label' => 'Information sur le contact',
-            'required' => false,
-            'attr' => [
-                'rows' => 3,
-                'placeholder' => 'Notes ou rôle spécifique du contact sur ce spectacle...',
-            ],
-        ]);
+        // $builder->add('report', TextareaType::class, [
+        //     'label' => 'Information sur le contact',
+        //     'required' => false,
+        //     'attr' => [
+        //         'rows' => 3,
+        //         'placeholder' => 'Notes ou rôle spécifique du contact sur ce spectacle...',
+        //     ],
+        // ]);
     }
 
     public function configureOptions(OptionsResolver $resolver): void
