@@ -282,7 +282,7 @@
                         </p> #}
                     </div>
                     {% if is_granted('CONTACT_CREATE', show) %}
-                    <a href="{{ path('contact_new', {'id': show.id}) }}"
+                    <a href="{{ path('show_contact_add', {'id': show.id}) }}"
                         class="inline-flex items-center gap-2 px-3.5 py-2 bg-sky-600 hover:bg-sky-700 text-white font-medium text-xs rounded-xl shadow-sm hover:shadow transition-all duration-200">
                         <i class="fa-solid fa-plus"></i>
                         <span>Ajouter un contact</span>

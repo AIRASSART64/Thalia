@@ -5,7 +5,7 @@ namespace App\Controller;
 use App\Entity\Contact;
 use App\Entity\Show;
 use App\Entity\ShowContact;
-use App\Form\ContactFormType;
+use App\Form\AddShowContactFormType;
 use App\Form\ShowFormType;
 use App\Repository\ShowRepository;
 use App\Service\CrudManagerService;
@@ -148,44 +148,64 @@ class ShowController extends AbstractController
         return $this->render('show/show.html.twig', ['show' => $show]);
     }
 
-   #[Route('/{id}/contact/add', name: 'show_contact_add', methods: ['GET', 'POST'])]
+    #[Route('/{id}/contact/add', name: 'show_contact_add', methods: ['GET', 'POST'])]
     public function addShow(Request $request, Show $show): Response
     {
         $this->denyAccessUnlessGranted('SHOW_EDIT', $show);
-
-        $contact = new Contact();
         $organization = $show->getOrganization();
 
-        //  Définition de l'organisation et de la relation ShowContact
-        $contact->setOrganization($organization);
-        
-        $showContact = new ShowContact();
-        $showContact->setEvent($show);
-        $contact->addShowContact($showContact);
-
-        // 2. Formulaire
-        $form = $this->createForm(ContactFormType::class, $contact, [
+        $form = $this->createForm(AddShowContactFormType::class, null, [
             'user_organization' => $organization,
         ]);
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
 
-            $this->crudManager->create($contact);
+            /** @var Contact|null $contact */
+            $contact = $data['existingContact'] ?? null;
+            /** @var Contact|null $newContact */
+            $newContact = $data['newContact'] ?? null;
 
-            $this->addFlash('success', 'Le contact a été cré et rattaché avec succès.');
+            // Cas 1 : Création d'un nouveau contact si aucun contact n'a été sélectionné
+            if (!$contact && $newContact && $newContact->getLastName()) {
+                $contact = $newContact;
+                $contact->setOrganization($organization);
+                $this->crudManager->create($contact);
+            }
 
-            return $this->redirectToRoute('contact_show', [
-                'id' => $contact->getId(),
-                '_fragment' => 'tab-shows'
+            // Vérification qu'un contact est bien présent (existant ou nouveau)
+            if (!$contact) {
+                $this->addFlash('danger', 'Veuillez sélectionner un contact existant ou compléter la création d\'un nouveau contact.');
+                return $this->render('show/add_contact.html.twig', [
+                    'show' => $show,
+                    'form' => $form->createView(),
+                ]);
+            }
+
+            // Cas 2 : Création de la relation ShowContact
+            $showContact = new ShowContact();
+            $showContact->setEvent($show);
+            $showContact->setContact($contact);
+            $showContact->setReport($data['report'] ?? null);
+
+            $this->crudManager->create($showContact);
+
+            $this->addFlash('success', 'Le contact a été rattaché au spectacle avec succès.');
+
+            return $this->redirectToRoute('show_show', [
+                'id' => $show->getId(),
+                '_fragment' => 'tab-contacts'
             ]);
         }
 
-        return $this->render('show/new.html.twig', [
-            'contact' => $contact,
+        return $this->render('show/add_contact.html.twig', [
+            'show' => $show,
             'form' => $form->createView(),
         ]);
     }
+
     #[Route('/{showId}/contact/{id}/detach', name: 'show_contact_detach', methods: ['POST'])]
     public function detachContact(Request $request, int $showId, ShowContact $showContact): Response
     {

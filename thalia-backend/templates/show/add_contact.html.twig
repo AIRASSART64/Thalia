@@ -1,0 +1,110 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Thalia - Rattacher un Contact{% endblock %}
+
+{% block body %}
+<div class="modal-backdrop">
+    <div class="modal-card">
+
+        {# Bouton Fermer #}
+        <a href="{{ path('show_show', {'id': show.id, '_fragment': 'tab-contacts'}) }}" class="modal-close-btn"
+            title="Fermer">
+            <i class="fa-solid fa-xmark text-lg"></i>
+        </a>
+
+        {# En-tête du Modal #}
+        <div class="text-center mb-6">
+            <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Rattacher un contact</h1>
+            <p class="text-xs text-indigo-500 mt-1 font-medium">
+                Spectacle : <span class="font-semibold text-slate-700">{{ show.title }}</span>
+            </p>
+        </div>
+
+        {{ form_start(form, {'attr': {'class': 'space-y-6', 'novalidate': 'novalidate'}}) }}
+
+        {# ─── 1. ALERTE GLOBALE SI LE FORMULAIRE EST INVALIDE ─── #}
+        {% if not form.vars.valid %}
+        <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs">
+            <div class="flex items-center gap-2 font-bold mb-1 text-rose-700">
+                <i class="fa-solid fa-triangle-exclamation text-sm"></i>
+                <span>Veuillez corriger les erreurs ci-dessous :</span>
+            </div>
+            <ul class="list-disc list-inside space-y-0.5 text-rose-700">
+                {{ form_errors(form) }}
+            </ul>
+        </div>
+        {% endif %}
+
+        <div class="form-card">
+
+            {# ─── OPTION A : RATTACHER UN CONTACT EXISTANT ─── #}
+            <div class="form-section-header">
+                <h2 class="form-section-title flex items-center gap-2">
+                    <i class="fa-solid fa-users text-indigo-500"></i>
+                    Sélectionner un contact existant
+                </h2>
+            </div>
+
+            <div class="form-group {% if not form.existingContact.vars.valid %}has-error{% endif %}">
+                {{ form_label(form.existingContact, 'Rechercher un contact', {'label_attr': {'class': 'form-label'}}) }}
+                {{ form_widget(form.existingContact, {'attr': {'class': 'form-input'}}) }}
+                {{ form_errors(form.existingContact) }}
+            </div>
+
+            <div
+                class="form-group border-t border-slate-100 pt-4 {% if form.report is defined and not form.report.vars.valid %}has-error{% endif %}">
+                {{ form_label(form.report, 'Concernat le contact', {'label_attr': {'class':
+                'form-label'}}) }}
+                {{ form_widget(form.report, {'attr': {'class': 'form-input', 'rows': '3', 'placeholder': 'Toutes les informations concernant le contact'}}) }}
+                {{ form_errors(form.report) }}
+            </div>
+
+            {# Bouton pour soumettre le rattachement #}
+            <div class="pt-2">
+                <button type="submit" class="btn-submit w-full justify-center">
+                    Rattacher ce contact <i class="fa-solid fa-link text-[10px] ml-1"></i>
+                </button>
+            </div>
+
+            {# ─── SÉPARATEUR OU ─── #}
+            <div class="relative flex py-2 items-center my-2">
+                <div class="flex-grow border-t border-slate-200"></div>
+                <span class="flex-shrink mx-4 text-xs font-bold text-slate-400 uppercase tracking-wider">OU</span>
+                <div class="flex-grow border-t border-slate-200"></div>
+            </div>
+
+            {# ─── OPTION B : CRÉER UN NOUVEAU CONTACT ─── #}
+            <div class="bg-indigo-50/50 border border-indigo-100 rounded-xl p-4 text-center space-y-3">
+                <div class="text-xs text-slate-600">
+                    <i class="fa-solid fa-circle-info text-indigo-500 mr-1"></i>
+                    <span>Si le contact n'existe pas encore, vous pouvez le créer directement.</span>
+                </div>
+
+                <div>
+
+                    <a href="{{ path('contact_new', {'show_id': show.id}) }}"
+                        class="btn-cancel inline-flex items-center gap-2 border-indigo-200 text-white hover:bg-indigo-50 font-semibold text-xs py-2 px-4 rounded-xl transition">
+                        <button type:"submit" class="btn-submit w-full justify-center">
+                            <i class="fa-solid fa-user-plus text-xs"></i>
+                            Créer un nouveau contact
+                        </button>
+                    </a>
+
+                </div>
+            </div>
+
+            {# ─── ACTIONS / RETOUR ─── #}
+            <div class="form-actions border-t border-slate-100 pt-4 mt-6">
+                <a href="{{ path('show_show', {'id': show.id, '_fragment': 'tab-contacts'}) }}" class="btn-cancel">
+                    Annuler
+                </a>
+            </div>
+
+        </div>
+
+        {{ form_rest(form) }}
+        {{ form_end(form) }}
+
+    </div>
+</div>
+{% endblock %}
