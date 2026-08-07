@@ -73,20 +73,24 @@
         <div id="show-contacts-wrapper" class="space-y-4"
             data-prototype="{{ form_widget(form.showContacts.vars.prototype)|e('html_attr') }}">
             {% for showContactField in form.showContacts %}
-           <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-4 show-contact-item">
+            <div class="p-4 rounded-xl border border-slate-200 bg-slate-50 space-y-4 show-contact-item">
                 {# 1. SPECTACLE #}
+                {% if showContactField.event is defined %}
                 <div class="form-group {% if not showContactField.event.vars.valid %}has-error{% endif %}">
                     {{ form_label(showContactField.event, null, {'label_attr': {'class': 'form-label'}}) }}
                     {{ form_widget(showContactField.event, {'attr': {'class': 'form-input'}}) }}
                     {{ form_errors(showContactField.event) }}
                 </div>
+                {% endif %}
 
-                {# 2. COMPTE-RENDU #}
+                {# 2. COMPTE-RENDU (Uniquement s'il est configuré dans le form) #}
+                {% if showContactField.report is defined %}
                 <div class="form-group {% if not showContactField.report.vars.valid %}has-error{% endif %}">
                     {{ form_label(showContactField.report, null, {'label_attr': {'class': 'form-label'}}) }}
                     {{ form_widget(showContactField.report, {'attr': {'class': 'form-input', 'rows': '3'}}) }}
                     {{ form_errors(showContactField.report) }}
                 </div>
+                {% endif %}
             </div>
             {% endfor %}
         </div>
