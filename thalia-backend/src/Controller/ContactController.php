@@ -3,10 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Contact;
-use App\Entity\Show;
 use App\Entity\ShowContact;
 use App\Form\ContactFormType;
-use App\Form\ShowFormType;
+use App\Form\ShowContactFormType;
 use App\Repository\ContactRepository;
 use App\Repository\ShowRepository;
 use App\Service\CrudManagerService;
@@ -138,24 +137,24 @@ class ContactController extends AbstractController
     {
         $this->denyAccessUnlessGranted('CONTACT_EDIT', $contact);
 
-        $show = new Show();
-        $organization = $contact->getOrganization();
+        $user = $this->getUser();
+        if (!$user instanceof \App\Entity\User) {
+            throw new \LogicException('L\'utilisateur doit être connecté avec un compte valide.');
+        }
 
-        $show->setOrganization($organization);
-        
         $showContact = new ShowContact();
         $showContact->setContact($contact);
-        $show->addShowContact($showContact); // Ou $contact->addShowContact($showContact);
 
-        $form = $this->createForm(ShowFormType::class, $show, [
-            'user_organization' => $organization,
+        $form = $this->createForm(ShowContactFormType::class, $showContact, [
+            'user_organization' => $user->getOrganization(),
+            'show' => null, 
         ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $this->crudManager->create($show);
+            $this->crudManager->create($showContact);
 
-            $this->addFlash('success', 'Le spectacle a été créé et rattaché avec succès.');
+            $this->addFlash('success', 'Le spectacle a été rattaché avec succès.');
 
             return $this->redirectToRoute('contact_show', [
                 'id' => $contact->getId(),
@@ -163,7 +162,7 @@ class ContactController extends AbstractController
             ]);
         }
 
-        return $this->render('show/new.html.twig', [
+        return $this->render('contact/add_show.html.twig', [
             'contact' => $contact,
             'form' => $form->createView(),
         ]);

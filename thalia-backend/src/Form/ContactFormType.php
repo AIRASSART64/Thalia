@@ -48,23 +48,7 @@ class ContactFormType extends AbstractType
                 'label' => 'Adresse email',
                 'required' => false,
             ])
-            // ->add('shows', EntityType::class, [
-            //     'class'=> Show::class,
-            //     'choice_label'=>'title',
-            //     'multiple'=>true,
-            //     'expanded'=>false,
-            //     'label'=> 'Speactacles rattachés',
-            //     'by_reference'=> false,
-            //     'query_builder' => function (EntityRepository $er) use ($currentOrganization) {
-            //         return $er->createQueryBuilder('s')
-            //             ->where('s.organization = :org')
-            //             ->setParameter('org', $currentOrganization)
-            //             ->orderBy('s.title', 'ASC');
-            //     },
-            //     'attr' => [
-            //         'class' => 'w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition outline-none text-gray-800'
-            //     ]
-            // ])
+        
             ->add('showContacts', CollectionType::class, [
                 'entry_type' => ShowContactFormType::class,
                 'entry_options' => [

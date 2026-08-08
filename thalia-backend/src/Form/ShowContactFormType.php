@@ -29,25 +29,45 @@ class ShowContactFormType extends AbstractType
             $isExistingLink = $data && $data->getId() !== null;
             $contact = $data ? $data->getContact() : null;
 
-            // 1. CHAMP SPECTACLE (Uniquement si pas sur la fiche spectacle)
+            // 1. CHAMP SPECTACLE (Uniquement si on n'est pas déjà dans le contexte d'un Spectacle précis)
             if (!$show) {
                 $form->add('event', EntityType::class, [
                     'class' => Show::class,
                     'choice_label' => 'title',
                     'placeholder' => 'Sélectionnez un spectacle...',
                     'label' => 'Spectacle',
+                    'disabled' => $isExistingLink,
                     'required' => true,
-                    'query_builder' => function (ShowRepository $sr) use ($organization) {
-                        return $sr->createQueryBuilder('s')
+                    // 🎯 FILTRAGE : Exclure les spectacles auxquels ce contact est DÉJÀ rattaché
+                    'query_builder' => function (ShowRepository $sr) use ($organization, $contact, $isExistingLink) {
+                        $qb = $sr->createQueryBuilder('s')
                             ->where('s.organization = :org')
-                            ->setParameter('org', $organization)
-                            ->orderBy('s.title', 'ASC');
+                            ->setParameter('org', $organization);
+
+                        // Si nous sommes dans le contexte d'un contact existant pour un nouveau rattachement
+                        if ($contact && $contact->getId() !== null && !$isExistingLink) {
+                            $qb->andWhere(
+                                $qb->expr()->notIn('s.id',
+                                    $sr->createQueryBuilder('sub_s')
+                                        ->select('s2.id')
+                                        ->from(ShowContact::class, 'sc')
+                                        ->join('sc.event', 's2') // ⚠️ 'sc.event' ou 'sc.show' selon votre entité ShowContact
+                                        ->where('sc.contact = :targetContact')
+                                        ->getDQL()
+                                )
+                            )
+                            ->setParameter('targetContact', $contact);
+                        }
+
+                        return $qb->orderBy('s.title', 'ASC');
                     },
-                    'attr' => ['class' => 'form-select']
+                    'attr' => [
+                        'class' => 'form-select ' . ($isExistingLink ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : ''),
+                    ]
                 ]);
             }
 
-            // 2. CHAMP CONTACT (Masqué en création de contact pure pour éviter l'erreur de persistent)
+            // 2. CHAMP CONTACT (Masqué lors de la création d'un tout nouveau contact)
             if (!($contact && $contact->getId() === null)) {
                 $form->add('contact', EntityType::class, [
                     'class' => Contact::class,
@@ -73,11 +93,11 @@ class ShowContactFormType extends AbstractType
                                         ->select('c2.id')
                                         ->from(ShowContact::class, 'sc')
                                         ->join('sc.contact', 'c2')
-                                        ->where('sc.event = :show') // ⚠️ Remplacez 'sc.event' par 'sc.show' si votre entité ShowContact utilise la propriété $show
+                                        ->where('sc.event = :targetShow') // ⚠️ 'sc.event' ou 'sc.show' selon votre entité ShowContact
                                         ->getDQL()
                                 )
                             )
-                            ->setParameter('show', $show);
+                            ->setParameter('targetShow', $show);
                         }
 
                         return $qb->orderBy('c.last_name', 'ASC')

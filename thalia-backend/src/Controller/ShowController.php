@@ -2,10 +2,9 @@
 
 namespace App\Controller;
 
-use App\Entity\Contact;
+
 use App\Entity\Show;
 use App\Entity\ShowContact;
-use App\Form\AddShowContactFormType;
 use App\Form\ShowContactFormType;
 use App\Form\ShowFormType;
 use App\Repository\ShowRepository;
@@ -166,34 +165,6 @@ class ShowController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // $data = $form->getData();
-
-            // /** @var Contact|null $contact */
-            // $contact = $data['existingContact'] ?? null;
-            // /** @var Contact|null $newContact */
-            // $newContact = $data['newContact'] ?? null;
-
-            // // Cas 1 : Création d'un nouveau contact si aucun contact n'a été sélectionné
-            // if (!$contact && $newContact && $newContact->getLastName()) {
-            //     $contact = $newContact;
-            //     $contact->setOrganization($organization);
-            //     $this->crudManager->create($contact);
-            // }
-
-            // Vérification qu'un contact est bien présent (existant ou nouveau)
-            // if (!$contact) {
-            //     $this->addFlash('danger', 'Veuillez sélectionner un contact existant ou compléter la création d\'un nouveau contact.');
-            //     return $this->render('show/add_contact.html.twig', [
-            //         'show' => $show,
-            //         'form' => $form->createView(),
-            //     ]);
-            // }
-
-            // Cas 2 : Création de la relation ShowContact
-            // $showContact = new ShowContact();
-            // $showContact->setEvent($show);
-            // $showContact->setContact($contact);
-            // $showContact->setReport($data['report'] ?? null);
 
             $this->crudManager->create($showContact);
 
@@ -231,17 +202,6 @@ class ShowController extends AbstractController
             '_fragment' => 'tab_contacts'
         ]);
     }
-
-    // #[Route('/{id}/setup-contacts', name:'show_setup_contacts', requirements:['id'=>'\d+'], methods:['GET'])]
-    // public function setupContacts(Show $show, ): Response
-    // {
-    //     $this->denyAccessUnlessGranted('SHOW_CREATE');
-    //     return $this->render('show/setup_contacts.html.twig', [
-    //         'show'=> $show,
-    //     ]);
-
-
-    // }
 
     #[Route('/{id}/pdf', name: 'secure_show_pdf', methods: ['GET'])]
     public function downLoadPdf(Show $show, FileDownLoaderService $fileDownloader): BinaryFileResponse
