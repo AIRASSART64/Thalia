@@ -152,6 +152,7 @@ class ContactController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $showContact->setContact($contact);
             $this->crudManager->create($showContact);
 
             $this->addFlash('success', 'Le spectacle a été rattaché avec succès.');

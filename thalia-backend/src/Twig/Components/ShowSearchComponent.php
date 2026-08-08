@@ -36,7 +36,7 @@ class ShowSearchComponent
     #[LiveProp(writable: true, url: true)]
     public int $page = 1;
 
-    public int $itemsPerPage = 3;
+    public int $itemsPerPage = 6;
 
     public function __construct(
         private ShowRepository $showRepository,
