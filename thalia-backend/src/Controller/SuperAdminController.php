@@ -32,6 +32,7 @@ class SuperAdminController extends AbstractController
     {
         return $this->render('superadmin/index.html.twig');
     }
+    
     #[Route('/user/{id}/change-role', name: 'user_change_role', methods: ['POST'])]
     public function changeRole(User $user, Request $request, EntityManagerInterface $em): Response
     {

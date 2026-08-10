@@ -4,35 +4,54 @@
 {% if not (hide_desktop_sidebar | default(false)) %}
     <aside class="w-64 bg-white border-r border-slate-100 hidden md:flex flex-col p-4 space-y-1 shrink-0">
         
-        {# Organisation #}
-        <a href="{{ path('organization') }}" 
-           class="sidebar-link {{ app.current_route starts with 'organization' ? 'active' : '' }}">
-            <i class="fa-solid fa-sitemap w-5 {{ app.current_route starts with 'organization' ? 'text-indigo-600' : 'text-slate-400' }}"></i> 
-            <span>Organisation</span>
-        </a>
+        {% if is_granted('ROLE_SUPER_ADMIN') %}
+            {# ─── MENU DÉDIÉ SUPERADMIN ─── #}
+            {# Dashboard SuperAdmin #}
+            <a href="{{ path('superadmin_dashboard') }}" 
+               class="sidebar-link {{ app.current_route starts with 'superadmin' ? 'active' : '' }}">
+                <i class="fa-solid fa-chart-line w-5 {{ app.current_route starts with 'superadmin' ? 'text-indigo-600' : 'text-slate-400' }}"></i> 
+                <span>Dashboard</span>
+            </a>
 
-        {# Spectacles #}
-        <a href="{{ path('show_index') }}" 
-           class="sidebar-link {{ app.current_route starts with 'show' ? 'active' : '' }}">
-            <i class="fa-solid fa-masks-theater w-5 {{ app.current_route starts with 'show' ? 'text-indigo-600' : 'text-slate-400' }}"></i> 
-            <span>Spectacles</span>
-        </a>
+            {# Mon espace (Profil) #}
+            <a href="{{ path('profile_index') }}" 
+               class="sidebar-link {{ app.current_route starts with 'profile' ? 'active' : '' }}">
+                <i class="fa-regular fa-user w-5 {{ app.current_route starts with 'profile' ? 'text-indigo-600' : 'text-slate-400' }}"></i> 
+                <span>Mon espace</span>
+            </a>
 
-        {# Contacts (Programmateurs et Admins) #}
-        {% if is_granted('ROLE_PROGRAMMATEUR') or is_granted('ROLE_ADMIN') %}
-            <a href="{{ path('contact_index') }}" 
-               class="sidebar-link {{ app.current_route starts with 'contact' ? 'active' : '' }}">
-                <i class="fa-solid fa-address-book w-5 {{ app.current_route starts with 'contact' ? 'text-indigo-600' : 'text-slate-400' }}"></i> 
-                <span>Contacts</span>
+        {% else %}
+            {# ─── MENU STANDARD (UTILISATEURS CLASSIQUES) ─── #}
+            {# Organisation #}
+            <a href="{{ path('organization') }}" 
+               class="sidebar-link {{ app.current_route starts with 'organization' ? 'active' : '' }}">
+                <i class="fa-solid fa-sitemap w-5 {{ app.current_route starts with 'organization' ? 'text-indigo-600' : 'text-slate-400' }}"></i> 
+                <span>Organisation</span>
+            </a>
+
+            {# Spectacles #}
+            <a href="{{ path('show_index') }}" 
+               class="sidebar-link {{ app.current_route starts with 'show' ? 'active' : '' }}">
+                <i class="fa-solid fa-masks-theater w-5 {{ app.current_route starts with 'show' ? 'text-indigo-600' : 'text-slate-400' }}"></i> 
+                <span>Spectacles</span>
+            </a>
+
+            {# Contacts (Programmateurs et Admins) #}
+            {% if is_granted('ROLE_PROGRAMMATEUR') or is_granted('ROLE_ADMIN') %}
+                <a href="{{ path('contact_index') }}" 
+                   class="sidebar-link {{ app.current_route starts with 'contact' ? 'active' : '' }}">
+                    <i class="fa-solid fa-address-book w-5 {{ app.current_route starts with 'contact' ? 'text-indigo-600' : 'text-slate-400' }}"></i> 
+                    <span>Contacts</span>
+                </a>
+            {% endif %}
+
+            {# Mon espace (Profil) #}
+            <a href="{{ path('profile_index') }}" 
+               class="sidebar-link {{ app.current_route starts with 'profile' ? 'active' : '' }}">
+                <i class="fa-regular fa-user w-5 {{ app.current_route starts with 'profile' ? 'text-indigo-600' : 'text-slate-400' }}"></i> 
+                <span>Mon espace</span>
             </a>
         {% endif %}
-
-        {# Mon espace (Profil) #}
-        <a href="{{ path('profile_index') }}" 
-           class="sidebar-link {{ app.current_route starts with 'profile' ? 'active' : '' }}">
-            <i class="fa-regular fa-user w-5 {{ app.current_route starts with 'profile' ? 'text-indigo-600' : 'text-slate-400' }}"></i> 
-            <span>Mon espace</span>
-        </a>
 
     </aside>
 {% endif %}
@@ -40,34 +59,53 @@
 {# ─── 2. VUE MOBILE (Barre fixe en bas de l'écran - Toujours affichée en mobile) ─── #}
 <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-slate-200 z-40 flex items-center justify-around px-2 py-2 shadow-lg">
     
-    {# Organisation #}
-    <a href="{{ path('organization') }}" 
-       class="flex flex-col items-center justify-center py-1 px-3 rounded-xl transition {{ app.current_route starts with 'organization' ? 'text-indigo-600 font-bold' : 'text-slate-500 font-medium hover:text-slate-800' }}">
-        <i class="fa-solid fa-sitemap text-lg mb-1 {{ app.current_route starts with 'organization' ? 'text-indigo-600' : 'text-slate-400' }}"></i>
-        <span class="text-[10px] tracking-tight">Organisation</span>
-    </a>
+    {% if is_granted('ROLE_SUPER_ADMIN') %}
+        {# ─── MENU MOBILE DÉDIÉ SUPERADMIN ─── #}
+        {# Dashboard SuperAdmin #}
+        <a href="{{ path('superadmin_dashboard') }}" 
+           class="flex flex-col items-center justify-center py-1 px-3 rounded-xl transition {{ app.current_route starts with 'superadmin' ? 'text-indigo-600 font-bold' : 'text-slate-500 font-medium hover:text-slate-800' }}">
+            <i class="fa-solid fa-chart-line text-lg mb-1 {{ app.current_route starts with 'superadmin' ? 'text-indigo-600' : 'text-slate-400' }}"></i>
+            <span class="text-[10px] tracking-tight">Dashboard</span>
+        </a>
 
-    {# Spectacles #}
-    <a href="{{ path('show_index') }}" 
-       class="flex flex-col items-center justify-center py-1 px-3 rounded-xl transition {{ app.current_route starts with 'show' ? 'text-indigo-600 font-bold' : 'text-slate-500 font-medium hover:text-slate-800' }}">
-        <i class="fa-solid fa-masks-theater text-lg mb-1 {{ app.current_route starts with 'show' ? 'text-indigo-600' : 'text-slate-400' }}"></i>
-        <span class="text-[10px] tracking-tight">Spectacles</span>
-    </a>
+        {# Mon espace #}
+        <a href="{{ path('profile_index') }}" 
+           class="flex flex-col items-center justify-center py-1 px-3 rounded-xl transition {{ app.current_route starts with 'profile' ? 'text-indigo-600 font-bold' : 'text-slate-500 font-medium hover:text-slate-800' }}">
+            <i class="fa-regular fa-user text-lg mb-1 {{ app.current_route starts with 'profile' ? 'text-indigo-600' : 'text-slate-400' }}"></i>
+            <span class="text-[10px] tracking-tight">Mon espace</span>
+        </a>
 
-    {# Contacts #}
-    {% if is_granted('ROLE_PROGRAMMATEUR') or is_granted('ROLE_ADMIN') %}
-        <a href="{{ path('contact_index') }}" 
-           class="flex flex-col items-center justify-center py-1 px-3 rounded-xl transition {{ app.current_route starts with 'contact' ? 'text-indigo-600 font-bold' : 'text-slate-500 font-medium hover:text-slate-800' }}">
-            <i class="fa-solid fa-address-book text-lg mb-1 {{ app.current_route starts with 'contact' ? 'text-indigo-600' : 'text-slate-400' }}"></i>
-            <span class="text-[10px] tracking-tight">Contacts</span>
+    {% else %}
+        {# ─── MENU MOBILE STANDARD (UTILISATEURS CLASSIQUES) ─── #}
+        {# Organisation #}
+        <a href="{{ path('organization') }}" 
+           class="flex flex-col items-center justify-center py-1 px-3 rounded-xl transition {{ app.current_route starts with 'organization' ? 'text-indigo-600 font-bold' : 'text-slate-500 font-medium hover:text-slate-800' }}">
+            <i class="fa-solid fa-sitemap text-lg mb-1 {{ app.current_route starts with 'organization' ? 'text-indigo-600' : 'text-slate-400' }}"></i>
+            <span class="text-[10px] tracking-tight">Organisation</span>
+        </a>
+
+        {# Spectacles #}
+        <a href="{{ path('show_index') }}" 
+           class="flex flex-col items-center justify-center py-1 px-3 rounded-xl transition {{ app.current_route starts with 'show' ? 'text-indigo-600 font-bold' : 'text-slate-500 font-medium hover:text-slate-800' }}">
+            <i class="fa-solid fa-masks-theater text-lg mb-1 {{ app.current_route starts with 'show' ? 'text-indigo-600' : 'text-slate-400' }}"></i>
+            <span class="text-[10px] tracking-tight">Spectacles</span>
+        </a>
+
+        {# Contacts #}
+        {% if is_granted('ROLE_PROGRAMMATEUR') or is_granted('ROLE_ADMIN') %}
+            <a href="{{ path('contact_index') }}" 
+               class="flex flex-col items-center justify-center py-1 px-3 rounded-xl transition {{ app.current_route starts with 'contact' ? 'text-indigo-600 font-bold' : 'text-slate-500 font-medium hover:text-slate-800' }}">
+                <i class="fa-solid fa-address-book text-lg mb-1 {{ app.current_route starts with 'contact' ? 'text-indigo-600' : 'text-slate-400' }}"></i>
+                <span class="text-[10px] tracking-tight">Contacts</span>
+            </a>
+        {% endif %}
+
+        {# Mon espace #}
+        <a href="{{ path('profile_index') }}" 
+           class="flex flex-col items-center justify-center py-1 px-3 rounded-xl transition {{ app.current_route starts with 'profile' ? 'text-indigo-600 font-bold' : 'text-slate-500 font-medium hover:text-slate-800' }}">
+            <i class="fa-regular fa-user text-lg mb-1 {{ app.current_route starts with 'profile' ? 'text-indigo-600' : 'text-slate-400' }}"></i>
+            <span class="text-[10px] tracking-tight">Mon espace</span>
         </a>
     {% endif %}
-
-    {# Mon espace #}
-    <a href="{{ path('profile_index') }}" 
-       class="flex flex-col items-center justify-center py-1 px-3 rounded-xl transition {{ app.current_route starts with 'profile' ? 'text-indigo-600 font-bold' : 'text-slate-500 font-medium hover:text-slate-800' }}">
-        <i class="fa-regular fa-user text-lg mb-1 {{ app.current_route starts with 'profile' ? 'text-indigo-600' : 'text-slate-400' }}"></i>
-        <span class="text-[10px] tracking-tight">Mon espace</span>
-    </a>
 
 </nav>

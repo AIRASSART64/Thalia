@@ -57,7 +57,7 @@
                 {# Actions Desktop #}
                 <div class="hidden sm:flex items-center gap-4">
                     {% if app.user %}
-                        {% set profileUrl = ('ROLE_SUPER_ADMIN' in app.user.roles) ? path('superadmin_dashboard') : path('profile_index') %}
+                        {% set profileUrl = ('ROLE_SUPER_ADMIN' in app.user.roles) ? path('profile_index') : path('profile_index') %}
 
                         {# Profile Link #}
                         <a href="{{ profileUrl }}" class="flex items-center gap-2.5 text-sm text-slate-300 hover:text-white transition group mr-2">
