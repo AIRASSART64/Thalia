@@ -66,7 +66,7 @@ class SuperAdminController extends AbstractController
     #[Route('/user/{id}/toggle-active', name: 'user_toggle_active', methods: ['POST'])]
     public function toggleActive(User $user, Request $request, EntityManagerInterface $em): Response
     {
-        // 1. Sécurité pour éviter l'auto-désactivation
+        // pour éviter l'auto-désactivation
         if ($user === $this->getUser()) {
             $this->addFlash('danger', 'Action impossible : vous ne pouvez pas désactiver votre propre compte !');
             return $this->redirectToRoute('superadmin_dashboard');
@@ -75,7 +75,7 @@ class SuperAdminController extends AbstractController
         // Récupération du token transmis par le formulaire POST
         $submittedToken = $request->request->get('_token');
 
-        // 2. Vérification de la validité du jeton CSRF
+        // Vérification de la validité du jeton CSRF
         if ($this->isCsrfTokenValid('toggle_active_' . $user->getId(), $submittedToken)) {
             // Inversion du statut
             $user->setIsActive(!$user->isActive());

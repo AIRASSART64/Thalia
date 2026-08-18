@@ -29,7 +29,6 @@ class ShowContactFormType extends AbstractType
             $isExistingLink = $data && $data->getId() !== null;
             $contact = $data ? $data->getContact() : null;
 
-            // 1. CHAMP SPECTACLE (Uniquement si on n'est pas déjà dans le contexte d'un Spectacle précis)
             if (!$show) {
                 $form->add('event', EntityType::class, [
                     'class' => Show::class,
@@ -38,20 +37,20 @@ class ShowContactFormType extends AbstractType
                     'label' => 'Spectacle',
                     'disabled' => $isExistingLink,
                     'required' => true,
-                    // 🎯 FILTRAGE : Exclure les spectacles auxquels ce contact est DÉJÀ rattaché
+                    // Exclusion des spectacles auxquels ce contact est DÉJÀ rattaché
                     'query_builder' => function (ShowRepository $sr) use ($organization, $contact, $isExistingLink) {
                         $qb = $sr->createQueryBuilder('s')
                             ->where('s.organization = :org')
                             ->setParameter('org', $organization);
 
-                        // Si nous sommes dans le contexte d'un contact existant pour un nouveau rattachement
+                        // contact existant pour un nouveau rattachement
                         if ($contact && $contact->getId() !== null && !$isExistingLink) {
                             $qb->andWhere(
                                 $qb->expr()->notIn('s.id',
                                     $sr->createQueryBuilder('sub_s')
                                         ->select('s2.id')
                                         ->from(ShowContact::class, 'sc')
-                                        ->join('sc.event', 's2') // ⚠️ 'sc.event' ou 'sc.show' selon votre entité ShowContact
+                                        ->join('sc.event', 's2') // 
                                         ->where('sc.contact = :targetContact')
                                         ->getDQL()
                                 )
@@ -79,13 +78,13 @@ class ShowContactFormType extends AbstractType
                     'label' => 'Contact',
                     'disabled' => $isExistingLink,
                     'required' => true,
-                    // 🎯 FILTRAGE : Exclure les contacts déjà rattachés à ce spectacle
+                    // Exclusion des contacts déjà rattachés à un spectacle
                     'query_builder' => function (ContactRepository $cr) use ($organization, $show, $isExistingLink) {
                         $qb = $cr->createQueryBuilder('c')
                             ->where('c.organization = :org')
                             ->setParameter('org', $organization);
 
-                        // Si nous sommes sur un spectacle et qu'on crée un nouveau rattachement
+                        //  un spectacle et qu'on crée un nouveau rattachement
                         if ($show && !$isExistingLink) {
                             $qb->andWhere(
                                 $qb->expr()->notIn('c.id', 
@@ -93,7 +92,7 @@ class ShowContactFormType extends AbstractType
                                         ->select('c2.id')
                                         ->from(ShowContact::class, 'sc')
                                         ->join('sc.contact', 'c2')
-                                        ->where('sc.event = :targetShow') // ⚠️ 'sc.event' ou 'sc.show' selon votre entité ShowContact
+                                        ->where('sc.event = :targetShow') 
                                         ->getDQL()
                                 )
                             )

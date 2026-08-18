@@ -419,7 +419,7 @@ h1 {
 
 @media (min-width: 640px) {
     .filter-search-group {
-        width: 16rem;
+        width: 100%;
     }
 }
 

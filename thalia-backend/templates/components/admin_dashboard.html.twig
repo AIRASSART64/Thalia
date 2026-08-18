@@ -628,18 +628,5 @@
         </div>
     </div>
 
-    {# ─── PAGINATION UNIFIÉE ─── #}
-    {% if this.totalItems|default(0) > 0 %}
-    <div
-        class="hidden sm:flex flex-row items-center justify-between gap-4 mt-8 pt-4 border-t border-slate-200 text-xs text-slate-500">
-        <p>
-            Affichage de <span class="font-semibold text-slate-900">{{ this.pageStart }} à {{ this.pageEnd }}</span> sur
-            <span class="font-semibold text-slate-900">{{ this.totalItems }}</span> éléments.
-        </p>
-        {% if this.maxPages|default(1) > 1 %}
-        {% include 'components/_pagination.html.twig' %}
-        {% endif %}
-    </div>
-    {% endif %}
 
 </div>
