@@ -9,13 +9,13 @@
     <nav class="text-xs text-slate-400 mb-4 px-4 sm:px-6 pt-4 max-w-7xl mx-auto" aria-label="Breadcrumb">
         <ol class="list-none p-0 inline-flex space-x-2">
             <li class="flex items-center">
-                <a href="#" class="hover:text-slate-600 transition-colors">Établissement</a>
+                <a href="{{ path('organization')}}" class="hover:text-slate-600 transition-colors">Établissement</a>
                 <span class="mx-2">/</span>
             </li>
-            <li class="flex items-center">
+            {# <li class="flex items-center">
                 <a href="{{ path('venue_index') }}" class="hover:text-slate-600 transition-colors">Salles</a>
                 <span class="mx-2">/</span>
-            </li>
+            </li> #}
             <li class="text-slate-600 font-medium truncate" aria-current="page">{{ venue.name }}</li>
         </ol>
     </nav>
