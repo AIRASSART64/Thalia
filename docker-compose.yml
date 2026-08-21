@@ -40,8 +40,6 @@ services:
       - 1.1.1.1
     volumes:
       - ./thalia-backend:/var/www/thalia-backend
-      - /var/www/thalia-backend/var/cache
-      - /var/www/thalia-backend/var/log
       - ./thalia-backend/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
     depends_on:
       - db
