@@ -94,6 +94,7 @@
             </div>
             {% endfor %}
         </div>
+        {% do form.showContacts.setRendered() %}
     </div>
 
     {# ─── NOTES INTERNES ─── #}
@@ -115,7 +116,6 @@
             {{ button_label|default('Enregistrer le contact') }} <i class="fa-solid fa-arrow-right text-[10px]"></i>
         </button>
     </div>
-
 </div>
 
 {{ form_rest(form) }}
