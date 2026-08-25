@@ -76,9 +76,7 @@ class ContactRepository extends ServiceEntityRepository
         return (int) $qb->getQuery()->getSingleScalarResult();
     }
 
-    /**
-     * Factorisation du QueryBuilder
-     */
+  
     private function createFilteredQueryBuilder(
         Organization $organization,
         string $query,

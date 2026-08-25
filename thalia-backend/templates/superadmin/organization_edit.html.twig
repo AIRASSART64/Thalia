@@ -1,155 +1,30 @@
-<div class="modal-backdrop" x-data="{ open: true }" x-show="open" x-cloak>
+{% extends 'base.html.twig' %}
 
-    <div class="modal-card modal-card-lg" @click.away="open = false">
+{% block title %}Thalia - Édition de {{ organization.name }}{% endblock %}
 
+{% block body %}
+<div class="modal-backdrop">
+    <div class="modal-card modal-card-lg">
+        
         {# Croix de fermeture #}
-        <a href="{{ path('superadmin_dashboard') }}" class="modal-close-btn" title="Fermer">
+        <a href="{{ path('superadmin_dashboard', {'tab': 'organizations'}) }}" class="modal-close-btn" title="Fermer">
             <i class="fa-solid fa-xmark text-lg"></i>
         </a>
 
-        {# ─── EN-TÊTE ─── #}
-        <div class="border-b border-gray-100 pb-4 mb-6">
-            <h1 class="text-xl font-black text-gray-900 tracking-tight">
-                Édition de : {{ organization.name }}
-            </h1>
-            <p class="text-xs text-gray-400 font-mono mt-0.5">
-                SIRET : {{ organization.siret|default('Non renseigné') }}
-            </p>
-        </div>
-        {# ─── FORMULAIRE ─── #}
-        {{ form_start(organizationForm, {'attr': {'class': 'space-y-6', 'novalidate': 'novalidate'}}) }}
-
-        {# ─── ALERTE GLOBALE EN HAUT SI ERREURS ─── #}
-        {% if not organizationForm.vars.valid %}
-        <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs shadow-sm mb-6">
-            <div class="flex items-center gap-2 font-bold mb-1 text-rose-700">
-                <i class="fa-solid fa-triangle-exclamation text-sm"></i>
-                <span>Des erreurs sont survenues dans le formulaire :</span>
-            </div>
-            <ul class="list-disc list-inside space-y-0.5 text-rose-700 font-medium">
-                {{ form_errors(organizationForm) }}
-                {% for child in organizationForm.children %}
-                {% for error in child.vars.errors %}
-                <li>
-                    <strong>{{ child.vars.label|default(child.vars.name) }} :</strong> {{ error.message }}
-                </li>
-                {% endfor %}
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
-
-        {# ─── 1. INFORMATIONS GÉNÉRALES & JURIDIQUES ─── #}
-        <div class="border-b border-gray-100 pb-6 space-y-4">
-            <h2 class="form-section-title">Informations Générales & Juridiques</h2>
-
-            <div class="form-group {% if not organizationForm.name.vars.valid %}has-error{% endif %}">
-                {{ form_label(organizationForm.name, null, {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(organizationForm.name, {'attr': {'class': 'form-input'}}) }}
-                {{ form_errors(organizationForm.name) }}
-            </div>
-
-            <div class="form-group {% if not organizationForm.siret.vars.valid %}has-error{% endif %}">
-                {{ form_label(organizationForm.siret, null, {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(organizationForm.siret, {'attr': {'class': 'form-input font-mono'}}) }}
-                {{ form_errors(organizationForm.siret) }}
-            </div>
-
-            <div class="form-group {% if not organizationForm.business_name.vars.valid %}has-error{% endif %}">
-                {{ form_label(organizationForm.business_name, null, {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(organizationForm.business_name, {'attr': {'class': 'form-input'}}) }}
-                {{ form_errors(organizationForm.business_name) }}
-            </div>
-
-            <div class="form-group {% if not organizationForm.legal_status.vars.valid %}has-error{% endif %}">
-                {{ form_label(organizationForm.legal_status, null, {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(organizationForm.legal_status, {'attr': {'class': 'form-input'}}) }}
-                {{ form_errors(organizationForm.legal_status) }}
-            </div>
-
-            <div class="form-group {% if not organizationForm.manager_name.vars.valid %}has-error{% endif %}">
-                {{ form_label(organizationForm.manager_name, null, {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(organizationForm.manager_name, {'attr': {'class': 'form-input'}}) }}
-                {{ form_errors(organizationForm.manager_name) }}
-            </div>
-
-            <div class="form-group {% if not organizationForm.manager_title.vars.valid %}has-error{% endif %}">
-                {{ form_label(organizationForm.manager_title, null, {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(organizationForm.manager_title, {'attr': {'class': 'form-input'}}) }}
-                {{ form_errors(organizationForm.manager_title) }}
+        {# En-tête #}
+        <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-100">
+            <div>
+                <h1 class="text-xl font-bold text-slate-900 tracking-tight">
+                    Édition de : {{ organization.name }}
+                </h1>
+                <p class="text-xs text-indigo-500 font-mono mt-0.5">
+                    SIRET : {{ organization.siret|default('Non renseigné') }}
+                </p>
             </div>
         </div>
 
-        {# ─── 2. LICENCES & PARAMÈTRES FISCAUX ─── #}
-        <div class="border-b border-gray-100 pb-6 space-y-4">
-            <h2 class="form-section-title">Licences & Fiscalité</h2>
-
-            <div class="form-group {% if not organizationForm.licence_number.vars.valid %}has-error{% endif %}">
-                {{ form_label(organizationForm.licence_number, null, {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(organizationForm.licence_number, {'attr': {'class': 'form-input'}}) }}
-                {{ form_errors(organizationForm.licence_number) }}
-            </div>
-
-            <div class="form-group {% if not organizationForm.erp_category.vars.valid %}has-error{% endif %}">
-                {{ form_label(organizationForm.erp_category, null, {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(organizationForm.erp_category, {'attr': {'class': 'form-input'}}) }}
-                {{ form_errors(organizationForm.erp_category) }}
-            </div>
-
-            <div class="form-group {% if not organizationForm.erp_type.vars.valid %}has-error{% endif %}">
-                {{ form_label(organizationForm.erp_type, null, {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(organizationForm.erp_type, {'attr': {'class': 'form-input'}}) }}
-                {{ form_errors(organizationForm.erp_type) }}
-            </div>
-
-            <div class="form-group {% if not organizationForm.vat_number.vars.valid %}has-error{% endif %}">
-                {{ form_label(organizationForm.vat_number, null, {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(organizationForm.vat_number, {'attr': {'class': 'form-input font-mono'}}) }}
-                {{ form_errors(organizationForm.vat_number) }}
-            </div>
-
-            <div class="form-group {% if not organizationForm.defaultVatRate.vars.valid %}has-error{% endif %}">
-                {{ form_label(organizationForm.defaultVatRate, null, {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(organizationForm.defaultVatRate, {'attr': {'class': 'form-input'}}) }}
-                {{ form_errors(organizationForm.defaultVatRate) }}
-            </div>
-
-            <div class="form-group {% if not organizationForm.spectacle_vat_rate.vars.valid %}has-error{% endif %}">
-                {{ form_label(organizationForm.spectacle_vat_rate, null, {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(organizationForm.spectacle_vat_rate, {'attr': {'class': 'form-input'}}) }}
-                {{ form_errors(organizationForm.spectacle_vat_rate) }}
-            </div>
-        </div>
-
-        {# ─── 3. COORDONNÉES ─── #}
-        <div class="space-y-4">
-            <h2 class="form-section-title">Coordonnées & Adresse</h2>
-
-            <div class="form-group {% if not organizationForm.phone.vars.valid %}has-error{% endif %}">
-                {{ form_label(organizationForm.phone, null, {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(organizationForm.phone, {'attr': {'class': 'form-input'}}) }}
-                {{ form_errors(organizationForm.phone) }}
-            </div>
-
-            <div class="form-group {% if not organizationForm.adress.vars.valid %}has-error{% endif %}">
-                {{ form_label(organizationForm.adress, null, {'label_attr': {'class': 'form-label'}}) }}
-                {{ form_widget(organizationForm.adress, {'attr': {'class': 'form-input', 'rows': '3'}}) }}
-                {{ form_errors(organizationForm.adress) }}
-            </div>
-        </div>
-
-        {# ─── ACTIONS EN PIED DE MODALE ─── #}
-        <div class="form-actions mt-8">
-            <a href="{{ path('superadmin_dashboard') }}" class="btn-cancel">
-                Annuler
-            </a>
-            <button type="submit" class="btn-submit">
-                Confirmer les modifications <i class="fa-solid fa-arrow-right text-[10px] ml-1"></i>
-            </button>
-        </div>
-
-        {{ form_rest(organizationForm) }}
-        {{ form_end(organizationForm) }}
-
+        {{ include('organization/_form.html.twig', {'button_label': 'Confirmer les modifications'}) }}
+        
     </div>
 </div>
+{% endblock %}

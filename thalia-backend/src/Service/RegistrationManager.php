@@ -20,37 +20,48 @@ class RegistrationManager
     /**
      * @throws \RuntimeException Si l'email existe déjà
      * @throws \InvalidArgumentException Si le SIRET est syntaxiquement invalide
-     * @throws \Exception Si l'API est indisponible ou si l'organisation n'est pas reconnue/valide
+     * @throws \LogicException Si le SIRET n'est pas reconnu comme entrepreneur de spectacles vivants
+     * @throws \Exception Si l'API est indisponible
      */
     public function registerUser(User $user, string $siret, string $plainPassword): string
     {
-        // 1. Vérification email dupliqué
+        // suppression des espaces dans la saisie du SIRET
+        $siret = preg_replace('/\s+/', '', $siret);
+
+        // Vérification email dupliqué
         $existingUser = $this->em->getRepository(User::class)->findOneBy(['email' => $user->getEmail()]);
         if ($existingUser) {
             throw new \RuntimeException('Un compte existe déjà avec cet email.');
         }
 
-        // 2. Récupération API du MCC (Gère l'indisponibilité et le format)
-        $apiData = $this->fetchApiService->fetchOrganizationBySiret($siret);
+        // Vérification auprès de l'API Recherche Entreprises (flag entrepreneur de spectacles)
+        $apiData = $this->fetchApiService->verifyEntrepreneurSpectacle($siret);
 
         if (!$apiData) {
-            throw new \LogicException("Ce numéro de SIRET n'est pas reconnu ou ne dispose pas d'une déclaration valide auprès du MCC.");
+            throw new \LogicException("Ce numéro de SIRET n'est pas reconnu comme appartenant à un entrepreneur de spectacles vivants.");
         }
 
-        // 3. Déduplication ou création de l'organisation
+        // Déduplication ou création de l'organisation
         $organization = $this->em->getRepository(Organization::class)->findOneBy(['siret' => $apiData['siret']]);
         if (!$organization) {
             $organization = (new Organization())
                 ->setName($apiData['name'])
                 ->setSiret($apiData['siret'])
-                ->setLicenceNumber($apiData['licence_number'])
-                 ->setBusinessName($apiData['business_name']);
-                
-                
+                ->setBusinessName($apiData['business_name']);
+
             $this->em->persist($organization);
+        } else {
+            // L'organisation existe déjà : on complète les champs manquants
+            if (empty($organization->getBusinessName()) && !empty($apiData['business_name'])) {
+                $organization->setBusinessName($apiData['business_name']);
+            }
+
+            if (empty($organization->getName()) && !empty($apiData['name'])) {
+                $organization->setName($apiData['name']);
+            }
         }
 
-        // 4. Hydratation finale du User
+        // Hydratation finale du User
         $user->setOrganization($organization)
              ->setIsActive(false)
              ->setRoles([UserRoles::USER])
@@ -59,9 +70,9 @@ class RegistrationManager
         $this->em->persist($user);
         $this->em->flush();
 
-        // 5. Notification
+        // Notification
         $this->mailService->sendRegistrationPendingEmail($user);
 
-        return $apiData['name']; // On retourne le nom de l'organisation créée
+        return $apiData['name'];
     }
 }

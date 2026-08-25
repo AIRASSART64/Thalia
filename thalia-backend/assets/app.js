@@ -158,3 +158,4 @@ export function initTabs() {
 // Initialisation globale
 document.addEventListener("DOMContentLoaded", initTabs);
 document.addEventListener("turbo:load", initTabs);
+
