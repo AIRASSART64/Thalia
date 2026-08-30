@@ -39,9 +39,9 @@ class AdminDashboardComponent
         private UserRepository $userRepository,
         private OrganizationRepository $organizationRepository,
         private Security $security,
-        private EntityManagerInterface $em // <-- 1. Injection de l'EntityManager
+        private EntityManagerInterface $em 
     ) {
-        // 2. Désactivation du filtre Multi-tenant à chaque appel (initial ou Live AJAX)
+        // Désactivation du filtre Multi-tenant à chaque appel (initial ou Live AJAX)
         if ($this->em->getFilters()->isEnabled('tenant_filters')) {
             $this->em->getFilters()->disable('tenant_filters');
         }
@@ -67,7 +67,7 @@ class AdminDashboardComponent
         $this->page = 1;
     }
 
-    // --- Onglet 1 : Demandes à valider ---
+    // Onglet 1 : Demandes à valider 
     public function getPendingUsers(): array
     {
         return $this->userRepository->getPendingUsers();
@@ -81,7 +81,7 @@ class AdminDashboardComponent
         return $this->organizationRepository->getPendingOrganizations($excludedOrgId);
     }
 
-    // --- Onglet 2 & 3 : Établissements et Utilisateurs ---
+    // Onglet 2 & 3 : Établissements et Utilisateurs
     public function getUsers(): array
     {
         return $this->userRepository->searchUsers(
@@ -121,7 +121,7 @@ class AdminDashboardComponent
         );
     }
 
-    // --- Calculs de pagination ---
+    // Calculs de pagination 
     public function getTotalItems(): int
     {
         return $this->userRepository->countSearchUsers(
@@ -169,9 +169,7 @@ class AdminDashboardComponent
 
         return $count;
     }
-    /**
-     * Méthode d'aide pour garantir que la valeur transmise au Repository est une chaîne nettoyée
-     */
+    //sécurisation du format du rôle (chaine de caractére )
     private function getCleanRoleValue(): string
     {
         if ($this->role instanceof UserRole) {

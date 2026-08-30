@@ -268,7 +268,7 @@ h1 {
     background-color: rgba(15, 23, 42, 0.6); /* bg-slate-900/60 */
     backdrop-filter: blur(4px);
     
-    /* ⚠️ ALIGNEMENT CORRIGÉ POUR LES LONGS FORMULAIRES */
+    
     display: flex;
     align-items: flex-start; /* Aligne le haut au lieu de centrer verticalement */
     justify-content: center;

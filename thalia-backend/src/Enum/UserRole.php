@@ -17,7 +17,7 @@ enum UserRole: string
         return match($this) {
             self::USER => 'Utilisateur',
             self::PROGRAMMATEUR => 'Programmation',
-            self::FINANCIER => 'Administartion, finances',
+            self::FINANCIER => 'Administation, finances',
             self::TECHNICIEN => 'Technique',
         };
     }

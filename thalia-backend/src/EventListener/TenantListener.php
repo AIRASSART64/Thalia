@@ -28,19 +28,19 @@ class TenantListener
             return;
         }
 
-        // 1. On récupère le token de sécurité
+        // On récupère le token de sécurité
         $token = $this->tokenStorage->getToken();
         if (!$token) {
             return;
         }
 
-        // 2. On récupère l'utilisateur connecté
+        // On récupère l'utilisateur connecté
         $user = $token->getUser();
         if (!$user instanceof User) {
             return;
         }
 
-        // 3. Si l'utilisateur est lié à une organisation, on active et configure le filtre
+        // Si l'utilisateur est lié à une organisation, on active et configure le filtre
         if ($user->getOrganization()) {
             $filters = $this->em->getFilters();
             

@@ -4,7 +4,7 @@ namespace App\Service;
 
 use App\Entity\Organization;
 use App\Entity\User;
-use App\Security\UserRoles;
+use App\Enum\UserRole;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -64,7 +64,7 @@ class RegistrationManager
         // Hydratation finale du User
         $user->setOrganization($organization)
              ->setIsActive(false)
-             ->setRoles([UserRoles::USER])
+             ->setRoles([UserRole::USER])
              ->setPassword($this->passwordHasher->hashPassword($user, $plainPassword));
 
         $this->em->persist($user);
