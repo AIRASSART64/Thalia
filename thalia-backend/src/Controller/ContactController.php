@@ -9,6 +9,7 @@ use App\Form\ShowContactFormType;
 use App\Repository\ContactRepository;
 use App\Repository\ShowRepository;
 use App\Service\CrudManagerService;
+use App\Service\UserContextService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,7 +21,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class ContactController extends AbstractController
 {
     public function __construct(
-        private CrudManagerService $crudManager
+        private CrudManagerService $crudManager,
+        private UserContextService $userContext
+        
     ) {}
 
     #[Route('/', name: 'contact_index', methods: ['GET'])]
@@ -29,12 +32,7 @@ class ContactController extends AbstractController
 
         $this->denyAccessUnlessGranted('CONTACT_VIEW');
 
-        $user = $this->getUser();
-        if (!$user instanceof \App\Entity\User) {
-            throw new \LogicException('L\'utilisateur doit être connecté avec un compte valide.');
-        }
-
-        $contacts = $contactRepository->findBy(['organization' => $user->getOrganization()]);
+        $contacts = $contactRepository->findBy([ 'organization'=>$this->userContext->getOrganization()]);
 
         return $this->render('contact/index.html.twig', [
             'contacts' => $contacts,
@@ -62,18 +60,12 @@ class ContactController extends AbstractController
                 $contact->addShowContact($showContact);
             }
         } else {
-
             $showContact = new ShowContact();
             $contact->addShowContact($showContact);
         }
 
-        $user = $this->getUser();
-        if (!$user instanceof \App\Entity\User) {
-            throw new \LogicException('L\'utilisateur doit être connecté avec un compte valide.');
-        }
-
         $formContact = $this->createForm(ContactFormType::class, $contact, [
-            'user_organization' => $user->getOrganization(),
+            'user_organization' => $this->userContext->getOrganization(),
         ]);
         $formContact->handleRequest($request);
 
@@ -101,13 +93,8 @@ class ContactController extends AbstractController
     {
         $this->denyAccessUnlessGranted('CONTACT_EDIT', $contact);
 
-        $user = $this->getUser();
-        if (!$user instanceof \App\Entity\User) {
-            throw new \LogicException('L\'utilisateur doit être connecté avec un compte valide.');
-        }
-
         $formContact = $this->createForm(ContactFormType::class, $contact, [
-            'user_organization' => $user->getOrganization(),
+            'user_organization' => $this->userContext->getOrganization(),
         ]);
         $formContact->handleRequest($request);
 
@@ -137,16 +124,11 @@ class ContactController extends AbstractController
     {
         $this->denyAccessUnlessGranted('CONTACT_EDIT', $contact);
 
-        $user = $this->getUser();
-        if (!$user instanceof \App\Entity\User) {
-            throw new \LogicException('L\'utilisateur doit être connecté avec un compte valide.');
-        }
-
         $showContact = new ShowContact();
         $showContact->setContact($contact);
 
         $form = $this->createForm(ShowContactFormType::class, $showContact, [
-            'user_organization' => $user->getOrganization(),
+            'user_organization' => $this->userContext->getOrganization(),
             'show' => null, 
         ]);
         $form->handleRequest($request);

@@ -42,8 +42,7 @@ class ShowSearchComponent
         private ShowRepository $showRepository,
         private ThemeRepository $themeRepository,
         private Security $security
-    ) {
-    }
+    ) {}
 
     /**
      * Action déclenchée par la pagination LiveComponent

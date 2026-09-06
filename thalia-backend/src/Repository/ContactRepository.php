@@ -87,7 +87,7 @@ class ContactRepository extends ServiceEntityRepository
             ->andWhere('c.organization = :org')
             ->setParameter('org', $organization);
 
-        // 1. Recherche textuelle (c.last_name et c.first_name)
+        // Recherche textuelle (c.last_name et c.first_name)
         if (!empty(trim($query))) {
             $qb->andWhere('(
                     LOWER(c.last_name) LIKE LOWER(:q)
