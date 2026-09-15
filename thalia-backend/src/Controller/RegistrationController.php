@@ -49,7 +49,7 @@ class RegistrationController extends AbstractController
             $password = $form->get('password')->getData();
         }
 
-        // Interrogation de l'API du MCC
+        // Interrogation de l'API 
 
         try {
             $orgName = $registrationManager->registerUser($user, $siret, $password);

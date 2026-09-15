@@ -23,10 +23,10 @@
             <div class="lg:col-span-1">
                 <div class="card-thalia p-6 flex flex-col items-center text-center relative overflow-hidden bg-white rounded-2xl border border-slate-200/80 shadow-sm">
                     
-                    {# Décoration de fond - Couleur de marque Thalia (Violet / Indigo) #}
+                    {# Décoration de fond #}
                     <div class="absolute top-0 inset-x-0 h-24 bg-gradient-to-r from-violet-600 via-indigo-600 to-violet-700 opacity-90"></div>
 
-                    {# Avatar avec bordure blanche #}
+                    {# Avatar #}
                     <div class="relative z-10 mt-6 mb-4">
                         <div class="w-28 h-28 rounded-2xl bg-slate-100 border-4 border-white shadow-lg flex items-center justify-center text-slate-400 overflow-hidden">
                             {% if user.avatarFilename %}
@@ -60,14 +60,13 @@
                         {% endif %}
                     </div>
 
-                    {# Bouton modifier profil (Aux couleurs Thalia) #}
                     <a href="{{ path('profile_edit') }}" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white font-semibold text-xs rounded-xl shadow-xs transition-colors">
                         <i class="fa-solid fa-user-pen"></i> Modifier mes informations
                     </a>
                 </div>
             </div>
 
-            {# ─── COLONNE DROITE (2/3) : Détails des données & Sécurité ─── #}
+            {# ─── COLONNE DROITE (2/3) : Détails des données, Sécurité & Support ─── #}
             <div class="lg:col-span-2 space-y-6">
 
                 {# CARD 1 : Détails du Profil #}
@@ -81,22 +80,17 @@
                         </div>
                     </div>
 
-                    {# Grille des informations #}
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        
-                        {# Prénom #}
                         <div class="p-3.5 rounded-xl bg-slate-50/70 border border-slate-100 space-y-1">
                             <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block">Prénom</span>
                             <p class="text-sm font-bold text-slate-800">{{ user.firstName }}</p>
                         </div>
 
-                        {# Nom #}
                         <div class="p-3.5 rounded-xl bg-slate-50/70 border border-slate-100 space-y-1">
                             <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 block">Nom</span>
                             <p class="text-sm font-bold text-slate-800">{{ user.lastName }}</p>
                         </div>
 
-                        {# Adresse E-mail (VERROUILLÉE / NON MODIFIABLE) #}
                         <div class="p-3.5 rounded-xl bg-slate-100/80 border border-slate-200/80 space-y-1 sm:col-span-2 cursor-not-allowed">
                             <div class="flex items-center justify-between">
                                 <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 block">Adresse E-mail</span>
@@ -109,11 +103,10 @@
                                 <span>{{ user.email }}</span>
                             </div>
                         </div>
-
                     </div>
                 </div>
 
-                {# CARD 2 : Sécurité & Mot de passe #}
+                {# CARD 2 : Sécurité #}
                 <div class="card-thalia p-6 space-y-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-4">
                         <div class="flex items-center gap-2.5">
@@ -142,6 +135,23 @@
                             <i class="fa-solid fa-key text-[11px]"></i> Modifier le mot de passe
                         </a>
                     </div>
+                </div>
+
+                {# CARD 3 : Contact Support #}
+                <div class="card-thalia p-6 space-y-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-sm">
+                                <i class="fa-solid fa-headset"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-slate-900">Besoin d'aide ?</h3>
+                                <p class="text-xs text-slate-400">Contactez le support pour toute question ou demande spécifique</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# {% include 'legal/_form.html.twig'  %} #}
                 </div>
 
             </div>

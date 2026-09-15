@@ -19,7 +19,7 @@ class MailService
         $this->mailer = $mailer;
     }
 
-   // Email confirming receipt of the account creation request
+    // Email confirming receipt of the account creation request
     public function sendRegistrationPendingEmail(User $user): void
     {
         $this->sendTemplateEmail(
@@ -51,7 +51,17 @@ class MailService
             ['user' => $user, 'resetToken' => $resetPasswordToken]
         );
     }
-   // centralisation of the email dispatch mechanism
+    // mail retour contact support
+    public function sendSupportContactEmail(array $contactData): void
+    {
+        $this->sendTemplateEmail(
+            'admin@thalia.iandre.fr', // Ou l'adresse destinataire du support
+            'Thalia - [Support] ' . ($contactData['subject'] ?? 'Demande de contact'),
+            'emails/contact_support.html.twig',
+            ['data' => $contactData]
+        );
+    }
+    // centralisation of the email dispatch mechanism
     private function sendTemplateEmail(string $to, string $subject, string $template, array $context): void
     {
         $email = (new TemplatedEmail())

@@ -1,0 +1,107 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Déclaration d'accessibilité — Thalia{% endblock %}
+
+{% block body %}
+<main class="container mx-auto px-4 py-8 max-w-4xl" id="main-content">
+    <h1 class="text-3xl font-bold mb-6">Déclaration d'accessibilité RGAA</h1>
+
+    <p class="mb-4 text-gray-700">
+        L'équipe de <strong>Thalia</strong> s'engage à rendre sa plateforme numérique accessible conformément à l'article 47 de la loi n° 2005-102 du 11 février 2005.
+    </p>
+
+    <p class="mb-6 text-gray-700">
+        Cette déclaration d'accessibilité s'applique au site et à l'application web <strong>Thalia</strong>.
+    </p>
+
+    <hr class="my-6 border-gray-200">
+
+    {# État de conformité #}
+    <section class="mb-8">
+        <h2 class="text-2xl font-semibold mb-4">1. État de conformité</h2>
+        <div class="p-4 bg-amber-50 border-l-4 border-amber-500 rounded-r shadow-sm">
+            <p class="text-lg font-medium text-amber-900">
+                <strong>Thalia</strong> est <strong>partiellement conforme</strong> avec le Référentiel Général d’Amélioration de l’Accessibilité (RGAA), version 4.1.
+            </p>
+            <p class="mt-2 text-amber-800">
+                Le taux de conformité issu de l'auto-évaluation interne s'élève à <strong>50 %</strong>.
+            </p>
+        </div>
+    </section>
+
+    {# Résultats des tests #}
+    <section class="mb-8">
+        <h2 class="text-2xl font-semibold mb-4">2. Résultats des tests</h2>
+        <p class="mb-3 text-gray-700">L'évaluation interne portant sur la grille RGAA v4.1 révèle que :</p>
+        <ul class="list-disc pl-6 space-y-2 text-gray-700">
+            <li>50 % des critères applicables du RGAA sont respectés.</li>
+            <li>Les éléments conformes concernent principalement la structuration sémantique de base, le contraste des textes principaux et la navigation au clavier sur le menu principal.</li>
+        </ul>
+    </section>
+
+    {# Contenus non accessibles #}
+    <section class="mb-8">
+        <h2 class="text-2xl font-semibold mb-4">3. Contenus non accessibles</h2>
+        <p class="mb-3 text-gray-700">Les non-conformités identifiées lors des tests concernent les points suivants :</p>
+
+        <ul class="list-disc pl-6 space-y-3 text-gray-700">
+            <li>
+                <strong>Formulaires :</strong> Certains champs dynamiques ou modales de création/édition manquent d'attributs <code class="bg-gray-100 px-1 rounded">aria-describedby</code> pour l'association explicite des messages d'erreur.
+            </li>
+            <li>
+                <strong>Composants interactifs complexes :</strong> Les menus déroulants personnalisés et tableaux de gestion avancée ne possèdent pas tous les attributs ARIA adéquats (<code class="bg-gray-100 px-1 rounded">aria-expanded</code>, <code class="bg-gray-100 px-1 rounded">aria-controls</code>).
+            </li>
+            <li>
+                <strong>Prise en charge clavier :</strong> L'indicateur de focus visuel (<code class="bg-gray-100 px-1 rounded">focus:ring</code>) est absent ou insuffisamment visible sur certains boutons d'actions secondaires.
+            </li>
+        </ul>
+    </section>
+
+    {# Établissement de la déclaration #}
+    <section class="mb-8">
+        <h2 class="text-2xl font-semibold mb-4">4. Établissement de cette déclaration</h2>
+        <p class="text-gray-700 mb-2">
+            Cette déclaration a été établie le <strong>{{ "now"|date("d/m/Y") }}</strong>.
+        </p>
+        <p class="text-gray-700">
+            <strong>Technologies utilisées pour la réalisation de l'application :</strong> HTML5, CSS3 (Tailwind CSS), JavaScript, PHP / Symfony, Twig.
+        </p>
+    </section>
+
+    {# Retour d'information et contact #}
+    <section class="mb-8">
+        <h2 class="text-2xl font-semibold mb-4">5. Retour d'information et contact</h2>
+        <p class="mb-4 text-gray-700">
+            Si vous n'arrivez pas à accéder à un contenu ou à un service, vous pouvez contacter le responsable de Thalia pour être orienté vers une alternative accessible ou obtenir le contenu sous une autre forme.
+        </p>
+        <ul class="list-disc pl-6 space-y-2 text-gray-700">
+            <li>
+                E-mail : <a href="mailto:admin@thalia.iandre.fr" class="text-blue-600 hover:underline focus:ring-2 focus:ring-blue-500 rounded">admin@thalia.iandre.fr</a>
+            </li>
+            <li>
+                Formulaire de contact / Support : <a href="{{ path('support') }}" class="text-blue-600 hover:underline focus:ring-2 focus:ring-blue-500 rounded">Accéder au support</a>
+            </li>
+        </ul>
+    </section>
+
+    {# Voies de recours #}
+    <section class="mb-8">
+        <h2 class="text-2xl font-semibold mb-4">6. Voies de recours</h2>
+        <p class="mb-4 text-gray-700">
+            Cette procédure est à utiliser dans le cas suivant : vous avez signalé au responsable du site internet un défaut d'accessibilité qui vous empêche d'accéder à un contenu ou à un des services du portail et vous n'avez pas obtenu de réponse satisfaisante.
+        </p>
+        <p class="mb-2 text-gray-700">Vous pouvez :</p>
+        <ul class="list-disc pl-6 space-y-2 text-gray-700">
+            <li>Écrire un message au Défenseur des droits (via le formulaire de contact en ligne).</li>
+            <li>Contacter le délégué du Défenseur des droits dans votre région.</li>
+            <li>Envoyer un courrier postal (gratuit, ne pas mettre de timbre) :<br>
+                <address class="not-italic mt-2 pl-4 border-l-2 border-gray-300 font-mono text-sm">
+                    Défenseur des droits<br>
+                    Libre réponse 71121<br>
+                    33000 Bordeaux CEDEX 
+                </address>
+            </li>
+        </ul>
+    </section>
+</main>
+{% endblock %}

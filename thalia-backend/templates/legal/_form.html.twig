@@ -1,0 +1,106 @@
+{{ form_start(supportForm, {'attr': {'novalidate': 'novalidate', 'class': 'space-y-4'}}) }}
+
+{# ─── ALERTE GLOBALE SI ERREURS ─── #}
+{% if not supportForm.vars.valid %}
+<div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs" role="alert">
+    <div class="flex items-center gap-2 font-bold mb-1 text-rose-700">
+        <i class="fa-solid fa-triangle-exclamation text-sm"></i>
+        <span>Veuillez corriger les erreurs ci-dessous :</span>
+    </div>
+    <ul class="list-disc list-inside space-y-0.5 text-rose-700">
+        {{ form_errors(supportForm) }}
+    </ul>
+</div>
+{% endif %}
+
+{# ─── IDENTITÉ & CONTACT ─── #}
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {# Nom et prénom #}
+    <div class="form-group {% if not supportForm.fullName.vars.valid %}has-error{% endif %}">
+        {{ form_label(supportForm.fullName, 'Nom et prénom *', {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(supportForm.fullName, {
+            'attr': {
+                'class': 'form-input',
+                'aria-required': 'true',
+                'aria-describedby': (not supportForm.fullName.vars.valid ? supportForm.fullName.vars.id ~ '_error ' : '') ~ 'form-mandatory-notice'
+            }
+        }) }}
+        {% if not supportForm.fullName.vars.valid %}
+            <div id="{{ supportForm.fullName.vars.id }}_error" role="alert">
+                {{ form_errors(supportForm.fullName) }}
+            </div>
+        {% endif %}
+    </div>
+
+    {# Adresse e-mail #}
+    <div class="form-group {% if not supportForm.email.vars.valid %}has-error{% endif %}">
+        {{ form_label(supportForm.email, 'Adresse e-mail *', {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(supportForm.email, {
+            'attr': {
+                'class': 'form-input',
+                'aria-required': 'true',
+                'aria-describedby': (not supportForm.email.vars.valid ? supportForm.email.vars.id ~ '_error ' : '') ~ 'form-mandatory-notice'
+            }
+        }) }}
+        {% if not supportForm.email.vars.valid %}
+            <div id="{{ supportForm.email.vars.id }}_error" role="alert">
+                {{ form_errors(supportForm.email) }}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{# ─── OBJET DE LA DEMANDE ─── #}
+<div class="form-group border-t border-slate-50 pt-4 {% if not supportForm.subject.vars.valid %}has-error{% endif %}">
+    {{ form_label(supportForm.subject, 'Objet de la demande *', {'label_attr': {'class': 'form-label'}}) }}
+    {{ form_widget(supportForm.subject, {
+        'attr': {
+            'class': 'form-input',
+            'aria-required': 'true',
+            'aria-describedby': (not supportForm.subject.vars.valid ? supportForm.subject.vars.id ~ '_error ' : '') ~ 'form-mandatory-notice'
+        }
+    }) }}
+    {% if not supportForm.subject.vars.valid %}
+        <div id="{{ supportForm.subject.vars.id }}_error" role="alert">
+            {{ form_errors(supportForm.subject) }}
+        </div>
+    {% endif %}
+</div>
+
+{# ─── MESSAGE ─── #}
+<div class="form-group border-t border-slate-50 pt-4 {% if not supportForm.message.vars.valid %}has-error{% endif %}">
+    {{ form_label(supportForm.message, 'Votre message *', {'label_attr': {'class': 'form-label'}}) }}
+    {{ form_widget(supportForm.message, {
+        'attr': {
+            'class': 'form-input',
+            'rows': '4',
+            'aria-required': 'true',
+            'aria-describedby': (not supportForm.message.vars.valid ? supportForm.message.vars.id ~ '_error ' : '') ~ 'form-mandatory-notice'
+        }
+    }) }}
+    {% if not supportForm.message.vars.valid %}
+        <div id="{{ supportForm.message.vars.id }}_error" role="alert">
+            {{ form_errors(supportForm.message) }}
+        </div>
+    {% endif %}
+</div>
+
+{# ─── MENTION RGPD ─── #}
+<div class="mt-4 p-3 text-xs text-slate-500 bg-slate-50 rounded-xl border border-slate-100 flex items-start gap-2.5">
+    <i class="fa-solid fa-shield-halved text-slate-400 mt-0.5 text-sm"></i>
+    <div>
+        Les données recueillies sont destinées au support de Thalia uniquement pour traiter votre demande.
+        <a href="{{ path('privacy_policy') }}" class="text-sky-600 font-semibold underline hover:text-sky-700 focus:ring-2 focus:ring-sky-500 rounded">Politique de confidentialité</a>.
+    </div>
+</div>
+
+{# ─── ACTIONS ─── #}
+<div class="form-actions pt-4">
+    <a href="{{ path('home') }}" class="btn-cancel">Annuler</a>
+    <button type="submit" class="btn-submit">
+        {{ button_label|default('Envoyer le message') }} <i class="fa-solid fa-arrow-right text-[10px]"></i>
+    </button>
+</div>
+
+{{ form_rest(supportForm) }}
+{{ form_end(supportForm) }}

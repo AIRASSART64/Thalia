@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Contacter le support — Thalia{% endblock %}
+
+{% block body %}
+{# ─── OVERLAY / MODAL CONTAINER ─── #}
+<div id="support-modal" 
+     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto"
+     role="dialog" 
+     aria-modal="true" 
+     aria-labelledby="modal-title">
+
+    <div class="relative w-full max-w-2xl my-8">
+
+        {# Carte du Formulaire en Overlay #}
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-xl p-6 md:p-8 relative">
+
+            {# Bouton de fermeture de la modale (X) #}
+            <a href="{{ path('home') }}" 
+               class="absolute top-5 right-5 text-slate-400 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-500 rounded-lg p-1 transition z-10"
+               aria-label="Fermer la fenêtre">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </a>
+
+            {# En-tête unique du modal #}
+            <div class="border-b border-slate-100 pb-4 mb-6 pr-8">
+                <h1 id="modal-title" class="text-xl font-bold text-slate-900 tracking-tight">
+                    Contacter le support
+                </h1>
+                <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+                    Vous pouvez poser vos questions, demander la suppression de votre compte ou la récupération de vos données personnelles.
+                </p>
+                <p class="text-[11px] text-slate-400 font-medium mt-2" id="form-mandatory-notice">
+                    Les champs marqués d'un astérisque (<span class="text-rose-500 font-bold" aria-hidden="true">*</span>) sont obligatoires.
+                </p>
+            </div>
+
+            {# Ingestion du Formulaire #}
+            {% include 'legal/_form.html.twig' %}
+
+        </div>
+
+    </div>
+</div>
+{% endblock %}
