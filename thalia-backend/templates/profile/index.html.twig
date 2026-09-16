@@ -160,6 +160,7 @@
                 </div>
 
                 {# CARD 3 : Contact Support #}
+                {% if 'ROLE_SUPER_ADMIN' not in app.user.roles %}
                 <div class="card-thalia p-6 space-y-4 bg-white rounded-2xl border border-slate-200/80 shadow-sm">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-4">
                         <div class="flex items-center gap-2.5">
@@ -183,6 +184,7 @@
                         </a>
                     </div>
                 </div>
+                {% endif %}
 
             </div>
 

@@ -52,12 +52,31 @@ class MailService
         );
     }
     // mail retour contact support
-    public function sendSupportContactEmail(array $contactData): void
+    public function sendSupportContactEmail(?User $user,  array $contactData): void
+    {
+        // Si l'utilisateur est connecté, on prend son email, sinon celui saisi dans le formulaire
+    $recipientEmail = $user ? $user->getEmail() : ($contactData['email'] ?? null);
+
+    if (!$recipientEmail) {
+        return; 
+    }
+    $this->sendTemplateEmail(
+        $recipientEmail,
+        'Thalia - [Support] ' . ($contactData['subject'] ?? 'Demande de contact'),
+        'emails/contact_support.html.twig',
+        [
+            'user'        => $user,
+            'contactData' => $contactData,
+        ]
+    );
+    }
+     // mail demande support envoyé par le user
+    public function receiveSupportContactEmail(array $contactData): void
     {
         $this->sendTemplateEmail(
-            'admin@thalia.iandre.fr', // Ou l'adresse destinataire du support
+            'admin@thalia.iandre.fr', 
             'Thalia - [Support] ' . ($contactData['subject'] ?? 'Demande de contact'),
-            'emails/contact_support.html.twig',
+            'emails/superadmin_contact.html.twig',
             ['data' => $contactData]
         );
     }

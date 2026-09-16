@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f8fafc; color: #1e293b; padding: 20px; }
+        .card { max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; }
+        .header { border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; margin-bottom: 20px; }
+        .title { font-size: 18px; font-weight: bold; color: #0f172a; margin: 0; }
+        .field { margin-bottom: 16px; }
+        .label { font-size: 11px; font-weight: bold; text-transform: uppercase; color: #64748b; margin-bottom: 4px; }
+        .value { font-size: 14px; color: #334155; font-weight: 500; }
+        .message-box { background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; font-size: 14px; white-space: pre-wrap; color: #1e293b; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="header">
+            <h1 class="title">Nouveau message du support</h1>
+        </div>
+
+        <div class="field">
+            <div class="label">Nom et prénom</div>
+            <div class="value">{{ data.fullName }}</div>
+        </div>
+
+        <div class="field">
+            <div class="label">Adresse e-mail</div>
+            <div class="value">
+                <a href="mailto:{{ data.email }}">{{ data.email }}</a>
+            </div>
+        </div>
+
+        <div class="field">
+            <div class="label">Objet</div>
+            <div class="value">{{ data.subject }}</div>
+        </div>
+
+        <div class="field">
+            <div class="label">Message</div>
+            <div class="message-box">{{ data.message }}</div>
+        </div>
+    </div>
+</body>
+</html>

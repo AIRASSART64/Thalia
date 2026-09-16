@@ -122,7 +122,8 @@ final class ProfileController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $contactData = $form->getData();
-            $mailService->sendSupportContactEmail($contactData);
+            $mailService->receiveSupportContactEmail($contactData);
+            $mailService->sendSupportContactEmail($this->getUser(),$contactData);
             $this->addFlash('success', 'Votre message a bien été envoyé au support Thalia. Nous vous répondrons dans les plus brefs délais.');
 
             return $this->redirectToRoute('profile_index');
