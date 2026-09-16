@@ -4,9 +4,11 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\ChangePasswordFormType;
+use App\Form\ContactSupportFormType;
 use App\Form\ProfileFormType;
 use App\Service\CrudManagerService;
 use App\Service\FileUpLoader;
+use App\Service\MailService;
 use App\Service\PasswordManagerService;
 use App\Service\RoleGetterService;
 use App\Service\UserContextService;
@@ -23,13 +25,13 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_USER')]
 final class ProfileController extends AbstractController
 {
-     public function __construct(
+    public function __construct(
         private CrudManagerService $crudManager,
         private FileUpLoader $fileUpLoader,
         private UserContextService $userContext,
         private RoleGetterService $roleGetter,
-        private ParameterBagInterface $params )
-    {}
+        private ParameterBagInterface $params
+    ) {}
     #[Route('', name: 'profile_index', methods: ['GET'])]
     public function index(): Response
     {
@@ -42,9 +44,9 @@ final class ProfileController extends AbstractController
         ]);
     }
 
-    #[ Route('/edit', name:'profile_edit', methods:['GET', 'POST'])]
+    #[Route('/edit', name: 'profile_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request): Response
-    {   
+    {
         /** @var User $user */
         $user = $this->getUser();
 
@@ -55,12 +57,12 @@ final class ProfileController extends AbstractController
 
         $formProfile->handleRequest($request);
 
-        if($formProfile->isSubmitted() && $formProfile->isValid()){
+        if ($formProfile->isSubmitted() && $formProfile->isValid()) {
             /** @var UploadedFile|null $avatarFile */
             $avatarFile = $formProfile->get('avatar')->getData();
             if ($avatarFile) {
                 $newFilename = $this->fileUpLoader->upload($avatarFile, $this->params->get('profiles_directory'));
-                
+
                 if ($newFilename) {
                     //  Suppression de l'ancienne photo de profil
                     if ($oldAvatar) {
@@ -75,17 +77,15 @@ final class ProfileController extends AbstractController
                 // Si aucune image n'est soumise, on réinjecte l'ancienne 
                 $user->setAvatarFilename($oldAvatar);
             }
-        
+
 
             $this->crudManager->update($user);
             return $this->redirectToRoute('profile_index');
         }
-        return $this->render('profile/edit.html.twig', ['user'=> $user, 'form' => $formProfile]);
-
-
+        return $this->render('profile/edit.html.twig', ['user' => $user, 'form' => $formProfile]);
     }
 
-   
+
     #[Route('/password', name: 'password_edit', methods: ['GET', 'POST'])]
     public function editPassword(Request $request, PasswordManagerService $passwordManager): Response
     {
@@ -98,7 +98,7 @@ final class ProfileController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $newPassword = $form->get('newPassword')->getData();
-            
+
             $passwordManager->upgradePassword($user, $newPassword);
 
             $this->addFlash('success', 'Votre mot de passe a été modifié avec succès.');
@@ -109,5 +109,24 @@ final class ProfileController extends AbstractController
         return $this->render('profile/change_password.html.twig', [
             'form' => $form->createView(),
         ]);
+    }
+    #[Route("/contact_support", name: "user_contact_support", methods: ['GET', "POST"])]
+    public function userContactSupport(Request $request, MailService $mailService): Response
+    {
+        /** @var User $user */
+        $user = $this->getUser();
+        $form = $this->createForm(ContactSupportFormType::class, [
+            'fullName' => $user->getFirstName() . ' ' . $user->getLastName(),
+            'email'    => $user->getEmail(),
+        ]);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $contactData = $form->getData();
+            $mailService->sendSupportContactEmail($contactData);
+            $this->addFlash('success', 'Votre message a bien été envoyé au support Thalia. Nous vous répondrons dans les plus brefs délais.');
+
+            return $this->redirectToRoute('profile_index');
+        }
+        return $this->render('legal/contact_support.html.twig', ['supportForm' => $form->createView(),]);
     }
 }
